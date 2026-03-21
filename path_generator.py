@@ -191,3 +191,84 @@ def estimate_time(pathway: list) -> dict:
     saved        = static - total
     efficiency   = round((saved / static) * 100) if static else 0
     return {"total": total, "static": static, "saved": saved, "efficiency": efficiency}
+
+
+def generate_ai_insight(
+    from_role: str,
+    to_role: str,
+    matched: set,
+    gaps: set,
+    pathway: list,
+    total_hours: int,
+    hours_saved: int,
+    readiness: int,
+) -> dict:
+    """
+    Generate human-readable strengths / weaknesses / optimized-path narrative.
+    Tries GPT-4o-mini first, falls back to LLaMA 3.2, then returns a
+    deterministic template so the UI never breaks.
+    """
+    prompt = (
+        f"You are an enterprise onboarding intelligence system. "
+        f"A candidate is transitioning from '{from_role}' to '{to_role}'.\n"
+        f"Matched skills: {', '.join(sorted(matched)) or 'none'}.\n"
+        f"Skill gaps: {', '.join(sorted(gaps)) or 'none'}.\n"
+        f"Optimized learning path ({total_hours}h, saves {hours_saved}h): "
+        f"{', '.join(c['title'] for c in pathway)}.\n"
+        f"Role readiness score: {readiness}%.\n\n"
+        f"Return ONLY a JSON object with exactly three keys:\n"
+        f'  "strengths": one sentence about what the candidate already does well,\n'
+        f'  "weaknesses": one sentence about the most critical gaps to address,\n'
+        f'  "path_insight": one sentence explaining why this specific learning path is optimal.\n'
+        f"No markdown, no extra keys."
+    )
+
+    # ── Try GPT-4o-mini ───────────────────────────────────────────────────────
+    try:
+        from parser import _get_openai_key
+        from openai import OpenAI
+        import json
+        key = _get_openai_key()
+        if key:
+            client = OpenAI(api_key=key)
+            resp = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.4,
+                max_tokens=200,
+            )
+            return json.loads(resp.choices[0].message.content)
+    except Exception:
+        pass
+
+    # ── Try LLaMA 3.2 ─────────────────────────────────────────────────────────
+    try:
+        import json, urllib.request
+        payload = json.dumps({"model": "llama3.2", "prompt": prompt, "stream": False}).encode()
+        req = urllib.request.Request(
+            "http://localhost:11434/api/generate",
+            data=payload, headers={"Content-Type": "application/json"}
+        )
+        with urllib.request.urlopen(req, timeout=20) as r:
+            raw = json.loads(r.read()).get("response", "")
+        return json.loads(raw)
+    except Exception:
+        pass
+
+    # ── Deterministic fallback ────────────────────────────────────────────────
+    top_gap = sorted(gaps)[0] if gaps else "key skills"
+    top_course = pathway[0]["title"] if pathway else "the recommended course"
+    return {
+        "strengths": (
+            f"Strong foundation in {', '.join(sorted(matched)[:3]) or 'core competencies'} "
+            f"provides a solid base for the {to_role} transition."
+        ),
+        "weaknesses": (
+            f"Critical gap in {top_gap} is the highest-priority area to address "
+            f"before taking on {to_role} responsibilities."
+        ),
+        "path_insight": (
+            f"Starting with '{top_course}' maximizes efficiency by closing the most "
+            f"impactful gaps first, cutting onboarding time by {hours_saved}h."
+        ),
+    }

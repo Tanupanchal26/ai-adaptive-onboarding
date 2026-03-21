@@ -9,7 +9,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas as rl_canvas
 from parser import parse_file
 from gap_logic import normalize_skills, compute_gaps
-from path_generator import build_learning_path, build_bonus_courses, estimate_time
+from path_generator import build_learning_path, build_bonus_courses, estimate_time, generate_ai_insight
 
 try:
     from yfiles_graphs_for_streamlit import yfiles_graph
@@ -362,6 +362,122 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     st.markdown(f"### 🎯 Analysis: **{from_role}** → **{to_role}**")
 
+    # ── Pre-compute pathway + metrics for Executive Summary ──────────────────
+    _pathway_preview  = build_learning_path(gaps)
+    _t_preview        = estimate_time(_pathway_preview) if _pathway_preview else {"total": 0, "saved": 0, "efficiency": 0}
+    _skill_cov        = round(len(matched) / max(len(jd_skills), 1) * 100)
+    _missing_count    = len(gaps)
+    _readiness_score  = min(100, round(
+        (_skill_cov * 0.6) +
+        (min(rd.get("experience_years", 0), 10) / 10 * 30) +
+        (10 if _missing_count == 0 else max(0, 10 - _missing_count))
+    ))
+    BASELINE_HOURS    = 35
+    _opt_hours        = _t_preview["total"]
+    _saved_hours      = max(0, BASELINE_HOURS - _opt_hours)
+    _saved_pct        = round((_saved_hours / BASELINE_HOURS) * 100) if _saved_hours > 0 else 0
+
+    # ── Executive Summary Box ─────────────────────────────────────────────────
+    _es_bg   = "#0d1117" if is_dark else "#f0f9ff"
+    _es_bdr  = "#30363d" if is_dark else "#0ea5e9"
+    _es_h    = "#ffffff" if is_dark else "#0f172a"
+    _es_sub  = "#8b949e" if is_dark else "#475569"
+    _es_acc  = "#58a6ff" if is_dark else "#0ea5e9"
+    _es_grn  = "#3fb950" if is_dark else "#16a34a"
+    _es_red  = "#f85149" if is_dark else "#dc2626"
+    _es_ylw  = "#d29922" if is_dark else "#d97706"
+
+    readiness_color = _es_grn if _readiness_score >= 70 else (_es_ylw if _readiness_score >= 40 else _es_red)
+    gap_color       = _es_grn if _missing_count == 0 else (_es_ylw if _missing_count <= 2 else _es_red)
+
+    st.markdown(f"""
+    <div style="background:{_es_bg};border:1px solid {_es_bdr};border-radius:12px;
+                padding:1.6rem 2rem;margin:1rem 0 1.6rem 0;
+                box-shadow:0 4px 24px rgba(0,0,0,0.25);">
+        <div style="font-size:.7rem;letter-spacing:2px;text-transform:uppercase;
+                    color:{_es_sub};margin-bottom:1rem;">EXECUTIVE SUMMARY</div>
+        <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center;">
+            <div style="flex:1;min-width:120px;text-align:center;">
+                <div style="font-size:2.4rem;font-weight:800;color:{readiness_color};line-height:1;">{_readiness_score}%</div>
+                <div style="font-size:.78rem;color:{_es_sub};margin-top:.3rem;text-transform:uppercase;letter-spacing:.8px;">Role Readiness</div>
+            </div>
+            <div style="width:1px;height:60px;background:{'#30363d' if is_dark else '#e2e8f0'};"></div>
+            <div style="flex:1;min-width:120px;text-align:center;">
+                <div style="font-size:2.4rem;font-weight:800;color:{gap_color};line-height:1;">{_missing_count}</div>
+                <div style="font-size:.78rem;color:{_es_sub};margin-top:.3rem;text-transform:uppercase;letter-spacing:.8px;">Skill Gaps</div>
+            </div>
+            <div style="width:1px;height:60px;background:{'#30363d' if is_dark else '#e2e8f0'};"></div>
+            <div style="flex:1;min-width:120px;text-align:center;">
+                <div style="font-size:2.4rem;font-weight:800;color:{_es_acc};line-height:1;">{_opt_hours}h</div>
+                <div style="font-size:.78rem;color:{_es_sub};margin-top:.3rem;text-transform:uppercase;letter-spacing:.8px;">Optimized Time</div>
+            </div>
+            <div style="width:1px;height:60px;background:{'#30363d' if is_dark else '#e2e8f0'};"></div>
+            <div style="flex:1;min-width:120px;text-align:center;">
+                <div style="font-size:2.4rem;font-weight:800;color:{_es_grn};line-height:1;">{_saved_pct}%</div>
+                <div style="font-size:.78rem;color:{_es_sub};margin-top:.3rem;text-transform:uppercase;letter-spacing:.8px;">Time Saved vs {BASELINE_HOURS}h Baseline</div>
+            </div>
+        </div>
+        <div style="margin-top:1rem;padding-top:.8rem;
+                    border-top:1px solid {'#30363d' if is_dark else '#e2e8f0'};
+                    font-size:.82rem;color:{_es_sub};">
+            <span style="color:{_es_acc};">&#9679;</span>&nbsp;
+            {from_role} &nbsp;→&nbsp; {to_role} &nbsp;·&nbsp;
+            {len(matched)} of {len(jd_skills)} required skills matched &nbsp;·&nbsp;
+            {len(_pathway_preview)} course(s) recommended
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── AI Insight Section ────────────────────────────────────────────────────
+    with st.spinner("🤖 Generating AI insights..."):
+        _insight = generate_ai_insight(
+            from_role, to_role, matched, gaps,
+            _pathway_preview, _opt_hours, _saved_hours, _readiness_score
+        )
+
+    _ai_bg   = "#111827" if is_dark else "#fafafa"
+    _ai_bdr  = "#1f2937" if is_dark else "#e5e7eb"
+    _ai_h    = "#f9fafb" if is_dark else "#111827"
+    _ai_txt  = "#d1d5db" if is_dark else "#374151"
+    _ai_lbl  = "#6b7280" if is_dark else "#9ca3af"
+    _ai_grn  = "#34d399" if is_dark else "#059669"
+    _ai_red  = "#f87171" if is_dark else "#dc2626"
+    _ai_blu  = "#60a5fa" if is_dark else "#2563eb"
+
+    st.markdown(f"""
+    <div style="background:{_ai_bg};border:1px solid {_ai_bdr};border-radius:12px;
+                padding:1.4rem 1.8rem;margin:0 0 1.6rem 0;">
+        <div style="font-size:.7rem;letter-spacing:2px;text-transform:uppercase;
+                    color:{_ai_lbl};margin-bottom:1rem;">&#129302; AI INTELLIGENCE REPORT</div>
+        <div style="display:flex;flex-direction:column;gap:.9rem;">
+            <div style="display:flex;gap:.8rem;align-items:flex-start;">
+                <span style="font-size:1.1rem;flex-shrink:0;">&#9989;</span>
+                <div>
+                    <div style="font-size:.72rem;font-weight:700;letter-spacing:1px;
+                                text-transform:uppercase;color:{_ai_grn};margin-bottom:.2rem;">STRENGTHS</div>
+                    <div style="font-size:.92rem;color:{_ai_txt};line-height:1.55;">{_insight.get('strengths', '')}</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:.8rem;align-items:flex-start;">
+                <span style="font-size:1.1rem;flex-shrink:0;">&#9888;&#65039;</span>
+                <div>
+                    <div style="font-size:.72rem;font-weight:700;letter-spacing:1px;
+                                text-transform:uppercase;color:{_ai_red};margin-bottom:.2rem;">AREAS TO DEVELOP</div>
+                    <div style="font-size:.92rem;color:{_ai_txt};line-height:1.55;">{_insight.get('weaknesses', '')}</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:.8rem;align-items:flex-start;">
+                <span style="font-size:1.1rem;flex-shrink:0;">&#128161;</span>
+                <div>
+                    <div style="font-size:.72rem;font-weight:700;letter-spacing:1px;
+                                text-transform:uppercase;color:{_ai_blu};margin-bottom:.2rem;">OPTIMIZED PATH RATIONALE</div>
+                    <div style="font-size:.92rem;color:{_ai_txt};line-height:1.55;">{_insight.get('path_insight', '')}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     # ── Skills pills ──────────────────────────────────────────────────────────
     with st.container():
         sc1, sc2 = st.columns(2)
@@ -490,7 +606,6 @@ if st.session_state.resume_data and st.session_state.jd_data:
     efficiency   = t["efficiency"]
 
     # ── Impact Analysis ───────────────────────────────────────────────────────
-    BASELINE_HOURS = 35
     impact_saved   = BASELINE_HOURS - total_hours
     impact_pct     = round((impact_saved / BASELINE_HOURS) * 100) if impact_saved > 0 else 0
 
