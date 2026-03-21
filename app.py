@@ -697,7 +697,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
                         <div style="font-weight:600;font-size:1.1rem;color:{_card_txt};margin-bottom:.3rem;">{course['title']}</div>
                         <div style="color:{_card_sub};font-size:.92rem;margin-bottom:.5rem;">{', '.join(course['skills'])}</div>
                         <div style="color:{_card_txt};font-size:.95rem;">{course['why']}</div>
-                        <div style="color:{_card_sub};font-size:.88rem;margin-top:.4rem;">Closes gaps in: <em>{reason}</em></div>
+                        <div style="color:{_card_sub};font-size:.88rem;margin-top:.4rem;">Closes gaps in: <em>{reason}</em> &nbsp;·&nbsp; ⚡ Efficiency score: <b>{course.get('score', 0):.2f}</b> gaps/hr</div>
                     </div>
                     <div style="text-align:right;min-width:90px;">
                         <div style="font-weight:700;color:{diff_col};font-size:1.1rem;">{course['duration']}h</div>
