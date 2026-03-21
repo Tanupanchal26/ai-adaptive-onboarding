@@ -1,65 +1,52 @@
 import streamlit as st
 import plotly.graph_objects as go
+import networkx as nx
 from parser import parse_file
 from catalog import normalize_skills, build_learning_path
 
+# Try importing yfiles — graceful fallback if not installed
+try:
+    from yfiles_jupyter_graphs_for_streamlit import GraphWidget
+    YFILES = True
+except ImportError:
+    YFILES = False
+
 st.set_page_config(page_title="AI Adaptive Onboarding", layout="wide", page_icon="🎯")
 
-# ── Sample data for quick test buttons ───────────────────────────────────────
+# ── Sample data ───────────────────────────────────────────────────────────────
 SAMPLES = {
-    "junior": {
-        "skills": ["Python", "Git", "Communication"],
-        "experience_years": 1,
-        "role": "Junior Developer"
-    },
-    "senior": {
-        "skills": ["Python", "AWS", "Docker", "Leadership", "SQL", "Agile", "Machine Learning"],
-        "experience_years": 6,
-        "role": "Senior Engineer"
-    },
-    "sales": {
-        "skills": ["Communication", "Sales", "Excel", "Public Speaking"],
-        "experience_years": 3,
-        "role": "Sales Manager"
-    }
+    "junior": {"skills": ["Python", "Git", "Communication"],                                          "experience_years": 1, "role": "Junior Developer"},
+    "senior": {"skills": ["Python", "AWS", "Docker", "Leadership", "SQL", "Agile", "Machine Learning"],"experience_years": 6, "role": "Senior Engineer"},
+    "sales":  {"skills": ["Communication", "Sales", "Excel", "Public Speaking"],                      "experience_years": 3, "role": "Sales Manager"},
+}
+JD_SAMPLES = {
+    "junior": {"skills": ["Python", "SQL", "Git", "JavaScript", "Agile"],                                          "experience_years": 2, "role": "Software Engineer"},
+    "senior": {"skills": ["Python", "AWS", "Docker", "Machine Learning", "Leadership", "SQL", "Agile", "React"],   "experience_years": 5, "role": "Senior Engineer"},
+    "sales":  {"skills": ["Sales", "Communication", "Marketing", "Excel", "Public Speaking", "Leadership"],        "experience_years": 3, "role": "Sales Lead"},
 }
 
-JD_SAMPLES = {
-    "junior": {"skills": ["Python", "SQL", "Git", "JavaScript", "Agile"], "experience_years": 2, "role": "Software Engineer"},
-    "senior": {"skills": ["Python", "AWS", "Docker", "Machine Learning", "Leadership", "SQL", "Agile", "React"], "experience_years": 5, "role": "Senior Engineer"},
-    "sales":  {"skills": ["Sales", "Communication", "Marketing", "Excel", "Public Speaking", "Leadership"], "experience_years": 3, "role": "Sales Lead"}
-}
+DIFF_COLOR = {"beginner": "#00d4ff", "intermediate": "#f39c12", "advanced": "#e74c3c"}
 
 # ── Session state ─────────────────────────────────────────────────────────────
-if "resume_data" not in st.session_state:
-    st.session_state.resume_data = None
-if "jd_data" not in st.session_state:
-    st.session_state.jd_data = None
+for key in ("resume_data", "jd_data"):
+    if key not in st.session_state:
+        st.session_state[key] = None
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("## 🤖 How It Works")
-    st.markdown("""
-- 📄 **Upload** resume & job description
-- 🧠 **AI extracts** skills & gaps
-- 🗺️ **Get** a personalized roadmap
-""")
+    st.markdown("- 📄 **Upload** resume & job description\n- 🧠 **AI extracts** skills & gaps\n- 🗺️ **Get** a personalized roadmap")
     st.divider()
-
-    if st.session_state.resume_data and "skills" in st.session_state.resume_data:
-        candidate_skills = normalize_skills(st.session_state.resume_data.get("skills", []))
+    if st.session_state.resume_data:
         st.markdown("### 🟢 Your Skills")
-        for s in sorted(candidate_skills):
+        for s in sorted(normalize_skills(st.session_state.resume_data.get("skills", []))):
             st.markdown(f"✅ {s}")
         st.divider()
-
-    if st.session_state.jd_data and "skills" in st.session_state.jd_data:
-        jd_skills = normalize_skills(st.session_state.jd_data.get("skills", []))
+    if st.session_state.jd_data:
         st.markdown("### 🔵 Role Requirements")
-        for s in sorted(jd_skills):
+        for s in sorted(normalize_skills(st.session_state.jd_data.get("skills", []))):
             st.markdown(f"📌 {s}")
         st.divider()
-
     st.caption("Powered by LLaMA 3.2 · SkillBridge")
 
 # ── Header ────────────────────────────────────────────────────────────────────
@@ -114,13 +101,12 @@ if st.session_state.resume_data and st.session_state.jd_data:
     gaps             = jd_skills - candidate_skills
     matched          = jd_skills & candidate_skills
 
-    st.success(f"✅ Analysis complete for **{rd.get('role','Candidate')}** → **{jd.get('role','Target Role')}**")
+    st.success(f"✅ Analysis complete: **{rd.get('role','Candidate')}** → **{jd.get('role','Target Role')}**")
 
     # ── Skill Gap Pills ───────────────────────────────────────────────────────
     st.markdown("### 🔴 Skill Gaps")
     if gaps:
-        pills = " ".join([f"`{g}`" for g in sorted(gaps)])
-        st.markdown(pills)
+        st.markdown(" ".join([f"`{g}`" for g in sorted(gaps)]))
     else:
         st.success("🎉 No skill gaps — you're already qualified!")
         st.stop()
@@ -128,19 +114,123 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.markdown(f"**{len(matched)} matched** · **{len(gaps)} missing**")
     st.divider()
 
-    # ── Personalized Pathway ──────────────────────────────────────────────────
-    st.markdown("### 🗺️ Your Personalized Learning Pathway")
     pathway = build_learning_path(gaps)
-
     if not pathway:
         st.warning("No courses found for these gaps.")
         st.stop()
 
-    total_hours    = sum(c["duration"] for c in pathway)
-    static_hours   = round(total_hours * 1.4)
-    hours_saved    = static_hours - total_hours
-    efficiency_pct = round((hours_saved / static_hours) * 100)
+    total_hours  = sum(c["duration"] for c in pathway)
+    static_hours = round(total_hours * 1.4)
+    hours_saved  = static_hours - total_hours
+    efficiency   = round((hours_saved / static_hours) * 100)
 
+    # ── Interactive Graph ─────────────────────────────────────────────────────
+    st.markdown("### 🕸️ Interactive Learning Roadmap")
+
+    if YFILES:
+        G = nx.DiGraph()
+        # Add START node
+        G.add_node("START", label="🚀 Start", color="#2ecc71", tooltip="Your starting point")
+        for i, course in enumerate(pathway):
+            nid = course["id"]
+            G.add_node(
+                nid,
+                label=course["title"],
+                color=DIFF_COLOR.get(course["difficulty"], "#aaa"),
+                tooltip=f"⏱ {course['duration']}h | {course['why']} | Skills: {', '.join(course['skills'])}"
+            )
+            if i == 0:
+                G.add_edge("START", nid)
+            else:
+                G.add_edge(pathway[i - 1]["id"], nid)
+        # Add END node
+        G.add_node("END", label="🏆 Job Ready", color="#9b59b6", tooltip="You're ready!")
+        if pathway:
+            G.add_edge(pathway[-1]["id"], "END")
+
+        nodes = [
+            {
+                "id":    n,
+                "label": G.nodes[n].get("label", n),
+                "color": G.nodes[n].get("color", "#aaa"),
+                "tooltip": G.nodes[n].get("tooltip", "")
+            }
+            for n in G.nodes
+        ]
+        edges = [{"start": u, "end": v} for u, v in G.edges]
+
+        w = GraphWidget()
+        w.nodes = nodes
+        w.edges = edges
+        w.set_node_styles_mapping(lambda node: {
+            "color":  node.get("color", "#aaa"),
+            "shape":  "round-rectangle",
+        })
+        w.set_tooltip_mapping("tooltip")
+        w.show()
+
+    else:
+        # ── Plotly fallback graph ─────────────────────────────────────────────
+        st.info("💡 Install `yfiles_jupyter_graphs_for_streamlit` for the interactive graph. Showing Plotly fallback.")
+
+        G = nx.DiGraph()
+        all_nodes = ["START"] + [c["id"] for c in pathway] + ["END"]
+        for i in range(len(all_nodes) - 1):
+            G.add_edge(all_nodes[i], all_nodes[i + 1])
+
+        pos = nx.spring_layout(G, seed=42, k=2)
+
+        edge_x, edge_y = [], []
+        for u, v in G.edges():
+            x0, y0 = pos[u]; x1, y1 = pos[v]
+            edge_x += [x0, x1, None]; edge_y += [y0, y1, None]
+
+        node_labels, node_colors, node_text = [], [], []
+        for n in G.nodes():
+            if n == "START":
+                node_labels.append("🚀 Start"); node_colors.append("#2ecc71")
+                node_text.append("Starting point")
+            elif n == "END":
+                node_labels.append("🏆 Job Ready"); node_colors.append("#9b59b6")
+                node_text.append("You're ready!")
+            else:
+                course = next((c for c in pathway if c["id"] == n), {})
+                node_labels.append(course.get("title", n))
+                node_colors.append(DIFF_COLOR.get(course.get("difficulty", ""), "#aaa"))
+                node_text.append(f"{course.get('duration',0)}h | {course.get('why','')}")
+
+        node_x = [pos[n][0] for n in G.nodes()]
+        node_y = [pos[n][1] for n in G.nodes()]
+
+        fig_g = go.Figure()
+        fig_g.add_trace(go.Scatter(x=edge_x, y=edge_y, mode="lines",
+                                   line=dict(color="#444", width=2), hoverinfo="none"))
+        fig_g.add_trace(go.Scatter(
+            x=node_x, y=node_y, mode="markers+text",
+            marker=dict(size=28, color=node_colors, line=dict(color="#fff", width=2)),
+            text=node_labels, textposition="top center",
+            hovertext=node_text, hoverinfo="text",
+            textfont=dict(color="#fff", size=11)
+        ))
+        fig_g.update_layout(
+            showlegend=False, height=420,
+            plot_bgcolor="#0d1117", paper_bgcolor="#0d1117",
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            margin=dict(t=10, b=10, l=10, r=10)
+        )
+        st.plotly_chart(fig_g, use_container_width=True)
+
+    # ── Legend ────────────────────────────────────────────────────────────────
+    l1, l2, l3 = st.columns(3)
+    l1.markdown("🟢 &nbsp; Beginner",      unsafe_allow_html=True)
+    l2.markdown("🟡 &nbsp; Intermediate",  unsafe_allow_html=True)
+    l3.markdown("🔴 &nbsp; Advanced",      unsafe_allow_html=True)
+
+    st.divider()
+
+    # ── Course Cards ──────────────────────────────────────────────────────────
+    st.markdown("### 📚 Course Details")
     for i, course in enumerate(pathway, 1):
         diff_emoji = "🟢" if course["difficulty"] == "beginner" else "🟡" if course["difficulty"] == "intermediate" else "🔴"
         with st.expander(f"{i}. {course['title']}  {diff_emoji}  ⏱ {course['duration']}h"):
@@ -152,27 +242,23 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     # ── Big Number ────────────────────────────────────────────────────────────
     st.markdown(
-        f"""
-        <div style="text-align:center; padding:24px; background:linear-gradient(135deg,#1a1a2e,#16213e);
-        border-radius:16px; border:1px solid #0f3460;">
-            <div style="font-size:48px; font-weight:800; color:#00d4ff;">⏱ {total_hours} Hours</div>
-            <div style="font-size:20px; color:#aaa; margin-top:8px;">Estimated Time to Competency</div>
-        </div>
-        """,
+        f"""<div style="text-align:center;padding:28px;background:linear-gradient(135deg,#1a1a2e,#16213e);
+        border-radius:16px;border:1px solid #0f3460;">
+        <div style="font-size:52px;font-weight:800;color:#00d4ff;">⏱ {total_hours} Hours</div>
+        <div style="font-size:20px;color:#aaa;margin-top:8px;">Estimated Time to Competency</div>
+        </div>""",
         unsafe_allow_html=True
     )
-
     st.markdown("")
 
-    # ── Metrics Row ───────────────────────────────────────────────────────────
     m1, m2, m3 = st.columns(3)
-    m1.metric("📚 Courses",        len(pathway))
-    m2.metric("⚡ Hours Saved",    f"{hours_saved}h",    delta=f"-{efficiency_pct}% vs static")
-    m3.metric("🎯 Gaps Closed",    len(gaps))
+    m1.metric("📚 Courses",     len(pathway))
+    m2.metric("⚡ Hours Saved", f"{hours_saved}h", delta=f"-{efficiency}% vs static")
+    m3.metric("🎯 Gaps Closed", len(gaps))
 
     st.divider()
 
-    # ── Plotly Chart ──────────────────────────────────────────────────────────
+    # ── Bar Chart ─────────────────────────────────────────────────────────────
     st.markdown("### 📊 AI Onboarding vs Static Onboarding")
     fig = go.Figure(go.Bar(
         x=["Static Onboarding", "AI-Adaptive Onboarding"],
@@ -182,18 +268,11 @@ if st.session_state.resume_data and st.session_state.jd_data:
         textposition="outside"
     ))
     fig.update_layout(
-        plot_bgcolor="#0d1117",
-        paper_bgcolor="#0d1117",
-        font_color="#ffffff",
-        yaxis_title="Hours Required",
-        showlegend=False,
-        height=350,
-        margin=dict(t=20, b=20)
+        plot_bgcolor="#0d1117", paper_bgcolor="#0d1117",
+        font_color="#ffffff", yaxis_title="Hours Required",
+        showlegend=False, height=350, margin=dict(t=20, b=20)
     )
-    fig.add_annotation(
-        x=1, y=total_hours + 1,
-        text=f"🎯 {efficiency_pct}% more efficient",
-        showarrow=False,
-        font=dict(color="#00d4ff", size=14)
-    )
+    fig.add_annotation(x=1, y=total_hours + 1,
+                       text=f"🎯 {efficiency}% more efficient",
+                       showarrow=False, font=dict(color="#00d4ff", size=14))
     st.plotly_chart(fig, use_container_width=True)
