@@ -267,6 +267,15 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     from_role = rd.get("main_role", rd.get("role", "Candidate"))
     to_role   = jd.get("main_role", jd.get("role", "Target Role"))
+
+    # ── Theme-derived vars (used throughout) ──────────────────────────────────
+    is_dark   = theme == "Dark Pro"
+    bg_card   = "#111111" if is_dark else "#ffffff"
+    txt_color = "#e0e0e0" if is_dark else "#1e293b"
+    accent    = "#ffffff" if is_dark else "#0ea5e9"
+    _pbg      = "#0a0a0a" if is_dark else "#f8fafc"
+    _pfg      = "#111111" if is_dark else "#f1f5f9"
+
     st.markdown(f"### ✅ **{from_role}** → **{to_role}**")
 
     # ── Skills pills ──────────────────────────────────────────────────────────
@@ -288,12 +297,15 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     # ── Skill coverage bars ───────────────────────────────────────────────────
     _bar_track = "#1e1e1e" if is_dark else "#e2e8f0"
-    _skill_lbl = "#cccccc" if is_dark else "#1e293b"
+    _skill_lbl  = "#cccccc" if is_dark else "#1e293b"
+    _have_col   = "#ffffff" if is_dark else "#16a34a"
+    _gap_hi_col = "#555555" if is_dark else "#dc2626"
+    _gap_lo_col = "#555555" if is_dark else "#d97706"
     st.markdown("#### Skill Coverage")
     for skill in sorted(jd_skills):
         have  = skill in candidate_skills
         pct   = 85 if have else (30 + (hash(skill) % 30))
-        color = "#ffffff" if have else "#555555" if is_dark else ("#16a34a" if have else ("#dc2626" if pct < 40 else "#d97706"))
+        color = _have_col if have else (_gap_hi_col if pct < 40 else _gap_lo_col)
         label = "✓ Have it" if have else "✗ Gap"
         st.markdown(
             f"<div style='display:flex;align-items:center;margin-bottom:6px;gap:10px;'>"
@@ -331,10 +343,6 @@ if st.session_state.resume_data and st.session_state.jd_data:
     readiness = gap_result["coverage_pct"]
     gap_pct   = 100 - readiness
     post_path = min(100, readiness + efficiency)
-    is_dark   = theme == "Dark Pro"
-    bg_card   = "#111111" if is_dark else "#ffffff"
-    txt_color = "#e0e0e0" if is_dark else "#1e293b"
-    accent    = "#ffffff" if is_dark else "#0ea5e9"
 
     # Hero metrics row — card style
     hm1, hm2, hm3 = st.columns(3)
@@ -367,8 +375,6 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     with dash2:
         gap_list = sorted(gaps)
-        _pbg = "#0a0a0a" if is_dark else "#f8fafc"
-        _pfg = "#111111" if is_dark else "#f1f5f9"
         if len(gap_list) >= 3:
             gap_sizes = [40 + (hash(s) % 50) for s in gap_list]
             fig_radar = px.line_polar(
