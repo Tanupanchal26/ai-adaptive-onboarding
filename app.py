@@ -9,7 +9,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas as rl_canvas
 from parser import parse_file
 from gap_logic import normalize_skills, compute_gaps
-from path_generator import build_learning_path, estimate_time
+from path_generator import build_learning_path, build_bonus_courses, estimate_time
 
 try:
     from yfiles_graphs_for_streamlit import yfiles_graph
@@ -226,6 +226,13 @@ if st.button("🚀 Generate My Personalized Pathway", type="primary", use_contai
     with st.spinner("📊 Calculating skill gaps..."):
         st.session_state.resume_data = rd
         st.session_state.jd_data     = jd
+
+    with st.expander("📄 What the AI understood from your resume", expanded=False):
+        st.json({k: v for k, v in rd.items() if k != "_raw_text"})
+        if "error" in rd:
+            st.error("Resume parsing had issues — try a clearer PDF")
+    with st.expander("📋 What the AI understood from the job description", expanded=False):
+        st.json({k: v for k, v in jd.items() if k != "_raw_text"})
 
     st.success("✅ Pathway Ready!")
 
@@ -580,6 +587,38 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 </div>
             </div>
             """, unsafe_allow_html=True)
+
+        # ── Bonus Courses ─────────────────────────────────────────────────────────
+        exp_yrs = rd.get("experience_years") or 0
+        bonus   = build_bonus_courses(gaps, candidate_skills, exp_yrs)
+        if bonus:
+            st.markdown("")
+            _bc_bg  = "#111111" if is_dark else "#f8fafc"
+            _bc_bdr = "#333333" if is_dark else "#e2e8f0"
+            _bc_h   = "#ffffff" if is_dark else "#0f172a"
+            _bc_sub = "#777777" if is_dark else "#64748b"
+            _bc_rsn = "#aaaaaa" if is_dark else "#475569"
+            st.markdown(f"""
+            <div style="background:{_bc_bg};border:1px solid {_bc_bdr};border-radius:10px;
+                        padding:1.2rem 1.4rem;margin:1rem 0;">
+                <div style="font-weight:700;font-size:1.05rem;color:{_bc_h};margin-bottom:.2rem;">
+                    🚀 Bonus: High-Value Courses for Your Career Growth
+                </div>
+                <div style="font-size:.88rem;color:{_bc_sub};margin-bottom:.8rem;">
+                    Based on your experience level & market trends — not required, but highly recommended
+                </div>
+            """, unsafe_allow_html=True)
+            for bc in bonus:
+                st.markdown(f"""
+                <div style="border-left:3px solid {'#444444' if is_dark else '#0ea5e9'};
+                            padding:.6rem 1rem;margin:.5rem 0;border-radius:0 6px 6px 0;
+                            background:{'#1a1a1a' if is_dark else '#f0f9ff'};">
+                    <span style="font-weight:600;color:{_bc_h};">{bc['title']}</span>
+                    <span style="color:{_bc_sub};font-size:.85rem;"> &nbsp;·&nbsp; {bc['duration']}h</span><br>
+                    <span style="color:{_bc_rsn};font-size:.88rem;">{bc['reason']}</span>
+                </div>
+                """, unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
         # ── Timeline bar ────────────────────────────────────────────────────────────
         df_tl = pd.DataFrame({

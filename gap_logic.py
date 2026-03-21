@@ -6,7 +6,11 @@ STANDARD_SKILLS = {
     "Python", "SQL", "Leadership", "Communication", "Java",
     "Excel", "Project Management", "Machine Learning", "Data Analysis",
     "JavaScript", "React", "AWS", "Docker", "Git", "Agile",
-    "Tableau", "Power BI", "Marketing", "Sales", "Public Speaking"
+    "Tableau", "Power BI", "Marketing", "Sales", "Public Speaking",
+    "TypeScript", "Next.js", "Testing", "Jest", "Cypress",
+    "DSA", "Problem Solving", "Node.js", "REST API", "Backend",
+    "MongoDB", "Database", "Kubernetes", "Cloud", "DevOps",
+    "HTML", "CSS", "System Design", "Architecture", "Deep Learning"
 }
 
 CATALOG_PATH = Path(__file__).parent / "course_catalog.json"
