@@ -11,7 +11,7 @@
 
 ## 🚀 One-Line Pitch
 
-An enterprise-grade onboarding intelligence platform that performs **semantic skill-gap analysis** between any resume and job description, then generates a **prerequisite-aware, efficiency-ranked learning pathway** — cutting onboarding time by up to **49% across both technical and non-technical roles**.
+An enterprise-grade onboarding intelligence platform that performs **semantic skill-gap analysis** between any resume and job description, then generates a **prerequisite-aware, efficiency-ranked learning pathway** — reducing required onboarding time by **34–49% (mean: 41%)** relative to a 35-hour static baseline, across 8 evaluated role transitions.
 
 ---
 
@@ -21,7 +21,7 @@ An enterprise-grade onboarding intelligence platform that performs **semantic sk
 >
 > **SkillBridge eliminates that waste.** By semantically understanding a candidate's existing skills and the exact requirements of their target role, it generates the *minimum viable learning path* — personalized, ordered by prerequisites, and optimized for maximum efficiency per hour invested.
 >
-> In a 500-person company with 20% annual turnover, SkillBridge saves an estimated **1,750 person-hours per year** — equivalent to one full-time employee's annual output.
+> Under the assumption of a 500-person organization with 20% annual turnover and a mean pathway reduction of 41% relative to a 35-hour static baseline, the estimated aggregate time saving is approximately **1,400–1,750 person-hours per year** (lower bound: mean reduction; upper bound: best-case). This is a modelled projection, not a measured outcome.
 
 ---
 
@@ -81,14 +81,16 @@ Resume / JD
 
 ### Measured Performance
 
-| Metric | Value |
-|---|---|
-| Average onboarding time reduction | **40–49% faster** |
-| Skill gap detection accuracy vs keyword matching | **85–90% precision** |
-| False gaps eliminated by semantic matching | **~25% of all gaps** |
-| Multi-domain support | **6 domains, 12+ role transitions** |
-| Prerequisite relationships modeled | **27 directed edges** |
-| Courses in catalog | **65 (beginner → advanced)** |
+> Full methodology and failure analysis: [`eval/credible_claims.md`](eval/credible_claims.md)
+
+| Metric | Value | Context |
+|---|---|---|
+| Pathway time reduction | **34–49%, mean 41% (σ ≈ 4.5pp)** | 8 role transitions vs 35h static baseline |
+| Semantic gap detection F1 | **0.984** (precision 0.989, recall 0.986) | n=60 pairs, 6 domains, threshold=0.65 |
+| Keyword baseline F1 | **0.993** | Same dataset — semantic advantage is synonym handling, not raw F1 |
+| Weakest domain (semantic) | **Data Science F1 = 0.927** | ML/Deep Learning cosine overlap at threshold 0.65 |
+| Prerequisite relationships modeled | **27 directed edges** | Manually defined DAG |
+| Courses in catalog | **65 (beginner → advanced)** | Fixed catalog |
 
 ---
 ### 1 · Intelligent Document Parsing
@@ -161,14 +163,16 @@ After pathway generation, an LLM (GPT-4o-mini or LLaMA 3.2) produces a human-rea
 
 ## 📊 Measured Impact
 
-| Metric | Value |
-|---|---|
-| Average time saved vs static onboarding | **40–49%** |
-| Skill gap detection accuracy (semantic vs keyword) | **+31% recall** |
-| Roles covered out of the box | **6 domains, 12+ transitions** |
-| False gaps eliminated by semantic matching | **~25% of all gaps** |
-| Courses in catalog | **65 (beginner → advanced)** |
-| Prerequisite relationships modeled | **27 directed edges** |
+> All figures are reproducible from `eval/benchmark_results.json`. Methodology and limitations: [`eval/credible_claims.md`](eval/credible_claims.md).
+
+| Metric | Value | Caveat |
+|---|---|---|
+| Pathway time reduction | **34–49%, mean 41%** | Relative to 35h static baseline; catalog durations, not real learner time |
+| Semantic gap detection F1 | **0.984** | n=60, synthetic ground truth, normalized skill labels |
+| Keyword baseline F1 | **0.993** | Semantic advantage is synonym resolution, not F1 gain on clean labels |
+| Worst-case domain F1 | **0.927 (Data Science)** | ML↔Deep Learning overlap at cosine threshold 0.65 |
+| Roles covered | **6 domains, 8 demo transitions** | Validated on built-in personas only |
+| Prerequisite relationships | **27 directed edges** | Manually curated, not learned |
 
 ---
 
@@ -284,10 +288,10 @@ Run `python eval/skill_gap_eval.py` to reproduce:
 Accuracy: 3/3 = 100%
 ```
 
-| Metric | Value |
-|---|---|
-| Synonym detection accuracy | **100% (3/3 test cases)** |
-| False gap elimination rate | **~25% vs keyword baseline** |
+| Metric | Value | Note |
+|---|---|---|
+| Synonym detection accuracy | **3/3 test cases** | Illustrative only — sample too small for a percentage claim |
+| Semantic vs keyword F1 delta | **−0.009** (0.984 vs 0.993) | Semantic advantage is synonym handling on raw text, not F1 on normalized labels |
 
 ---
 
