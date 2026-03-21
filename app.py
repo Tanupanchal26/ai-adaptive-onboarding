@@ -905,7 +905,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 unsafe_allow_html=True
             )
 
-    # ── AI Chat Assistant ────────────────────────────────────────────────────────────
+    # ── Floating AI Chat Agent ────────────────────────────────────────────────
     import json as _json
     import urllib.request as _ureq
     from parser import _get_openai_key
@@ -915,24 +915,11 @@ if st.session_state.resume_data and st.session_state.jd_data:
     except ImportError:
         _OAI_AVAIL = False
 
-    _ai_bg  = "#111111" if is_dark else "#ffffff"
-    _ai_bdr = "#222222" if is_dark else "#e2e8f0"
-    _ai_h   = "#ffffff" if is_dark else "#0f172a"
-    _ai_sub = "#777777" if is_dark else "#64748b"
+    if "chat_messages" not in st.session_state:
+        st.session_state.chat_messages = []
+    if "chat_open" not in st.session_state:
+        st.session_state.chat_open = False
 
-    st.markdown(f"""
-    <div style="background:{_ai_bg};border:1px solid {_ai_bdr};border-radius:12px;
-                padding:1.4rem 1.6rem 1rem;margin:1.5rem 0 .5rem;">
-        <div style="font-weight:700;font-size:1.1rem;color:{_ai_h};margin-bottom:.2rem;">
-            💬 Ask AI About Your Path
-        </div>
-        <div style="font-size:.88rem;color:{_ai_sub};">
-            Context-aware assistant — knows your gaps, courses &amp; role transition
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # System prompt with full context
     _sys = (
         f"You are a concise, helpful onboarding assistant. "
         f"The candidate is a {from_role} transitioning to {to_role} with "
@@ -943,98 +930,223 @@ if st.session_state.resume_data and st.session_state.jd_data:
         f"Answer in 2-3 sentences max. Be direct and practical."
     )
 
-    # Init chat history in session state
-    if "chat_messages" not in st.session_state:
-        st.session_state.chat_messages = []
+    # ── Floating button + chat panel CSS ─────────────────────────────────────
+    _panel_bg   = "#18181b" if is_dark else "#ffffff"
+    _panel_bdr  = "#333"    if is_dark else "#e2e8f0"
+    _panel_h    = "#ffffff" if is_dark else "#0f172a"
+    _panel_sub  = "#888"    if is_dark else "#64748b"
+    _msg_user   = "#2563eb"
+    _msg_ai_bg  = "#27272a" if is_dark else "#f1f5f9"
+    _msg_ai_txt = "#e4e4e7" if is_dark else "#1e293b"
+    _input_bg   = "#27272a" if is_dark else "#f8fafc"
+    _input_bdr  = "#444"    if is_dark else "#cbd5e1"
+    _input_txt  = "#fff"    if is_dark else "#0f172a"
 
-    # Suggestion chips (only show when chat is empty)
-    if not st.session_state.chat_messages:
-        _chip_style = (
-            f"display:inline-block;background:{'#1a1a1a' if is_dark else '#f1f5f9'};"
-            f"border:1px solid {'#333' if is_dark else '#e2e8f0'};border-radius:20px;"
-            f"padding:5px 14px;margin:3px;font-size:.83rem;cursor:pointer;"
-            f"color:{'#ccc' if is_dark else '#475569'};"
-        )
+    st.markdown(f"""
+    <style>
+    #fab-btn {{
+        position:fixed; bottom:28px; right:28px; z-index:9999;
+        width:58px; height:58px; border-radius:50%;
+        background:linear-gradient(135deg,#6366f1,#0ea5e9);
+        border:none; cursor:pointer;
+        box-shadow:0 4px 20px rgba(99,102,241,.55);
+        display:flex; align-items:center; justify-content:center;
+        font-size:26px; transition:transform .2s, box-shadow .2s;
+        color:#fff;
+    }}
+    #fab-btn:hover {{ transform:scale(1.1); box-shadow:0 6px 28px rgba(99,102,241,.75); }}
+    #chat-panel {{
+        position:fixed; bottom:100px; right:28px; z-index:9998;
+        width:370px; max-height:560px;
+        background:{_panel_bg}; border:1px solid {_panel_bdr};
+        border-radius:18px; box-shadow:0 12px 40px rgba(0,0,0,.45);
+        display:flex; flex-direction:column; overflow:hidden;
+        animation:slideUp .25s ease;
+    }}
+    @keyframes slideUp {{ from{{opacity:0;transform:translateY(20px)}} to{{opacity:1;transform:translateY(0)}} }}
+    #chat-header {{
+        background:linear-gradient(135deg,#6366f1,#0ea5e9);
+        padding:14px 18px; display:flex; align-items:center; gap:10px;
+        border-radius:18px 18px 0 0;
+    }}
+    #chat-messages {{
+        flex:1; overflow-y:auto; padding:14px 14px 6px;
+        display:flex; flex-direction:column; gap:10px;
+        max-height:360px;
+    }}
+    .cm-user {{
+        align-self:flex-end; background:{_msg_user};
+        color:#fff; border-radius:14px 14px 3px 14px;
+        padding:9px 13px; font-size:.88rem; max-width:85%; line-height:1.45;
+    }}
+    .cm-ai {{
+        align-self:flex-start; background:{_msg_ai_bg};
+        color:{_msg_ai_txt}; border-radius:14px 14px 14px 3px;
+        padding:9px 13px; font-size:.88rem; max-width:85%; line-height:1.45;
+    }}
+    #chat-suggestions {{
+        padding:6px 14px; display:flex; flex-wrap:wrap; gap:5px;
+    }}
+    .cs-chip {{
+        background:{'#2a2a2e' if is_dark else '#f1f5f9'};
+        border:1px solid {'#444' if is_dark else '#e2e8f0'};
+        border-radius:14px; padding:4px 11px;
+        font-size:.78rem; color:{'#aaa' if is_dark else '#475569'};
+        cursor:pointer; white-space:nowrap;
+    }}
+    .cs-chip:hover {{ border-color:#6366f1; color:#6366f1; }}
+    #chat-input-row {{
+        padding:10px 12px; border-top:1px solid {_panel_bdr};
+        display:flex; gap:8px; align-items:center;
+    }}
+    #chat-input-row input {{
+        flex:1; background:{_input_bg}; border:1px solid {_input_bdr};
+        border-radius:10px; padding:9px 13px;
+        color:{_input_txt}; font-size:.88rem; outline:none;
+    }}
+    #chat-input-row input:focus {{ border-color:#6366f1; }}
+    #chat-send {{
+        background:#6366f1; border:none; border-radius:10px;
+        width:38px; height:38px; cursor:pointer; color:#fff;
+        font-size:16px; display:flex; align-items:center; justify-content:center;
+        flex-shrink:0;
+    }}
+    #chat-send:hover {{ background:#4f46e5; }}
+    @media(max-width:480px){{
+        #chat-panel{{ width:calc(100vw - 32px); right:16px; bottom:90px; }}
+        #fab-btn{{ right:16px; bottom:16px; }}
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+    # ── FAB toggle button ─────────────────────────────────────────────────────
+    _fab_label = "✕ Close" if st.session_state.chat_open else "🤖 Ask AI"
+    # Inject CSS to make this specific button fixed bottom-right
+    st.markdown("""
+    <style>
+    div[data-testid="stButton"][id="fab-wrapper"] > button,
+    button[kind="primary"][data-testid="baseButton-primary"]:last-of-type {
+        /* fallback — real fix below */
+    }
+    #fab-fixed-wrapper {
+        position: fixed !important;
+        bottom: 28px !important;
+        right: 28px !important;
+        z-index: 10000 !important;
+    }
+    #fab-fixed-wrapper button {
+        width: 58px !important;
+        height: 58px !important;
+        border-radius: 50% !important;
+        background: linear-gradient(135deg,#6366f1,#0ea5e9) !important;
+        border: none !important;
+        font-size: 22px !important;
+        padding: 0 !important;
+        box-shadow: 0 4px 20px rgba(99,102,241,.6) !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+    }
+    #fab-fixed-wrapper button:hover {
+        transform: scale(1.1) !important;
+        box-shadow: 0 6px 28px rgba(99,102,241,.8) !important;
+    }
+    </style>
+    <div id="fab-fixed-wrapper">
+    """, unsafe_allow_html=True)
+    if st.button(_fab_label, key="fab_toggle", help="Ask AI about your learning path"):
+        st.session_state.chat_open = not st.session_state.chat_open
+        st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # ── Chat panel (shown when open) ──────────────────────────────────────────
+    if st.session_state.chat_open:
         st.markdown(f"""
-        <div style="margin-bottom:.6rem;">
-            <span style="font-size:.75rem;color:{_ai_sub};text-transform:uppercase;
-                         letter-spacing:1px;margin-right:.5rem;">Try asking:</span>
-            <span style='{_chip_style}'>Why is the first course recommended?</span>
-            <span style='{_chip_style}'>How long will this take daily?</span>
-            <span style='{_chip_style}'>Which skill is most critical?</span>
-            <span style='{_chip_style}'>What salary boost can I expect?</span>
-        </div>
+        <div id="chat-panel">
+            <div id="chat-header">
+                <span style="font-size:22px;">🤖</span>
+                <div>
+                    <div style="font-weight:700;color:#fff;font-size:.95rem;">SkillBridge AI</div>
+                    <div style="font-size:.75rem;color:rgba(255,255,255,.75);">Your onboarding assistant</div>
+                </div>
+            </div>
+            <div id="chat-messages">
         """, unsafe_allow_html=True)
 
-    # Render existing chat history
-    for _msg in st.session_state.chat_messages:
-        with st.chat_message(_msg["role"]):
-            st.markdown(_msg["content"])
+        if not st.session_state.chat_messages:
+            st.markdown(f"""
+                <div class="cm-ai">👋 Hi! I know your full learning path for <b>{from_role} → {to_role}</b>.<br>
+                Ask me anything about your roadmap, gaps, or timeline!</div>
+            """, unsafe_allow_html=True)
 
-    # Chat input
-    _user_q = st.chat_input("Ask anything about your learning path...")
+        for _msg in st.session_state.chat_messages:
+            _cls = "cm-user" if _msg["role"] == "user" else "cm-ai"
+            st.markdown(f"<div class='{_cls}'>{_msg['content']}</div>", unsafe_allow_html=True)
 
-    if _user_q:
-        st.session_state.chat_messages.append({"role": "user", "content": _user_q})
-        with st.chat_message("user"):
-            st.markdown(_user_q)
+        st.markdown("</div>", unsafe_allow_html=True)  # close #chat-messages
 
-        with st.chat_message("assistant"):
+        # Suggestion chips (only when empty)
+        if not st.session_state.chat_messages:
+            st.markdown("""
+            <div id="chat-suggestions">
+                <span class="cs-chip">Why first course?</span>
+                <span class="cs-chip">Daily time needed?</span>
+                <span class="cs-chip">Most critical skill?</span>
+                <span class="cs-chip">Salary boost?</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)  # close #chat-panel
+
+        # ── Streamlit chat input (rendered below panel, functional) ──────────
+        _col_inp, _col_clr = st.columns([5, 1])
+        with _col_inp:
+            _user_q = st.chat_input("Ask about your path...", key="float_chat_input")
+        with _col_clr:
+            if st.session_state.chat_messages:
+                if st.button("🗑️", key="clear_chat", help="Clear chat"):
+                    st.session_state.chat_messages = []
+                    st.rerun()
+
+        if _user_q:
+            st.session_state.chat_messages.append({"role": "user", "content": _user_q})
+
             _oai_key = _get_openai_key() if _OAI_AVAIL else None
-
             if _OAI_AVAIL and _oai_key:
-                # ── OpenAI streaming ──────────────────────────────────────────
-                _client = _OAI(api_key=_oai_key)
+                _client  = _OAI(api_key=_oai_key)
                 _history = [{"role": "system", "content": _sys}] + [
                     {"role": m["role"], "content": m["content"]}
                     for m in st.session_state.chat_messages
                 ]
                 _stream = _client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=_history,
-                    temperature=0.5,
-                    max_tokens=400,
-                    stream=True
+                    model="gpt-4o-mini", messages=_history,
+                    temperature=0.5, max_tokens=400, stream=True
                 )
-                _full = ""
-                _ph   = st.empty()
-                _buf  = ""
+                _full, _buf = "", ""
+                _ph = st.empty()
                 for _chunk in _stream:
                     _delta = _chunk.choices[0].delta.content or ""
-                    _full += _delta
-                    _buf  += _delta
-                    if len(_buf) >= 8:          # re-render every 8 chars
-                        _ph.markdown(_full + "▍")
-                        _buf = ""
-                _ph.markdown(_full)             # final render, no cursor
+                    _full += _delta; _buf += _delta
+                    if len(_buf) >= 8:
+                        _ph.markdown(_full + "▍"); _buf = ""
                 _ph.markdown(_full)
                 _ans = _full
             else:
-                # ── Ollama fallback ────────────────────────────────────────────
-                with st.spinner("Thinking..."):
-                    _payload = _json.dumps({
-                        "model": "llama3.2",
-                        "prompt": f"{_sys}\n\nQuestion: {_user_q}",
-                        "stream": False
-                    }).encode()
-                    try:
-                        _req = _ureq.Request(
-                            "http://localhost:11434/api/generate",
-                            data=_payload, headers={"Content-Type": "application/json"}
-                        )
-                        with _ureq.urlopen(_req, timeout=30) as _r:
-                            _ans = _json.loads(_r.read()).get("response", "No response")
-                        st.markdown(_ans)
-                    except Exception:
-                        _ans = "⚠️ AI not available — add OpenAI key to `.streamlit/secrets.toml` or run `ollama serve`"
-                        st.warning(_ans)
+                _payload = _json.dumps({
+                    "model": "llama3.2",
+                    "prompt": f"{_sys}\n\nQuestion: {_user_q}",
+                    "stream": False
+                }).encode()
+                try:
+                    _req = _ureq.Request(
+                        "http://localhost:11434/api/generate",
+                        data=_payload, headers={"Content-Type": "application/json"}
+                    )
+                    with _ureq.urlopen(_req, timeout=30) as _r:
+                        _ans = _json.loads(_r.read()).get("response", "No response")
+                except Exception:
+                    _ans = "⚠️ AI unavailable — add OpenAI key to `.streamlit/secrets.toml` or run `ollama serve`"
 
             st.session_state.chat_messages.append({"role": "assistant", "content": _ans})
-
-    # Clear chat button
-    if st.session_state.chat_messages:
-        if st.button("Clear chat", key="clear_chat"):
-            st.session_state.chat_messages = []
             st.rerun()
 
     # ── Footer ────────────────────────────────────────────────────────────────
