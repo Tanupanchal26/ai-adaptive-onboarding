@@ -58,8 +58,12 @@ DARK_CSS = """
     .stMetric label { color:#aaaaaa !important; font-size:0.92rem !important; }
     .main .block-container { padding-top:2.2rem !important; padding-bottom:5rem !important; max-width:1280px; margin:0 auto; }
     hr { border:none; height:1px; background:linear-gradient(to right,transparent,#333333,transparent); margin:3rem 0; }
-    .pro-card { background:#111111; border:1px solid #222222; border-radius:10px; padding:1.6rem; margin:1.4rem 0; box-shadow:0 4px 20px rgba(0,0,0,.35); }
-    .premium-card { background:#111111; border:1px solid #222222; border-radius:10px; padding:1.6rem; margin:1.4rem 0; box-shadow:0 4px 20px rgba(0,0,0,.35); }
+    .pro-card { background:#111111; border:1px solid #222222; border-radius:10px; padding:1.6rem; margin:1.4rem 0; box-shadow:0 4px 20px rgba(0,0,0,.35); transition:transform .18s ease, box-shadow .18s ease; }
+    .pro-card:hover { transform:scale(1.025); box-shadow:0 8px 32px rgba(0,0,0,.55); }
+    .premium-card { background:#111111; border:1px solid #222222; border-radius:10px; padding:1.6rem; margin:1.4rem 0; box-shadow:0 4px 20px rgba(0,0,0,.35); transition:transform .18s ease, box-shadow .18s ease; }
+    .premium-card:hover { transform:scale(1.025); box-shadow:0 8px 32px rgba(0,0,0,.55); }
+    .hover-card { transition:transform .18s ease, box-shadow .18s ease; }
+    .hover-card:hover { transform:scale(1.025); box-shadow:0 8px 32px rgba(0,0,0,.5); }
     @media (max-width:768px) {
         h1 { font-size:2.1rem !important; }
         h2 { font-size:1.65rem !important; }
@@ -159,13 +163,16 @@ LIGHT_CSS = """
     .gap-pill   { display:inline-block; background:#fee2e2; border:1px solid #ef4444; border-radius:20px; padding:4px 12px; margin:3px; font-size:13px; color:#b91c1c !important; }
 
     /* ── Cards ── */
-    .pro-card { background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:1.4rem; margin:1.2rem 0; }
+    .pro-card { background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:1.4rem; margin:1.2rem 0; transition:transform .18s ease, box-shadow .18s ease; }
+    .pro-card:hover { transform:scale(1.025); box-shadow:0 6px 24px rgba(0,0,0,.10); }
     .impact-banner { background:linear-gradient(135deg,#dcfce7,#d1fae5); border:2px solid #16a34a; border-radius:16px; padding:24px; text-align:center; margin:16px 0; animation:fadeIn .6s ease; }
 
     /* ── Layout ── */
     .main .block-container { padding-top:2rem !important; padding-bottom:4rem !important; max-width:1100px; margin:0 auto; }
     hr { margin:2.5rem 0; border-color:#e2e8f0; }
 
+    .hover-card { transition:transform .18s ease, box-shadow .18s ease; }
+    .hover-card:hover { transform:scale(1.025); box-shadow:0 6px 24px rgba(0,0,0,.12); }
     /* ── Responsive ── */
     @media (max-width:768px) {
         .block-container { padding-left:1rem !important; padding-right:1rem !important; }
@@ -837,7 +844,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         (sip_cols[3], "Matching Method",        "Semantic",                      "cosine similarity · all-MiniLM-L6-v2"),
     ]:
         col.markdown(f"""
-        <div style="background:{_sip_bg};border:1px solid {_sip_bdr};border-radius:10px;
+        <div class="hover-card" style="background:{_sip_bg};border:1px solid {_sip_bdr};border-radius:10px;
                     padding:1rem;text-align:center;">
             <div style="font-size:.75rem;color:{_sip_sub};text-transform:uppercase;
                         letter-spacing:.8px;margin-bottom:.3rem;">{lbl}</div>
@@ -1241,7 +1248,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
             (wi3, "New Coverage",     f"{new_coverage}%",                  "#0ea5e9"),
         ]:
             col.markdown(f"""
-            <div style="background:{_wi_bg};border:1px solid {_wi_bdr};border-radius:10px;
+            <div class="hover-card" style="background:{_wi_bg};border:1px solid {_wi_bdr};border-radius:10px;
                         padding:1rem;text-align:center;">
                 <div style="font-size:.8rem;color:{_sip_sub};text-transform:uppercase;
                             letter-spacing:.8px;margin-bottom:.3rem;">{lbl}</div>
