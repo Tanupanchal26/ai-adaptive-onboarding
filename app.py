@@ -24,36 +24,67 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ── Modern 2026 Theme ─────────────────────────────────────────────────────────
-st.markdown("""
+# ── Theme CSS (applied before sidebar radio so it's always ready) ─────────────
+DARK_CSS = """
 <style>
-    .stApp { background-color: #0e1117; color: #ffffff; }
-    .block-container { padding-top: 2rem; }
-    h1 { font-size: 2.8rem; font-weight: 700; color: #00ff9d; }
+    .stApp { background-color: #0f172a; color: #e2e8f0; }
+    .block-container { padding-top: 1rem; }
+    h1,h2,h3 { color: #00f0ff; }
     .stButton>button {
-        width: 100%; height: 3rem;
-        background: linear-gradient(90deg, #00ff9d, #00bfff);
-        color: black; font-weight: bold; border-radius: 12px; border: none;
+        width:100%; height:3rem;
+        background:linear-gradient(90deg,#00f0ff,#00ff9d);
+        color:#000; font-weight:700; border-radius:12px; border:none;
     }
-    .stButton>button:hover { opacity: 0.85; transform: scale(1.02); transition: .2s; }
+    .stButton>button:hover { opacity:.85; transform:scale(1.02); transition:.2s; }
     .impact-banner {
-        background: linear-gradient(135deg,#0a3d0a,#0d5c0d);
-        border: 2px solid #00ff9d; border-radius: 16px;
-        padding: 24px; text-align: center; margin: 16px 0;
+        background:linear-gradient(135deg,#0a3d0a,#0d5c0d);
+        border:2px solid #00ff9d; border-radius:16px;
+        padding:24px; text-align:center; margin:16px 0;
     }
     .skill-pill {
-        display:inline-block; background:#1a2535;
-        border:1px solid #00ff9d44; border-radius:20px;
-        padding:4px 12px; margin:3px; font-size:13px; color:#00ff9d;
+        display:inline-block; background:#1e293b;
+        border:1px solid #00f0ff44; border-radius:20px;
+        padding:4px 12px; margin:3px; font-size:13px; color:#00f0ff;
     }
     .gap-pill {
         display:inline-block; background:#2d0a0a;
         border:1px solid #ff4b4b44; border-radius:20px;
         padding:4px 12px; margin:3px; font-size:13px; color:#ff4b4b;
     }
-    div[data-testid="stExpander"] { background:#1e2937; border-radius:12px; border:1px solid #2a3a4a; }
+    div[data-testid="stExpander"] { background:#1e293b; border-radius:12px; border:1px solid #334155; }
+    [data-testid="metric-container"] { background:#1e293b; border-radius:12px; padding:12px; border:1px solid #334155; }
 </style>
-""", unsafe_allow_html=True)
+"""
+LIGHT_CSS = """
+<style>
+    .stApp { background-color: #f8fafc; color: #1e293b; }
+    .block-container { padding-top: 1rem; }
+    h1,h2,h3 { color: #0f172a; }
+    .stButton>button {
+        width:100%; height:3rem;
+        background:linear-gradient(90deg,#0ea5e9,#6366f1);
+        color:#fff; font-weight:700; border-radius:12px; border:none;
+    }
+    .stButton>button:hover { opacity:.85; transform:scale(1.02); transition:.2s; }
+    .impact-banner {
+        background:linear-gradient(135deg,#dcfce7,#d1fae5);
+        border:2px solid #16a34a; border-radius:16px;
+        padding:24px; text-align:center; margin:16px 0;
+    }
+    .skill-pill {
+        display:inline-block; background:#e0f2fe;
+        border:1px solid #0ea5e9; border-radius:20px;
+        padding:4px 12px; margin:3px; font-size:13px; color:#0369a1;
+    }
+    .gap-pill {
+        display:inline-block; background:#fee2e2;
+        border:1px solid #ef4444; border-radius:20px;
+        padding:4px 12px; margin:3px; font-size:13px; color:#b91c1c;
+    }
+    div[data-testid="stExpander"] { background:#fff; border-radius:12px; border:1px solid #e2e8f0; }
+    [data-testid="metric-container"] { background:#fff; border-radius:12px; padding:12px; border:1px solid #e2e8f0; box-shadow:0 1px 4px #0001; }
+</style>
+"""
 
 # ── Sample personas ───────────────────────────────────────────────────────────
 SAMPLES = {
@@ -77,8 +108,13 @@ for key in ("resume_data", "jd_data"):
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     theme = st.radio("🎨 Theme", ["Dark Pro", "Light Corporate"])
-    if theme == "Light Corporate":
-        st.markdown('<style>.stApp{background:#f5f7fa;color:#1a1a2e;} h1{color:#1a1a2e;} .skill-pill{background:#e8f5e9;color:#2e7d32;border-color:#2e7d32;} .gap-pill{background:#fce4ec;color:#c62828;border-color:#c62828;} .impact-banner{background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border-color:#2e7d32;}</style>', unsafe_allow_html=True)
+
+if theme == "Light Corporate":
+    st.markdown(LIGHT_CSS, unsafe_allow_html=True)
+else:
+    st.markdown(DARK_CSS, unsafe_allow_html=True)
+
+with st.sidebar:
     st.markdown("## 🤖 How It Works")
     st.markdown("- 📄 **Upload** resume & job description\n- 🧠 **AI extracts** skills & gaps\n- 🗺️ **Get** a personalized roadmap")
     st.divider()
@@ -123,9 +159,22 @@ with st.sidebar:
 
     st.caption("Powered by LLaMA 3.2 · SkillBridge")
 
-# ── Header ────────────────────────────────────────────────────────────────────
-st.title("🎯 AI-Adaptive Onboarding Engine")
-st.markdown("**Upload Resume + Job Description → Get your personalized, gap-free learning path in seconds**")
+# ── Hero Section ─────────────────────────────────────────────────────────────
+_hero_bg  = "#0f172a" if theme == "Dark Pro" else "#f1f5f9"
+_hero_h1  = "#00f0ff" if theme == "Dark Pro" else "#0f172a"
+_hero_sub = "#94a3b8" if theme == "Dark Pro" else "#475569"
+st.markdown(f"""
+<div style="text-align:center;padding:2rem 0;background:{_hero_bg};
+            border-radius:16px;margin-bottom:1.5rem;
+            border:1px solid {'#1e293b' if theme=='Dark Pro' else '#e2e8f0'}">
+    <h1 style="color:{_hero_h1};margin:0;font-size:3rem;letter-spacing:-1px;">
+        🎯 AI-Powered Adaptive Onboarding
+    </h1>
+    <p style="color:{_hero_sub};font-size:1.2rem;margin-top:.8rem;">
+        Get role-ready 40–70% faster — personalized, gap-focused, zero waste
+    </p>
+</div>
+""", unsafe_allow_html=True)
 st.divider()
 
 # ── Quick Test Buttons ────────────────────────────────────────────────────────
@@ -241,50 +290,64 @@ if st.session_state.resume_data and st.session_state.jd_data:
     readiness = gap_result["coverage_pct"]
     gap_pct   = 100 - readiness
     post_path = min(100, readiness + efficiency)
+    is_dark   = theme == "Dark Pro"
+    bg_card   = "#1e293b" if is_dark else "#ffffff"
+    txt_color = "#e2e8f0" if is_dark else "#1e293b"
+    accent    = "#00f0ff" if is_dark else "#0ea5e9"
+
+    # Hero metrics row
+    hm1, hm2, hm3 = st.columns(3)
+    cost_saved = round(hours_saved * 800)  # ₹800/hr onboarding cost estimate
+    hm1.metric("⏱️ Time Saved",           f"{hours_saved} hrs",   f"{efficiency}% faster")
+    hm2.metric("🎯 Readiness After Path",  f"{post_path:.0f}%",    f"+{post_path-readiness:.0f}%")
+    hm3.metric("💰 Est. Cost Saving",      f"₹{cost_saved:,}",     "per hire")
+
+    st.divider()
 
     dash1, dash2, dash3 = st.columns([1, 2, 1])
 
     with dash1:
-        st.metric("📊 Readiness Score", f"{readiness:.0f}%", delta=f"↑ {post_path - readiness:.0f}% after this path")
-        st.metric("⏱️ Time to Competency", f"{total_hours}h", delta=f"-{hours_saved}h vs standard")
-        st.metric("📚 Courses", len(pathway))
-        st.metric("⚡ Efficiency", f"{efficiency}%")
+        st.markdown("**📊 Profile Snapshot**")
+        st.metric("Readiness Now",   f"{readiness:.0f}%")
+        st.metric("Courses",         len(pathway))
+        st.metric("Gaps to Close",   len(gaps))
+        st.metric("Efficiency Gain", f"{efficiency}%")
 
     with dash2:
         gap_list = sorted(gaps)
+        _pbg = "#0f172a" if is_dark else "#f8fafc"
+        _pfg = "#1e293b" if is_dark else "#f1f5f9"
         if len(gap_list) >= 3:
             gap_sizes = [40 + (hash(s) % 50) for s in gap_list]
             fig_radar = px.line_polar(
                 pd.DataFrame({"Skill": gap_list, "Gap Size": gap_sizes}),
                 r="Gap Size", theta="Skill", line_close=True, title="🕸️ Skill Gap Radar"
             )
-            fig_radar.update_traces(fill="toself", line_color="#00ff9d")
+            fig_radar.update_traces(fill="toself", line_color=accent)
             fig_radar.update_layout(
-                paper_bgcolor="#0e1117", plot_bgcolor="#0e1117",
-                font_color="#fff", height=320,
-                polar=dict(bgcolor="#1e2937",
-                           radialaxis=dict(visible=True, color="#555"),
-                           angularaxis=dict(color="#aaa")),
+                paper_bgcolor=_pbg, plot_bgcolor=_pbg,
+                font_color=txt_color, height=320,
+                polar=dict(bgcolor=_pfg,
+                           radialaxis=dict(visible=True, color="#64748b"),
+                           angularaxis=dict(color="#94a3b8")),
                 margin=dict(t=40, b=10, l=10, r=10)
             )
             st.plotly_chart(fig_radar, use_container_width=True)
         else:
-            st.info("Add more skills to see the radar chart (needs 3+ gaps).")
+            st.info("3+ gaps needed for radar chart.")
 
     with dash3:
         fig_ring = px.pie(
-            values=[readiness, gap_pct],
-            names=["Ready", "Gap"],
-            hole=0.7,
-            color_discrete_sequence=["#00ff9d", "#ff2d55"]
+            values=[readiness, gap_pct], names=["Ready", "Gap"],
+            hole=0.7, color_discrete_sequence=[accent, "#ff2d55"]
         )
         fig_ring.update_traces(textinfo="none")
         fig_ring.update_layout(
-            paper_bgcolor="#0e1117", font_color="#fff",
+            paper_bgcolor=_pbg, font_color=txt_color,
             height=280, margin=dict(t=10, b=10, l=10, r=10),
             showlegend=True,
             annotations=[dict(text=f"<b>{readiness:.0f}%</b>", x=0.5, y=0.5,
-                              font_size=22, font_color="#00ff9d", showarrow=False)]
+                              font_size=22, font_color=accent, showarrow=False)]
         )
         st.plotly_chart(fig_ring, use_container_width=True)
         st.caption("🟢 Ready  🔴 Gap")
@@ -312,13 +375,10 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     if YFILES:
         yfiles_graph(
-            nodes=nodes,
-            edges=edges,
-            layout="hierarchic",
-            height=500,
-            zoom=True,
-            drag_nodes=True,
-            show_search=True
+            nodes=nodes, edges=edges,
+            layout="hierarchic", height=600,
+            zoom=True, drag_nodes=True,
+            show_search=True, show_overview=True
         )
     else:
         # Plotly fallback
@@ -386,31 +446,31 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 st.progress({"beginner":33,"intermediate":66,"advanced":100}.get(course["difficulty"],50))
 
     with tab2:
-        st.success(f"Standard onboarding: **{static_hours} hours** → Your AI path: **{total_hours} hours** (You save **{hours_saved} hours!**) ")
+        st.success(f"Standard onboarding: **{static_hours} hours** → Your AI path: **{total_hours} hours** (You save **{hours_saved} hours!**)")
+        _bbg = "#0f172a" if is_dark else "#f8fafc"
         fig = go.Figure(go.Bar(
             x=["Static Onboarding", "AI-Adaptive Onboarding"],
             y=[static_hours, total_hours],
-            marker_color=["#ff4b4b", "#00ff9d"],
+            marker_color=["#ff4b4b", accent],
             text=[f"{static_hours}h", f"{total_hours}h"],
             textposition="outside"
         ))
-        fig.update_layout(plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
-            font_color="#fff", yaxis_title="Hours Required",
+        fig.update_layout(plot_bgcolor=_bbg, paper_bgcolor=_bbg,
+            font_color=txt_color, yaxis_title="Hours Required",
             showlegend=False, height=350, margin=dict(t=20, b=20))
         fig.add_annotation(x=1, y=total_hours+1,
             text=f"🎯 {efficiency}% more efficient",
-            showarrow=False, font=dict(color="#00ff9d", size=14))
+            showarrow=False, font=dict(color=accent, size=14))
         st.plotly_chart(fig, use_container_width=True)
 
     with tab3:
         import datetime
         base = datetime.date(2025, 1, 1)
-        rows = []
-        day = 0
+        rows, day = [], 0
         for c in pathway:
             rows.append({
                 "Course": c["title"],
-                "Start": str(base + datetime.timedelta(days=day)),
+                "Start":  str(base + datetime.timedelta(days=day)),
                 "Finish": str(base + datetime.timedelta(days=day + c["duration"])),
                 "Difficulty": c["difficulty"]
             })
@@ -420,11 +480,12 @@ if st.session_state.resume_data and st.session_state.jd_data:
             df_gantt, x_start="Start", x_end="Finish", y="Course",
             color="Difficulty",
             color_discrete_map={"beginner": "#00ff9d", "intermediate": "#00bfff", "advanced": "#ff4b4b"},
-            title="📅 Your Learning Timeline"
+            title="📅 Your Onboarding Timeline"
         )
+        fig_gantt.update_yaxes(autorange="reversed")
         fig_gantt.update_layout(
-            paper_bgcolor="#0e1117", plot_bgcolor="#1e2937",
-            font_color="#fff", height=400, margin=dict(t=40, b=20)
+            paper_bgcolor=_bbg, plot_bgcolor="#1e293b" if is_dark else "#f1f5f9",
+            font_color=txt_color, height=450, margin=dict(t=40, b=20)
         )
         st.plotly_chart(fig_gantt, use_container_width=True)
 
