@@ -439,15 +439,66 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 )
         st.markdown("")
 
+        # ── Readiness progress bar ───────────────────────────────────────────────
+        current_readiness = max(10, 100 - len(gaps) * 8)
+        st.progress(current_readiness / 100)
+        st.caption(f"Current estimated readiness: **{current_readiness}%** → **100%** after completing this path")
+        st.markdown("")
+
+        # ── Completion date estimate ───────────────────────────────────────────────
+        import datetime as _dtt
+        days_needed = round(total_hours / 4)
+        ready_date  = _dtt.date.today() + _dtt.timedelta(days=days_needed)
+        st.info(f"📅 At **4 hrs/day**, you’ll be role-ready by **{ready_date.strftime('%B %d, %Y')}** ({days_needed} days)")
+
+        st.subheader("📍 Your Personalized Onboarding Roadmap")
+        st.caption(f"Optimized sequence · Total: {total_hours}h · Prerequisite-aware")
+
+        # ── Step cards ────────────────────────────────────────────────────────────
+        _card_bg  = "#1e293b" if is_dark else "#ffffff"
+        _card_bdr = "#60a5fa" if is_dark else "#0ea5e9"
+        _card_txt = "#e2e8f0" if is_dark else "#1e293b"
+        _card_sub = "#94a3b8" if is_dark else "#64748b"
+        _badge_bg = "#334155" if is_dark else "#f1f5f9"
+        _diff_colors = {"beginner": "#4ade80", "intermediate": "#60a5fa", "advanced": "#f87171"}
+
         for i, course in enumerate(pathway, 1):
-            de = "🟢" if course["difficulty"]=="beginner" else "🔵" if course["difficulty"]=="intermediate" else "🔴"
-            with st.expander(f"{i}. {course['title']}  {de}  ⏱ {course['duration']}h · Covers: {', '.join(course['skills'])}"):
-                st.markdown(f"**Difficulty:** `{course['difficulty']}`")
-                st.markdown(f"**Skills Covered:** {', '.join(course['skills'])}")
-                if course.get("prereq"):
-                    st.markdown(f"**Prerequisites:** {', '.join(course['prereq'])}")
-                st.markdown(f"**💡 Why Recommended:** {course['why']}")
-                st.progress({"beginner":33,"intermediate":66,"advanced":100}.get(course["difficulty"],50))
+            gap_hits = [s for s in course["skills"] if s.lower() in [g.lower() for g in gaps]]
+            reason   = ", ".join(gap_hits) if gap_hits else "core role foundations"
+            diff_col = _diff_colors.get(course["difficulty"], "#94a3b8")
+            st.markdown(f"""
+            <div style="background:{_card_bg};border-left:5px solid {_card_bdr};
+                        padding:1.2rem;border-radius:8px;margin:.8rem 0;
+                        box-shadow:0 2px 8px rgba(0,0,0,.25);">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h4 style="margin:0;color:{_card_txt};">Step {i}: {course['title']}</h4>
+                    <span style="background:{diff_col}22;color:{diff_col};padding:.3rem .8rem;
+                                 border-radius:16px;font-size:.85rem;font-weight:600;">
+                        {course['duration']}h &nbsp;·&nbsp; {course['difficulty'].title()}
+                    </span>
+                </div>
+                <p style="margin:.7rem 0 0;color:{_card_txt};"><strong>Skills covered:</strong> {', '.join(course['skills'])}</p>
+                <p style="margin:.3rem 0 0;color:{_card_sub};font-size:.92rem;"><strong>Why this step:</strong> Closes gaps in <em>{reason}</em></p>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # ── Timeline bar ────────────────────────────────────────────────────────────
+        df_tl = pd.DataFrame({
+            "Step":       [f"Step {i+1}" for i in range(len(pathway))],
+            "Hours":      [c["duration"] for c in pathway],
+            "Difficulty": [c["difficulty"] for c in pathway]
+        })
+        fig_tl = px.bar(df_tl, x="Hours", y="Step", orientation="h",
+                        color="Difficulty",
+                        color_discrete_map={"beginner":"#4ade80","intermediate":"#60a5fa","advanced":"#f87171"},
+                        height=180 + len(pathway) * 35, text_auto=True)
+        fig_tl.update_layout(
+            xaxis_title="Estimated Hours", yaxis_title="",
+            bargap=0.25, margin=dict(l=10,r=10,t=30,b=10),
+            paper_bgcolor=_pbg, plot_bgcolor=_pbg, font_color=txt_color,
+            legend_title="Difficulty"
+        )
+        st.plotly_chart(fig_tl, use_container_width=True)
 
     with tab2:
         st.success(f"Standard onboarding: **{static_hours} hours** → Your AI path: **{total_hours} hours** (You save **{hours_saved} hours!**)")
