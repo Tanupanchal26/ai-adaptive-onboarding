@@ -1,6 +1,6 @@
 import streamlit as st
 from parser import parse_file
-from catalog import normalize_skills, get_courses_for_gaps
+from catalog import normalize_skills, build_learning_path
 
 st.set_page_config(page_title="AI Adaptive Onboarding", layout="wide", page_icon="🎯")
 
@@ -49,7 +49,7 @@ if st.button("🚀 Generate My Personalized Pathway", type="primary", use_contai
     st.success("✅ Extraction complete!")
     st.divider()
 
-    # ── Normalize skills ──────────────────────────────────────────────────────
+    # ── Normalize & compute gaps ──────────────────────────────────────────────
     candidate_skills = normalize_skills(resume_data.get("skills", []))
     jd_skills        = normalize_skills(jd_data.get("skills", []))
     gaps             = jd_skills - candidate_skills
@@ -75,8 +75,8 @@ if st.button("🚀 Generate My Personalized Pathway", type="primary", use_contai
 
     # ── Skill Gap Analysis ────────────────────────────────────────────────────
     st.markdown("## 🔍 Skill Gap Analysis")
-
     m_col, g_col = st.columns(2)
+
     with m_col:
         st.success(f"✅ {len(matched)} Skills Matched")
         for s in sorted(matched):
@@ -85,31 +85,44 @@ if st.button("🚀 Generate My Personalized Pathway", type="primary", use_contai
     with g_col:
         st.error(f"❌ {len(gaps)} Skills Missing")
         for s in sorted(gaps):
-            # Proficiency hint based on skill type
-            level = "beginner"
-            if s in {"Machine Learning", "AWS", "Docker", "Tableau"}:
-                level = "intermediate"
-            elif s in {"Leadership", "Project Management"}:
-                level = "intermediate"
+            level = "intermediate" if s in {"Machine Learning","AWS","Docker","Tableau","Leadership","Project Management"} else "beginner"
             st.markdown(f"- **{s}** *(start: {level})*")
 
     st.divider()
 
-    # ── Recommended Courses ───────────────────────────────────────────────────
-    if gaps:
-        st.markdown("## 📚 Recommended Courses to Close Gaps")
-        courses = get_courses_for_gaps(gaps)
-        if courses:
-            total_hours = sum(c["duration"] for c in courses)
-            st.info(f"🕐 Total learning time: **{total_hours} hours** across {len(courses)} courses")
-            for c in courses:
-                badge = "🟢" if c["difficulty"] == "beginner" else "🟡"
-                st.markdown(
-                    f"{badge} **{c['title']}** — {c['duration']}h · "
-                    f"`{c['difficulty']}` · Skills: {', '.join(c['skills'])}"
-                )
-        else:
-            st.warning("No matching courses found in catalog for these gaps.")
-    else:
+    # ── Personalized Learning Pathway ─────────────────────────────────────────
+    st.markdown("## 🗺️ Your Personalized Learning Pathway")
+
+    if not gaps:
         st.balloons()
         st.success("🎉 You already have all the required skills for this role!")
+        st.stop()
+
+    pathway = build_learning_path(gaps)
+
+    if not pathway:
+        st.warning("No matching courses found. Check back soon as we expand our catalog!")
+        st.stop()
+
+    total_hours = sum(c["duration"] for c in pathway)
+
+    # Summary bar
+    c1, c2, c3 = st.columns(3)
+    c1.metric("📚 Courses", len(pathway))
+    c2.metric("🕐 Total Hours", f"{total_hours}h")
+    c3.metric("🎯 Gaps to Close", len(gaps))
+
+    st.markdown("")
+
+    # Numbered pathway list
+    for i, course in enumerate(pathway, 1):
+        diff_emoji = "🟢" if course["difficulty"] == "beginner" else "🟡" if course["difficulty"] == "intermediate" else "🔴"
+        with st.container():
+            st.markdown(
+                f"**{i}. {course['title']}** {diff_emoji} `{course['difficulty']}`"
+                f" &nbsp;|&nbsp; ⏱ {course['duration']} hours"
+            )
+            st.caption(f"💡 {course['why']}")
+            st.markdown("---")
+
+    st.info(f"✅ Complete all {len(pathway)} courses in ~{total_hours} hours to be fully job-ready!")
