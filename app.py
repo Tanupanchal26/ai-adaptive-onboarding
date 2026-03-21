@@ -424,17 +424,27 @@ if st.session_state.resume_data and st.session_state.jd_data:
     hours_saved  = t["saved"]
     efficiency   = t["efficiency"]
 
-    # ── Impact banner ─────────────────────────────────────────────────────────
-    _ib_val  = "#ffffff" if is_dark else "#16a34a"
-    _ib_sub  = "#888888" if is_dark else "#475569"
-    _ib_bold = "#e0e0e0" if is_dark else "#0f172a"
-    st.markdown(
-        f"<div class='impact-banner'>"
-        f"<div style='font-size:38px;font-weight:800;color:{_ib_val};'>💚 You will save ~{hours_saved} hours</div>"
-        f"<div style='font-size:17px;color:{_ib_sub};margin-top:6px;'>compared to standard onboarding ({static_hours}h) · "
-        f"AI-optimized path: <b style='color:{_ib_bold};'>{total_hours}h</b></div></div>",
-        unsafe_allow_html=True
-    )
+    # ── Impact Analysis ───────────────────────────────────────────────────────
+    BASELINE_HOURS = 35
+    impact_saved   = BASELINE_HOURS - total_hours
+    impact_pct     = round((impact_saved / BASELINE_HOURS) * 100) if impact_saved > 0 else 0
+
+    st.subheader("📊 Impact Analysis")
+    if impact_saved > 0:
+        st.success(
+            f"🚀 Your AI-optimized path takes **{total_hours}h** vs the **{BASELINE_HOURS}h** "
+            f"standard baseline — saving you **{impact_saved} hours ({impact_pct}% faster)!**"
+        )
+    else:
+        st.info(
+            f"Your path is **{total_hours}h** — comparable to the {BASELINE_HOURS}h baseline. "
+            f"This is a comprehensive role transition."
+        )
+
+    ia1, ia2, ia3 = st.columns(3)
+    ia1.metric("⏱️ Optimized Path Time",  f"{total_hours}h",      f"-{impact_saved}h vs baseline")
+    ia2.metric("📋 Baseline Onboarding",   f"{BASELINE_HOURS}h",   "Standard industry average")
+    ia3.metric("⚡ Improvement",           f"{impact_pct}%",       f"{impact_saved}h saved")
 
     # ── Skill Intelligence Panel (Upgrade 4) ──────────────────────────────────
     coverage_ratio = len(matched) / max(len(jd_skills), 1)
