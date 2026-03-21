@@ -151,24 +151,87 @@ else:
     st.markdown(DARK_CSS, unsafe_allow_html=True)
 
 with st.sidebar:
-    st.markdown("## 🤖 How It Works")
-    st.markdown("- 📄 **Upload** resume & job description\n- 🧠 **AI extracts** skills & gaps\n- 🗺️ **Get** a personalized roadmap")
+    # ── How It Works ─────────────────────────────────────────────────────────
+    st.markdown("""
+    <div style="padding:.4rem 0 .8rem 0;">
+        <div style="font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;
+                    color:#666;margin-bottom:.7rem;">HOW IT WORKS</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;">
+            <div style="display:flex;align-items:center;gap:.6rem;font-size:.88rem;">
+                <span style="background:#1a1a1a;border:1px solid #333;border-radius:50%;
+                             width:26px;height:26px;display:flex;align-items:center;
+                             justify-content:center;font-size:.75rem;flex-shrink:0;">1</span>
+                <span style="color:#ccc;">Upload resume &amp; job description</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.6rem;font-size:.88rem;">
+                <span style="background:#1a1a1a;border:1px solid #333;border-radius:50%;
+                             width:26px;height:26px;display:flex;align-items:center;
+                             justify-content:center;font-size:.75rem;flex-shrink:0;">2</span>
+                <span style="color:#ccc;">AI extracts skills &amp; gaps</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.6rem;font-size:.88rem;">
+                <span style="background:#1a1a1a;border:1px solid #333;border-radius:50%;
+                             width:26px;height:26px;display:flex;align-items:center;
+                             justify-content:center;font-size:.75rem;flex-shrink:0;">3</span>
+                <span style="color:#ccc;">Get a personalized roadmap</span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     st.divider()
+
     if st.session_state.resume_data:
         cs = normalize_skills(st.session_state.resume_data.get("skills", []))
-        st.markdown("### 🟢 Your Skills")
-        for s in sorted(cs):
-            st.markdown(f"✅ {s}")
-            st.progress(70 + (hash(s) % 30))
-        st.divider()
-    if st.session_state.jd_data:
-        js = normalize_skills(st.session_state.jd_data.get("skills", []))
-        st.markdown("### 🔵 Role Requirements")
-        for s in sorted(js):
-            st.markdown(f"📌 {s}")
+        cs_sorted = sorted(cs)
+        st.markdown("""
+        <div style="font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;
+                    color:#666;margin-bottom:.6rem;">YOUR SKILLS</div>
+        """, unsafe_allow_html=True)
+        chips = "".join(
+            f"<span style='display:inline-flex;align-items:center;gap:4px;"
+            f"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;"
+            f"padding:3px 8px;margin:2px;font-size:.78rem;color:#d0d0d0;'>"
+            f"<span style='width:6px;height:6px;border-radius:50%;background:#22c55e;"
+            f"display:inline-block;flex-shrink:0;'></span>{s}</span>"
+            for s in cs_sorted
+        )
+        st.markdown(f"<div style='line-height:1.8;'>{chips}</div>", unsafe_allow_html=True)
         st.divider()
 
-    st.caption("Powered by LLaMA 3.2 · SkillBridge")
+    if st.session_state.jd_data:
+        js = normalize_skills(st.session_state.jd_data.get("skills", []))
+        # compute overlap if both available
+        cs_set = normalize_skills(st.session_state.resume_data.get("skills", [])) \
+                 if st.session_state.resume_data else set()
+        st.markdown("""
+        <div style="font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;
+                    color:#666;margin-bottom:.6rem;">ROLE REQUIREMENTS</div>
+        """, unsafe_allow_html=True)
+        req_chips = "".join(
+            f"<span style='display:inline-flex;align-items:center;gap:4px;"
+            f"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;"
+            f"padding:3px 8px;margin:2px;font-size:.78rem;"
+            f"color:{'#d0d0d0' if s in cs_set else '#888'};'>"
+            f"<span style='width:6px;height:6px;border-radius:50%;"
+            f"background:{'#22c55e' if s in cs_set else '#ef4444'};"
+            f"display:inline-block;flex-shrink:0;'></span>{s}</span>"
+            for s in sorted(js)
+        )
+        st.markdown(f"<div style='line-height:1.8;'>{req_chips}</div>", unsafe_allow_html=True)
+        # mini legend
+        st.markdown("""
+        <div style="display:flex;gap:1rem;margin-top:.6rem;font-size:.75rem;color:#666;">
+            <span><span style="color:#22c55e;">●</span> Have it</span>
+            <span><span style="color:#ef4444;">●</span> Gap</span>
+        </div>
+        """, unsafe_allow_html=True)
+        st.divider()
+
+    st.markdown("""
+    <div style="font-size:.72rem;color:#444;text-align:center;padding:.4rem 0;">
+        Powered by LLaMA 3.2 &nbsp;·&nbsp; SkillBridge
+    </div>
+    """, unsafe_allow_html=True)
 
 # ── Hero Section ─────────────────────────────────────────────────────────────
 _hero_bg  = "#0a0a0a" if theme == "Dark Pro" else "#f1f5f9"
