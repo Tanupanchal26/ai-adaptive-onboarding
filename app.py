@@ -394,6 +394,27 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     st.divider()
 
+    # ── Skill Intelligence Metrics ────────────────────────────────────────────
+    skill_coverage_pct  = round(len(matched) / max(len(jd_skills), 1) * 100)
+    missing_skills_count = len(gaps)
+    role_readiness_score = min(100, round(
+        (skill_coverage_pct * 0.6) +
+        (min(rd.get("experience_years", 0), 10) / 10 * 30) +
+        (10 if missing_skills_count == 0 else max(0, 10 - missing_skills_count))
+    ))
+
+    readiness_delta = f"+{100 - role_readiness_score}% after path" if role_readiness_score < 100 else "✅ Fully ready"
+    coverage_delta  = f"{missing_skills_count} gap(s) to close"
+    missing_delta   = f"out of {len(jd_skills)} required"
+
+    st.markdown("#### 🧠 Skill Intelligence Metrics")
+    sim1, sim2, sim3 = st.columns(3)
+    sim1.metric("📊 Skill Coverage",      f"{skill_coverage_pct}%",  coverage_delta)
+    sim2.metric("❌ Missing Skills",       str(missing_skills_count), missing_delta)
+    sim3.metric("🎯 Role Readiness Score", f"{role_readiness_score}%", readiness_delta)
+
+    st.divider()
+
     pathway      = build_learning_path(gaps)
     if not pathway: st.warning("No courses found for these gaps."); st.stop()
 
