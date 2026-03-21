@@ -60,7 +60,43 @@ def generate_response(user_q: str, system_prompt: str) -> str:
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.loads(r.read()).get("response", "No response")
     except Exception:
-        return "⚠️ AI unavailable — add OpenAI key to `.streamlit/secrets.toml` or run `ollama serve`"
+        pass
+
+    # Rule-based fallback — works with zero LLM
+    return _rule_based_reply(user_q, system_prompt)
+
+
+def _rule_based_reply(question: str, system_prompt: str) -> str:
+    """Keyword-driven replies so the chat always works without any LLM."""
+    q = question.lower()
+    # Extract key facts from system prompt
+    import re
+    gaps_m    = re.search(r"Skill gaps: ([^.]+)", system_prompt)
+    hours_m   = re.search(r"Total learning time: (\d+)h", system_prompt)
+    saved_m   = re.search(r"saves (\d+)h", system_prompt)
+    path_m    = re.search(r"Recommended learning path: ([^.]+)", system_prompt)
+    roles_m   = re.search(r"transitioning to (\S+)", system_prompt)
+
+    gaps_str  = gaps_m.group(1).strip()  if gaps_m  else "a few key skills"
+    hours     = hours_m.group(1)         if hours_m else "?"
+    saved     = saved_m.group(1)         if saved_m else "?"
+    path_str  = path_m.group(1).strip()  if path_m  else "the recommended courses"
+    to_role   = roles_m.group(1).strip() if roles_m else "your target role"
+
+    if any(w in q for w in ["first", "start", "begin", "order"]):
+        first = path_str.split(",")[0].strip()
+        return f"Start with **{first}** — it covers the most critical gaps and has the highest efficiency score (gaps closed per hour)."
+    if any(w in q for w in ["long", "time", "hour", "day", "week"]):
+        return f"Your optimized path is **{hours} hours** total. At 2 hrs/day that's ~{round(int(hours)/2)} days. You save **{saved}h** vs the 35h static baseline."
+    if any(w in q for w in ["gap", "miss", "need", "lack"]):
+        return f"Your skill gaps are: **{gaps_str}**. Each course in your path is selected to close these as efficiently as possible."
+    if any(w in q for w in ["salary", "pay", "money", "earn", "boost"]):
+        return f"Closing your gaps for **{to_role}** typically unlocks a higher pay band. Completing this {hours}h path signals full role readiness to employers."
+    if any(w in q for w in ["why", "reason", "explain", "how"]):
+        return f"The path was built using greedy set-cover optimization — each course is ranked by gaps-closed-per-hour. Prerequisites are enforced via a DAG so foundational skills always come first."
+    if any(w in q for w in ["skip", "already know", "optional"]):
+        return f"Use the **What-If Simulation** tab to remove skills you already have — the path will instantly recalculate with fewer courses."
+    return f"Your path covers **{gaps_str}** in **{hours}h** via: {path_str}. Ask me anything more specific about your roadmap!"
 
 
 def _time_label():
