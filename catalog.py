@@ -29,7 +29,7 @@ def normalize_skills(skills: list) -> set:
     return {standard_lower[s] for s in incoming if s in standard_lower}
 
 
-def build_learning_path(gap_skills: set) -> list:
+def build_learning_path(gap_skills: set, experience_years: int = 0) -> list:
     """
     For every gap skill, find matching courses, deduplicate,
     sort beginner → intermediate → advanced.

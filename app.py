@@ -11,6 +11,7 @@ from reportlab.pdfgen import canvas as rl_canvas
 from parser import parse_file
 from gap_logic import normalize_skills, compute_gaps, _adaptive_confidence
 from path_generator import build_learning_path, build_bonus_courses, estimate_time, generate_ai_insight, generate_plain_english_trace
+from chat import render_chat
 
 try:
     from yfiles_graphs_for_streamlit import yfiles_graph
@@ -1229,60 +1230,104 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     with tab4:
         st.markdown("### What-If Simulation")
-        st.caption("Select a course below to see how your skill gap reduces after completing it.")
+        st.caption("Add or remove skills to instantly see how your gaps, learning path, and time change.")
 
-        course_titles = [c["title"] for c in pathway]
-        selected = st.selectbox("Choose a course to simulate completing:", course_titles)
-        selected_course = next(c for c in pathway if c["title"] == selected)
-
-        # Skills gained from this course that are in the gap list
-        gaps_closed = {s for s in selected_course["skills"] if s in gaps}
-        remaining   = gaps - gaps_closed
-        new_coverage = round(len(matched | gaps_closed) / max(len(jd_skills), 1) * 100)
-
-        wi1, wi2, wi3 = st.columns(3)
         _wi_bg  = "#111111" if is_dark else "#f8fafc"
         _wi_bdr = "#222222" if is_dark else "#e2e8f0"
-        for col, lbl, val, color in [
-            (wi1, "Gaps Closed",      f"{len(gaps_closed)} / {len(gaps)}", "#22c55e"),
-            (wi2, "Remaining Gaps",   str(len(remaining)),                 "#ef4444" if remaining else "#22c55e"),
-            (wi3, "New Coverage",     f"{new_coverage}%",                  "#0ea5e9"),
+        _wi_sub = "#888888" if is_dark else "#64748b"
+
+        wc1, wc2 = st.columns(2)
+        with wc1:
+            st.markdown("**Remove skills** (uncheck to simulate not having them)")
+            sim_candidate_skills = set()
+            for s in sorted(candidate_skills):
+                if st.checkbox(s, value=True, key=f"wi_skill_{s}"):
+                    sim_candidate_skills.add(s)
+        with wc2:
+            st.markdown("**Add skills** (simulate learning or having extra skills)")
+            addable = sorted(jd_skills - candidate_skills)
+            extra_skills = st.multiselect(
+                "Select skills to add:",
+                options=addable,
+                default=[],
+                key="wi_add_skills"
+            )
+            sim_candidate_skills = sim_candidate_skills | set(extra_skills)
+
+        # Recompute gaps with simulated skill set
+        sim_gap_result  = compute_gaps(sim_candidate_skills, jd_skills)
+        sim_gaps        = sim_gap_result["gaps"]
+        sim_matched     = sim_gap_result["matched"]
+        sim_pathway     = build_learning_path(sim_gaps, experience_years=rd.get("experience_years", 0))
+        sim_time        = estimate_time(sim_pathway) if sim_pathway else {"total": 0, "saved": 0}
+        sim_hours       = sim_time["total"]
+        sim_coverage    = round(len(sim_matched) / max(len(jd_skills), 1) * 100)
+        sim_saved_pct   = round(max(0, BASELINE_HOURS - sim_hours) / BASELINE_HOURS * 100)
+
+        st.divider()
+        st.markdown("#### Before vs After")
+
+        bef1, bef2, bef3, bef4 = st.columns(4)
+        for col, lbl, before_val, after_val, good_if_lower in [
+            (bef1, "Skill Gaps",     len(gaps),        len(sim_gaps),     True),
+            (bef2, "Coverage",       f"{_skill_cov}%", f"{sim_coverage}%", False),
+            (bef3, "Path Hours",     f"{_opt_hours}h", f"{sim_hours}h",   True),
+            (bef4, "Time Saved",     f"{_saved_pct}%", f"{sim_saved_pct}%", False),
         ]:
+            delta_color = "#22c55e" if (sim_gaps < gaps if lbl == "Skill Gaps" else sim_hours < _opt_hours if lbl == "Path Hours" else sim_coverage > _skill_cov if lbl == "Coverage" else sim_saved_pct > _saved_pct) else "#ef4444"
             col.markdown(f"""
-            <div class="hover-card" style="background:{_wi_bg};border:1px solid {_wi_bdr};border-radius:10px;
+            <div style="background:{_wi_bg};border:1px solid {_wi_bdr};border-radius:10px;
                         padding:1rem;text-align:center;">
-                <div style="font-size:.8rem;color:{_sip_sub};text-transform:uppercase;
-                            letter-spacing:.8px;margin-bottom:.3rem;">{lbl}</div>
-                <div style="font-size:1.8rem;font-weight:700;color:{color};">{val}</div>
+                <div style="font-size:.75rem;color:{_wi_sub};text-transform:uppercase;
+                            letter-spacing:.8px;margin-bottom:.4rem;">{lbl}</div>
+                <div style="display:flex;justify-content:center;align-items:center;gap:.6rem;">
+                    <span style="font-size:1.1rem;color:{_wi_sub};text-decoration:line-through;">{before_val}</span>
+                    <span style="color:{_wi_sub};">→</span>
+                    <span style="font-size:1.4rem;font-weight:700;color:{delta_color};">{after_val}</span>
+                </div>
             </div>""", unsafe_allow_html=True)
 
         st.markdown("")
 
         # Before / After gap bar chart
-        all_gap_skills = sorted(gaps)
-        before_vals = [1] * len(all_gap_skills)
-        after_vals  = [0 if s in gaps_closed else 1 for s in all_gap_skills]
-        fig_wi = go.Figure()
-        fig_wi.add_trace(go.Bar(name="Before", x=all_gap_skills, y=before_vals,
-                                marker_color="#ef4444", opacity=0.7))
-        fig_wi.add_trace(go.Bar(name="After",  x=all_gap_skills, y=after_vals,
-                                marker_color="#22c55e", opacity=0.9))
-        fig_wi.update_layout(
-            barmode="group", height=300,
-            paper_bgcolor=_pbg, plot_bgcolor=_pbg, font_color=txt_color,
-            yaxis=dict(tickvals=[0,1], ticktext=["Closed","Gap"], range=[0,1.4]),
-            xaxis_title="Skill", legend_title="Status",
-            margin=dict(t=20, b=20)
-        )
-        st.plotly_chart(fig_wi, use_container_width=True)
+        all_gap_skills = sorted(gaps | sim_gaps)
+        if all_gap_skills:
+            fig_wi = go.Figure()
+            fig_wi.add_trace(go.Bar(
+                name="Before", x=all_gap_skills,
+                y=[1 if s in gaps else 0 for s in all_gap_skills],
+                marker_color="#ef4444", opacity=0.75
+            ))
+            fig_wi.add_trace(go.Bar(
+                name="After", x=all_gap_skills,
+                y=[1 if s in sim_gaps else 0 for s in all_gap_skills],
+                marker_color="#22c55e", opacity=0.9
+            ))
+            fig_wi.update_layout(
+                barmode="group", height=280,
+                paper_bgcolor=_pbg, plot_bgcolor=_pbg, font_color=txt_color,
+                yaxis=dict(tickvals=[0, 1], ticktext=["Closed", "Gap"], range=[0, 1.4]),
+                xaxis_title="Skill", legend_title="Status",
+                margin=dict(t=20, b=20)
+            )
+            st.plotly_chart(fig_wi, use_container_width=True)
 
-        if gaps_closed:
-            st.success(f"Completing **{selected}** closes: {', '.join(sorted(gaps_closed))}")
-        if not remaining:
+        # Updated path
+        if sim_pathway:
+            st.markdown(f"**Updated path ({sim_hours}h · {len(sim_pathway)} course(s)):**")
+            for i, c in enumerate(sim_pathway, 1):
+                st.markdown(
+                    f"<div style='padding:.3rem .8rem;margin:.2rem 0;border-left:3px solid "
+                    f"{'#10b981' if c['difficulty']=='beginner' else '#3b82f6' if c['difficulty']=='intermediate' else '#ef4444'};"
+                    f"background:{_wi_bg};border-radius:0 6px 6px 0;font-size:.9rem;'>"
+                    f"<b>{i}. {c['title']}</b> &nbsp;<span style='color:{_wi_sub};'>{c['duration']}h · {c['difficulty']}</span></div>",
+                    unsafe_allow_html=True
+                )
+        elif not sim_gaps:
             st.balloons()
-            st.success("This single course closes ALL your gaps — you're role-ready!")
+            st.success("No gaps remaining — you're already role-ready with this skill set!")
         else:
-            st.info(f"Still remaining after this course: {', '.join(sorted(remaining))}")
+            st.warning("No courses found for the remaining gaps.")
 
     # ── Tab 5: Proof / Benchmark ──────────────────────────────────────────────
     with tab5:
@@ -1930,265 +1975,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.text(generate_plain_english_trace(sorted(matched), sorted(gaps), pathway))
 
     # ── Floating AI Chat Agent ────────────────────────────────────────────────
-    import json as _json
-    import urllib.request as _ureq
-    from parser import _get_openai_key
-    try:
-        from openai import OpenAI as _OAI
-        _OAI_AVAIL = True
-    except ImportError:
-        _OAI_AVAIL = False
-
-    if "chat_messages" not in st.session_state:
-        st.session_state.chat_messages = []
-    if "chat_open" not in st.session_state:
-        st.session_state.chat_open = False
-
-    _sys = (
-        f"You are a concise, helpful onboarding assistant. "
-        f"The candidate is a {from_role} transitioning to {to_role} with "
-        f"{rd.get('experience_years', '?')} years experience. "
-        f"Skill gaps: {', '.join(sorted(gaps))}. "
-        f"Recommended learning path: {', '.join([c['title'] for c in pathway])}. "
-        f"Total learning time: {total_hours}h (saves {hours_saved}h vs static onboarding). "
-        f"Answer in 2-3 sentences max. Be direct and practical."
-    )
-
-    # ── Floating button + chat panel CSS ─────────────────────────────────────
-    _panel_bg   = "#18181b" if is_dark else "#ffffff"
-    _panel_bdr  = "#333"    if is_dark else "#e2e8f0"
-    _panel_h    = "#ffffff" if is_dark else "#0f172a"
-    _panel_sub  = "#888"    if is_dark else "#64748b"
-    _msg_user   = "#2563eb"
-    _msg_ai_bg  = "#27272a" if is_dark else "#f1f5f9"
-    _msg_ai_txt = "#e4e4e7" if is_dark else "#1e293b"
-    _input_bg   = "#27272a" if is_dark else "#f8fafc"
-    _input_bdr  = "#444"    if is_dark else "#cbd5e1"
-    _input_txt  = "#fff"    if is_dark else "#0f172a"
-
-    st.markdown(f"""
-    <style>
-    #fab-btn {{
-        position:fixed; bottom:28px; right:28px; z-index:9999;
-        width:58px; height:58px; border-radius:50%;
-        background:linear-gradient(135deg,#6366f1,#0ea5e9);
-        border:none; cursor:pointer;
-        box-shadow:0 4px 20px rgba(99,102,241,.55);
-        display:flex; align-items:center; justify-content:center;
-        font-size:26px; transition:transform .2s, box-shadow .2s;
-        color:#fff;
-    }}
-    #fab-btn:hover {{ transform:scale(1.1); box-shadow:0 6px 28px rgba(99,102,241,.75); }}
-    #chat-panel {{
-        position:fixed; bottom:100px; right:28px; z-index:9998;
-        width:370px; max-height:560px;
-        background:{_panel_bg}; border:1px solid {_panel_bdr};
-        border-radius:18px; box-shadow:0 12px 40px rgba(0,0,0,.45);
-        display:flex; flex-direction:column; overflow:hidden;
-        animation:slideUp .25s ease;
-    }}
-    @keyframes slideUp {{ from{{opacity:0;transform:translateY(20px)}} to{{opacity:1;transform:translateY(0)}} }}
-    #chat-header {{
-        background:linear-gradient(135deg,#6366f1,#0ea5e9);
-        padding:14px 18px; display:flex; align-items:center; gap:10px;
-        border-radius:18px 18px 0 0;
-    }}
-    #chat-messages {{
-        flex:1; overflow-y:auto; padding:14px 14px 6px;
-        display:flex; flex-direction:column; gap:10px;
-        max-height:360px;
-    }}
-    .cm-user {{
-        align-self:flex-end; background:{_msg_user};
-        color:#fff; border-radius:14px 14px 3px 14px;
-        padding:9px 13px; font-size:.88rem; max-width:85%; line-height:1.45;
-    }}
-    .cm-ai {{
-        align-self:flex-start; background:{_msg_ai_bg};
-        color:{_msg_ai_txt}; border-radius:14px 14px 14px 3px;
-        padding:9px 13px; font-size:.88rem; max-width:85%; line-height:1.45;
-    }}
-    #chat-suggestions {{
-        padding:6px 14px; display:flex; flex-wrap:wrap; gap:5px;
-    }}
-    .cs-chip {{
-        background:{'#2a2a2e' if is_dark else '#f1f5f9'};
-        border:1px solid {'#444' if is_dark else '#e2e8f0'};
-        border-radius:14px; padding:4px 11px;
-        font-size:.78rem; color:{'#aaa' if is_dark else '#475569'};
-        cursor:pointer; white-space:nowrap;
-    }}
-    .cs-chip:hover {{ border-color:#6366f1; color:#6366f1; }}
-    #chat-input-row {{
-        padding:10px 12px; border-top:1px solid {_panel_bdr};
-        display:flex; gap:8px; align-items:center;
-    }}
-    #chat-input-row input {{
-        flex:1; background:{_input_bg}; border:1px solid {_input_bdr};
-        border-radius:10px; padding:9px 13px;
-        color:{_input_txt}; font-size:.88rem; outline:none;
-    }}
-    #chat-input-row input:focus {{ border-color:#6366f1; }}
-    #chat-send {{
-        background:#6366f1; border:none; border-radius:10px;
-        width:38px; height:38px; cursor:pointer; color:#fff;
-        font-size:16px; display:flex; align-items:center; justify-content:center;
-        flex-shrink:0;
-    }}
-    #chat-send:hover {{ background:#4f46e5; }}
-    @media(max-width:480px){{
-        #chat-panel{{ width:calc(100vw - 32px); right:16px; bottom:90px; }}
-        #fab-btn{{ right:16px; bottom:16px; }}
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
-    # ── FAB toggle button ─────────────────────────────────────────────────────
-    _fab_label = " Close" if st.session_state.chat_open else " Ask AI"
-    # Inject CSS to make this specific button fixed bottom-right
-    st.markdown("""
-    <style>
-    div[data-testid="stButton"][id="fab-wrapper"] > button,
-    button[kind="primary"][data-testid="baseButton-primary"]:last-of-type {
-        /* fallback — real fix below */
-    }
-    #fab-fixed-wrapper {
-        position: fixed !important;
-        bottom: 28px !important;
-        right: 28px !important;
-        z-index: 10000 !important;
-    }
-    #fab-fixed-wrapper button {
-        width: 58px !important;
-        height: 58px !important;
-        border-radius: 50% !important;
-        background: linear-gradient(135deg,#6366f1,#0ea5e9) !important;
-        border: none !important;
-        font-size: 22px !important;
-        padding: 0 !important;
-        box-shadow: 0 4px 20px rgba(99,102,241,.6) !important;
-        color: #fff !important;
-        font-weight: 700 !important;
-    }
-    #fab-fixed-wrapper button:hover {
-        transform: scale(1.1) !important;
-        box-shadow: 0 6px 28px rgba(99,102,241,.8) !important;
-    }
-    </style>
-    <div id="fab-fixed-wrapper">
-    """, unsafe_allow_html=True)
-    if st.button(_fab_label, key="fab_toggle", help="Ask AI about your learning path"):
-        st.session_state.chat_open = not st.session_state.chat_open
-        st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # ── Chat panel (shown when open) ──────────────────────────────────────────
-    if st.session_state.chat_open:
-        st.markdown(f"""
-        <div id="chat-panel">
-            <div id="chat-header">
-                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
-                  <!-- head -->
-                  <rect x="7" y="10" width="22" height="16" rx="4" fill="white" fill-opacity="0.95"/>
-                  <!-- eyes -->
-                  <circle cx="13" cy="17" r="2.5" fill="#6366f1"/>
-                  <circle cx="23" cy="17" r="2.5" fill="#6366f1"/>
-                  <!-- eye shine -->
-                  <circle cx="14" cy="16" r="0.8" fill="white"/>
-                  <circle cx="24" cy="16" r="0.8" fill="white"/>
-                  <!-- mouth -->
-                  <rect x="13" y="21" width="10" height="2" rx="1" fill="#0ea5e9"/>
-                  <!-- antenna -->
-                  <line x1="18" y1="10" x2="18" y2="6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-                  <circle cx="18" cy="5" r="1.8" fill="#0ea5e9"/>
-                  <!-- ears -->
-                  <rect x="4" y="15" width="3" height="5" rx="1.5" fill="white" fill-opacity="0.7"/>
-                  <rect x="29" y="15" width="3" height="5" rx="1.5" fill="white" fill-opacity="0.7"/>
-                </svg>
-                <div>
-                    <div style="font-weight:700;color:#fff;font-size:.95rem;">SkillBridge AI</div>
-                    <div style="font-size:.75rem;color:rgba(255,255,255,.75);">Your onboarding assistant</div>
-                </div>
-            </div>
-            <div id="chat-messages">
-        """, unsafe_allow_html=True)
-
-        if not st.session_state.chat_messages:
-            st.markdown(f"""
-                <div class="cm-ai"> Hi! I know your full learning path for <b>{from_role}  {to_role}</b>.<br>
-                Ask me anything about your roadmap, gaps, or timeline!</div>
-            """, unsafe_allow_html=True)
-
-        for _msg in st.session_state.chat_messages:
-            _cls = "cm-user" if _msg["role"] == "user" else "cm-ai"
-            st.markdown(f"<div class='{_cls}'>{_msg['content']}</div>", unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)  # close #chat-messages
-
-        # Suggestion chips (only when empty)
-        if not st.session_state.chat_messages:
-            st.markdown("""
-            <div id="chat-suggestions">
-                <span class="cs-chip">Why first course?</span>
-                <span class="cs-chip">Daily time needed?</span>
-                <span class="cs-chip">Most critical skill?</span>
-                <span class="cs-chip">Salary boost?</span>
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)  # close #chat-panel
-
-        # ── Streamlit chat input (rendered below panel, functional) ──────────
-        _col_inp, _col_clr = st.columns([5, 1])
-        with _col_inp:
-            _user_q = st.chat_input("Ask about your path...", key="float_chat_input")
-        with _col_clr:
-            if st.session_state.chat_messages:
-                if st.button("", key="clear_chat", help="Clear chat"):
-                    st.session_state.chat_messages = []
-                    st.rerun()
-
-        if _user_q:
-            st.session_state.chat_messages.append({"role": "user", "content": _user_q})
-
-            _oai_key = _get_openai_key() if _OAI_AVAIL else None
-            if _OAI_AVAIL and _oai_key:
-                _client  = _OAI(api_key=_oai_key)
-                _history = [{"role": "system", "content": _sys}] + [
-                    {"role": m["role"], "content": m["content"]}
-                    for m in st.session_state.chat_messages
-                ]
-                _stream = _client.chat.completions.create(
-                    model="gpt-4o-mini", messages=_history,
-                    temperature=0.5, max_tokens=400, stream=True
-                )
-                _full, _buf = "", ""
-                _ph = st.empty()
-                for _chunk in _stream:
-                    _delta = _chunk.choices[0].delta.content or ""
-                    _full += _delta; _buf += _delta
-                    if len(_buf) >= 8:
-                        _ph.markdown(_full + "▍"); _buf = ""
-                _ph.markdown(_full)
-                _ans = _full
-            else:
-                _payload = _json.dumps({
-                    "model": "llama3.2",
-                    "prompt": f"{_sys}\n\nQuestion: {_user_q}",
-                    "stream": False
-                }).encode()
-                try:
-                    _req = _ureq.Request(
-                        "http://localhost:11434/api/generate",
-                        data=_payload, headers={"Content-Type": "application/json"}
-                    )
-                    with _ureq.urlopen(_req, timeout=30) as _r:
-                        _ans = _json.loads(_r.read()).get("response", "No response")
-                except Exception:
-                    _ans = " AI unavailable — add OpenAI key to `.streamlit/secrets.toml` or run `ollama serve`"
-
-            st.session_state.chat_messages.append({"role": "assistant", "content": _ans})
-            st.rerun()
+    render_chat(from_role, to_role, rd, gaps, pathway, total_hours, hours_saved, is_dark)
 
     # ── Footer ────────────────────────────────────────────────────────────────
     st.markdown("---")
