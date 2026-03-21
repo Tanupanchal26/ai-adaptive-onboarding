@@ -985,72 +985,69 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     st.divider()
 
-    # ── Reasoning Trace — Visual Pipeline (Upgrade 3) ────────────────────────
-    with st.expander("🔍 AI Reasoning Pipeline (Judge Mode)", expanded=False):
-        # ── Structured trace dict ─────────────────────────────────────────────
-        trace = {
-            "Step 1 · Input":             f"Candidate: {from_role} · {rd.get('experience_years','?')} yrs",
-            "Step 2 · Resume Parsing":    f"Extracted {len(rd.get('skills',[]))} raw skills → normalized to {len(candidate_skills)}: {', '.join(sorted(candidate_skills)) or 'none'}",
-            "Step 3 · JD Parsing":        f"Extracted {len(jd.get('skills',[]))} raw skills → normalized to {len(jd_skills)}: {', '.join(sorted(jd_skills)) or 'none'}",
-            "Step 4 · Semantic Matching": f"cosine similarity (threshold 0.70) → {len(matched)} matched: {', '.join(sorted(matched)) or 'none'}",
-            "Step 5 · Gap Detection":     f"JD − Candidate (semantic) → {len(gaps)} gaps: {', '.join(sorted(gaps)) or 'none'}",
-            "Step 6 · Graph Ordering":    f"Prerequisite DAG topological sort → dependency-aware gap order",
-            "Step 7 · Course Scoring":    f"score = gaps_covered / duration → ranked {len(pathway)} courses by efficiency",
-            "Step 8 · Path Assembly":     " → ".join([c['title'] for c in pathway]),
-            "Step 9 · Time Estimation":   f"Total {total_hours}h · Static {static_hours}h · Saved {hours_saved}h ({efficiency}%)",
-            "Step 10 · Output":           f"Pathway for {from_role} → {to_role} ✅",
-        }
-        _tr_bg  = "#111111" if is_dark else "#f1f5f9"
-        _tr_acc = "#00d4ff" if is_dark else "#0ea5e9"
-        _tr_ttl = "#e0e0e0" if is_dark else "#0f172a"
-        _tr_sub = "#777777" if is_dark else "#475569"
-        for step, detail in trace.items():
-            st.markdown(
-                f"<div style='font-family:monospace;background:{_tr_bg};padding:9px 16px;"
-                f"border-left:3px solid {_tr_acc};margin-bottom:5px;border-radius:0 8px 8px 0;'>"
-                f"<span style='color:{_tr_acc};font-weight:700;'>{step}</span><br/>"
-                f"<span style='color:{_tr_sub};font-size:12.5px;'>{detail}</span></div>",
-                unsafe_allow_html=True
-            )
-
+    # ── Reasoning Trace ───────────────────────────────────────────────────────
+    with st.expander("🔍 How the AI built your pathway — Step-by-Step Reasoning", expanded=False):
+        st.caption(f"Transparent breakdown of every decision made for **{from_role} → {to_role}**")
         st.markdown("")
-        # ── Visual skill-flow diagram ─────────────────────────────────────────
-        st.markdown(f"<div style='font-size:.85rem;color:{_tr_sub};margin-bottom:.4rem;'>📊 Skill Flow Diagram — gap → course mapping</div>", unsafe_allow_html=True)
-        G_trace = nx.DiGraph()
-        gap_nodes    = list(gaps)
-        course_nodes = [c["title"] for c in pathway]
-        for g in gap_nodes:    G_trace.add_node(g,  kind="gap")
-        for c in pathway:
-            G_trace.add_node(c["title"], kind="course")
-            for s in c["skills"]:
-                if s in gaps:
-                    G_trace.add_edge(s, c["title"])
-        pos_trace = nx.spring_layout(G_trace, seed=7, k=2.2)
-        ex_t, ey_t = [], []
-        for u, v in G_trace.edges():
-            x0,y0=pos_trace[u]; x1,y1=pos_trace[v]
-            ex_t+=[x0,x1,None]; ey_t+=[y0,y1,None]
-        node_colors = ["#ef4444" if G_trace.nodes[n]["kind"]=="gap" else "#3b82f6" for n in G_trace.nodes()]
-        fig_flow = go.Figure()
-        fig_flow.add_trace(go.Scatter(x=ex_t, y=ey_t, mode="lines",
-                                      line=dict(color="#444", width=1.5), hoverinfo="none"))
-        fig_flow.add_trace(go.Scatter(
-            x=[pos_trace[n][0] for n in G_trace.nodes()],
-            y=[pos_trace[n][1] for n in G_trace.nodes()],
-            mode="markers+text",
-            marker=dict(size=22, color=node_colors, line=dict(color="#fff", width=1.5)),
-            text=list(G_trace.nodes()), textposition="top center",
-            hoverinfo="text", textfont=dict(color=txt_color, size=10)
-        ))
-        fig_flow.update_layout(
-            showlegend=False, height=360,
-            plot_bgcolor=_pbg, paper_bgcolor=_pbg,
-            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            margin=dict(t=10, b=10, l=10, r=10)
+
+        # Step 1 — Extract Skills
+        st.markdown("##### Step 1 · Extract Skills")
+        r1c1, r1c2 = st.columns(2)
+        with r1c1:
+            st.success(
+                f"**Your resume** listed {len(rd.get('skills', []))} skills.  \n"
+                f"After normalising against the standard taxonomy, "
+                f"**{len(candidate_skills)} were recognised**: "
+                f"{', '.join(sorted(candidate_skills)) or 'none'}."
+            )
+        with r1c2:
+            st.info(
+                f"**The job description** listed {len(jd.get('skills', []))} skills.  \n"
+                f"After normalising, **{len(jd_skills)} were recognised**: "
+                f"{', '.join(sorted(jd_skills)) or 'none'}."
+            )
+        st.divider()
+
+        # Step 2 — Match Skills
+        st.markdown("##### Step 2 · Match Skills")
+        if matched:
+            st.success(
+                f"Using semantic similarity (cosine ≥ 0.70), the AI found **{len(matched)} skills "
+                f"you already have** that satisfy the role requirements:  \n"
+                f"✅ {', '.join(sorted(matched))}"
+            )
+        else:
+            st.warning("No direct skill matches were found between your resume and the job description.")
+        st.divider()
+
+        # Step 3 — Identify Gaps
+        st.markdown("##### Step 3 · Identify Gaps")
+        if gaps:
+            st.warning(
+                f"By subtracting your matched skills from the JD requirements, "
+                f"the AI identified **{len(gaps)} skill gap(s)** you need to close:  \n"
+                f"❌ {', '.join(sorted(gaps))}"
+            )
+        else:
+            st.success("No gaps found — your skills fully cover the role requirements.")
+        st.divider()
+
+        # Step 4 — Optimise Courses
+        st.markdown("##### Step 4 · Optimise Courses")
+        st.info(
+            f"The AI scored every course in the catalog by **efficiency = gaps covered ÷ hours**.  \n"
+            f"It then sorted them using a prerequisite dependency graph (beginner → advanced) "
+            f"to ensure you learn in the right order.  \n"
+            f"**{len(pathway)} course(s) were selected** to close all {len(gaps)} gap(s) "
+            f"in {total_hours}h — saving you {hours_saved}h vs the {static_hours}h static baseline."
         )
-        st.plotly_chart(fig_flow, use_container_width=True)
-        st.markdown(f"<div style='font-size:.78rem;color:{_tr_sub};'><span style='color:#ef4444;'>●</span> Skill Gap &nbsp; <span style='color:#3b82f6;'>●</span> Course</div>", unsafe_allow_html=True)
+        for i, c in enumerate(pathway, 1):
+            covered = [s for s in c.get("covers", c["skills"]) if s in gaps]
+            st.markdown(
+                f"**{i}. {c['title']}** ({c['duration']}h · {c['difficulty'].title()})  \n"
+                f"Closes: {', '.join(covered) if covered else 'supporting skills'} · "
+                f"Efficiency score: {c.get('score', 0):.2f} gaps/hr"
+            )
 
     # ── Floating AI Chat Agent ────────────────────────────────────────────────
     import json as _json
