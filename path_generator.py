@@ -197,12 +197,20 @@ def build_bonus_courses(gaps: set, candidate_skills: set, experience_years: int)
 BASELINE_HOURS = 35
 
 def estimate_time(pathway: list) -> dict:
-    """Return total, static baseline (35h industry standard), saved hours, and efficiency %."""
+    """Return total, static baseline (35h industry standard), saved hours, efficiency %, and learning efficiency score."""
     total      = sum(c["duration"] for c in pathway)
     static     = BASELINE_HOURS
     saved      = max(0, static - total)
     efficiency = round((saved / static) * 100) if saved > 0 else 0
-    return {"total": total, "static": static, "saved": saved, "efficiency": efficiency}
+    # [Improvement] learning efficiency score: skill coverage per hour invested
+    # coverage = unique gaps closed across all courses / total hours
+    gaps_closed = len({s for c in pathway for s in c.get("covers", [])})
+    learning_efficiency_score = round(gaps_closed / max(total, 1), 3)  # gaps/hr
+    return {
+        "total": total, "static": static, "saved": saved, "efficiency": efficiency,
+        "learning_efficiency_score": learning_efficiency_score,
+        "gaps_closed": gaps_closed,
+    }
 
 
 def generate_ai_insight(
