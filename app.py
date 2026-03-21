@@ -207,25 +207,26 @@ if st.session_state.resume_data and st.session_state.jd_data:
         unsafe_allow_html=True
     )
 
-    # ── FEATURE 3: Metric + Radar chart side by side ──────────────────────────
-    met_col, radar_col = st.columns([1, 1])
+    # ── Dashboard Layout ──────────────────────────────────────────────────────
+    readiness = gap_result["coverage_pct"]
+    gap_pct   = 100 - readiness
+    post_path = min(100, readiness + efficiency)
 
-    with met_col:
-        st.metric("⏱️ Time to Competency", f"{total_hours} hours",
-                  delta=f"-{hours_saved} hours vs standard")
-        st.metric("📚 Courses in Pathway", len(pathway))
-        st.metric("🎯 Skill Gaps Closed",  len(gaps))
-        st.metric("⚡ Efficiency Gain",    f"{efficiency}%")
+    dash1, dash2, dash3 = st.columns([1, 2, 1])
 
-    with radar_col:
+    with dash1:
+        st.metric("📊 Readiness Score", f"{readiness:.0f}%", delta=f"↑ {post_path - readiness:.0f}% after this path")
+        st.metric("⏱️ Time to Competency", f"{total_hours}h", delta=f"-{hours_saved}h vs standard")
+        st.metric("📚 Courses", len(pathway))
+        st.metric("⚡ Efficiency", f"{efficiency}%")
+
+    with dash2:
         gap_list = sorted(gaps)
         if len(gap_list) >= 3:
-            # Real gap sizes based on hash for visual variety
             gap_sizes = [40 + (hash(s) % 50) for s in gap_list]
             fig_radar = px.line_polar(
                 pd.DataFrame({"Skill": gap_list, "Gap Size": gap_sizes}),
-                r="Gap Size", theta="Skill", line_close=True,
-                title="🕸️ Skill Gap Radar"
+                r="Gap Size", theta="Skill", line_close=True, title="🕸️ Skill Gap Radar"
             )
             fig_radar.update_traces(fill="toself", line_color="#00ff9d")
             fig_radar.update_layout(
@@ -239,6 +240,24 @@ if st.session_state.resume_data and st.session_state.jd_data:
             st.plotly_chart(fig_radar, use_container_width=True)
         else:
             st.info("Add more skills to see the radar chart (needs 3+ gaps).")
+
+    with dash3:
+        fig_ring = px.pie(
+            values=[readiness, gap_pct],
+            names=["Ready", "Gap"],
+            hole=0.7,
+            color_discrete_sequence=["#00ff9d", "#ff2d55"]
+        )
+        fig_ring.update_traces(textinfo="none")
+        fig_ring.update_layout(
+            paper_bgcolor="#0e1117", font_color="#fff",
+            height=280, margin=dict(t=10, b=10, l=10, r=10),
+            showlegend=True,
+            annotations=[dict(text=f"<b>{readiness:.0f}%</b>", x=0.5, y=0.5,
+                              font_size=22, font_color="#00ff9d", showarrow=False)]
+        )
+        st.plotly_chart(fig_ring, use_container_width=True)
+        st.caption("🟢 Ready  🔴 Gap")
 
     st.divider()
 
