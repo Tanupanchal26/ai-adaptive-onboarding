@@ -304,41 +304,92 @@ if st.session_state.resume_data and st.session_state.jd_data:
     l1.markdown("🟢 Beginner"); l2.markdown("🔵 Intermediate"); l3.markdown("🔴 Advanced")
     st.divider()
 
-    # ── Course Cards ──────────────────────────────────────────────────────────
-    st.markdown("### 📚 Your Learning Pathway")
-    for i, course in enumerate(pathway, 1):
-        de = "🟢" if course["difficulty"]=="beginner" else "🔵" if course["difficulty"]=="intermediate" else "🔴"
-        with st.expander(f"{i}. {course['title']}  {de}  ⏱ {course['duration']}h"):
-            st.markdown(f"**Difficulty:** `{course['difficulty']}`")
-            st.markdown(f"**Skills Covered:** {', '.join(course['skills'])}")
-            if course.get("prereq"):
-                st.markdown(f"**Prerequisites:** {', '.join(course['prereq'])}")
-            st.markdown(f"**💡 Why Recommended:** {course['why']}")
-            st.progress({"beginner":33,"intermediate":66,"advanced":100}.get(course["difficulty"],50))
+    # ── FEATURE 5: Tabs ───────────────────────────────────────────────────────
+    tab1, tab2 = st.tabs(["📋 Personalized Path", "⚖️ Before vs After"])
+
+    with tab1:
+        st.markdown("### 📚 Your Learning Pathway")
+        st.markdown("**Your Strengths**")
+        st.markdown(
+            " ".join([f"<span style='background:#00ff9d;color:#000;padding:6px 12px;"
+                       f"border-radius:8px;margin:3px;display:inline-block;font-weight:600;'>{s}</span>"
+                       for s in sorted(candidate_skills)]),
+            unsafe_allow_html=True
+        )
+        st.markdown("")
+        for i, course in enumerate(pathway, 1):
+            de = "🟢" if course["difficulty"]=="beginner" else "🔵" if course["difficulty"]=="intermediate" else "🔴"
+            with st.expander(f"{i}. {course['title']}  {de}  ⏱ {course['duration']}h",
+                             help=f"Covers: {', '.join(course['skills'])}"):
+                st.markdown(f"**Difficulty:** `{course['difficulty']}`")
+                st.markdown(f"**Skills Covered:** {', '.join(course['skills'])}")
+                if course.get("prereq"):
+                    st.markdown(f"**Prerequisites:** {', '.join(course['prereq'])}")
+                st.markdown(f"**💡 Why Recommended:** {course['why']}")
+                st.progress({"beginner":33,"intermediate":66,"advanced":100}.get(course["difficulty"],50))
+
+    with tab2:
+        st.success(f"Standard onboarding: **{static_hours} hours** → Your AI path: **{total_hours} hours** (You save **{hours_saved} hours!**) ")
+        fig = go.Figure(go.Bar(
+            x=["Static Onboarding", "AI-Adaptive Onboarding"],
+            y=[static_hours, total_hours],
+            marker_color=["#ff4b4b", "#00ff9d"],
+            text=[f"{static_hours}h", f"{total_hours}h"],
+            textposition="outside"
+        ))
+        fig.update_layout(plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
+            font_color="#fff", yaxis_title="Hours Required",
+            showlegend=False, height=350, margin=dict(t=20, b=20))
+        fig.add_annotation(x=1, y=total_hours+1,
+            text=f"🎯 {efficiency}% more efficient",
+            showarrow=False, font=dict(color="#00ff9d", size=14))
+        st.plotly_chart(fig, use_container_width=True)
 
     st.divider()
 
-    # ── Bar Chart ─────────────────────────────────────────────────────────────
-    st.markdown("### 📊 AI Onboarding vs Static Onboarding")
-    fig = go.Figure(go.Bar(
-        x=["Static Onboarding","AI-Adaptive Onboarding"],
-        y=[static_hours, total_hours],
-        marker_color=["#ff4b4b","#00ff9d"],
-        text=[f"{static_hours}h", f"{total_hours}h"],
-        textposition="outside"
-    ))
-    fig.update_layout(plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
-        font_color="#fff", yaxis_title="Hours Required",
-        showlegend=False, height=350, margin=dict(t=20,b=20))
-    fig.add_annotation(x=1, y=total_hours+1,
-        text=f"🎯 {efficiency}% more efficient",
-        showarrow=False, font=dict(color="#00ff9d", size=14))
-    st.plotly_chart(fig, use_container_width=True)
+    # ── FEATURE 4: PDF Download ───────────────────────────────────────────────
+    if st.button("📄 Download My Roadmap as PDF", help="Download your personalized learning roadmap as a PDF"):
+        buffer = io.BytesIO()
+        c = rl_canvas.Canvas(buffer, pagesize=letter)
+        c.setFont("Helvetica-Bold", 20)
+        c.drawString(60, 750, "AI Adaptive Onboarding Pathway")
+        c.setFont("Helvetica", 13)
+        c.drawString(60, 720, f"For: {from_role}  →  {to_role}")
+        c.drawString(60, 700, f"Total Learning Time: {total_hours} hours  |  Hours Saved: {hours_saved}h ({efficiency}%)")
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(60, 670, "Your Personalized Learning Path:")
+        c.setFont("Helvetica", 12)
+        y = 645
+        for i, course in enumerate(pathway, 1):
+            c.drawString(60, y, f"{i}. {course['title']} ({course['duration']}h) — {course['difficulty']}")
+            c.setFont("Helvetica-Oblique", 10)
+            c.drawString(80, y-14, course['why'])
+            c.setFont("Helvetica", 12)
+            y -= 36
+            if y < 80:
+                c.showPage()
+                y = 750
+        c.setFont("Helvetica-Oblique", 9)
+        c.drawString(60, 40, "Generated by AI-Adaptive Onboarding Engine · Powered by LLaMA 3.2 · SkillBridge")
+        c.save()
+        buffer.seek(0)
+        st.download_button(
+            "✅ Download PDF Now", buffer,
+            "My_Personalized_Onboarding_Roadmap.pdf",
+            "application/pdf"
+        )
 
     st.divider()
 
-    # ── Reasoning Trace ───────────────────────────────────────────────────────
-    with st.expander("🔍 Full AI Reasoning Trace", expanded=False):
+    # ── FEATURE 5: Reasoning Trace ────────────────────────────────────────────
+    with st.expander("🔍 Full Reasoning Trace (Judge Mode)", expanded=False):
+        st.write("1. Extracted", len(candidate_skills), "skills from resume")
+        st.write("2. Found", len(gaps), "skill gaps from JD")
+        st.write("3. Matched gaps to course catalog using set-intersection algorithm")
+        st.write("4. Sorted courses: beginner → intermediate → advanced")
+        st.write("5. Deduplicated — each course appears once")
+        st.write("6. Estimated time saved:", hours_saved, "hours vs static onboarding")
+        st.divider()
         steps = [
             ("01","INPUT RECEIVED",         f"Candidate: **{from_role}** · {rd.get('experience_years','?')} yrs experience"),
             ("02","RESUME SKILL EXTRACTION", f"Identified **{len(rd.get('skills',[]))} raw skills** → normalized to **{len(candidate_skills)}**: {', '.join(sorted(candidate_skills)) or 'none'}"),
@@ -362,3 +413,11 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 f"<span style='color:#aaa;font-size:13px;'>{detail}</span></div>",
                 unsafe_allow_html=True
             )
+
+    # ── Footer ────────────────────────────────────────────────────────────────
+    st.markdown(
+        "<div style='text-align:center;color:#555;font-size:12px;padding:20px 0;'>"
+        "Built in 18 hours for Hackathon · 100% local & grounded · Powered by LLaMA 3.2"
+        "</div>",
+        unsafe_allow_html=True
+    )
