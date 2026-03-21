@@ -14,9 +14,13 @@ DIFFICULTY_ORDER = {"beginner": 0, "intermediate": 1, "advanced": 2}
 
 
 def normalize_skills(skills: list) -> set:
-    """Map raw skill list to standard taxonomy (case-insensitive)."""
-    standard_lower = {s.lower(): s for s in STANDARD_SKILLS}
-    return {standard_lower[s.lower()] for s in skills if s.lower() in standard_lower}
+    """
+    Map raw skill list to standard taxonomy.
+    Uses fuzzy cosine matching (sentence-transformers) if available,
+    otherwise falls back to exact lowercase set match.
+    """
+    from parser import fuzzy_match_skills
+    return fuzzy_match_skills(skills, STANDARD_SKILLS)
 
 
 def compute_gaps(candidate_skills: set, jd_skills: set) -> dict:
