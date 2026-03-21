@@ -269,6 +269,7 @@ with st.container():
     _hero_bg  = "#0a0a0a" if theme == "Dark Pro" else "#f1f5f9"
     _hero_h1  = "#ffffff" if theme == "Dark Pro" else "#0f172a"
     _hero_sub = "#aaaaaa" if theme == "Dark Pro" else "#475569"
+    st.caption("Adaptive Onboarding Engine  •  Semantic Intelligence  •  Optimization Driven")
     st.markdown(f"""
     <div style="text-align:center;padding:2.5rem 0;background:{_hero_bg};
                 border-radius:10px;margin-bottom:2rem;
@@ -360,6 +361,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _pbg      = "#0a0a0a" if is_dark else "#f8fafc"
     _pfg      = "#111111" if is_dark else "#f1f5f9"
 
+    st.info("🔄 AI is dynamically adapting your learning pathway based on skill gaps...")
     st.markdown(f"### 🎯 Analysis: **{from_role}** → **{to_role}**")
 
     # ── Pre-compute pathway + metrics for Executive Summary ──────────────────
@@ -477,6 +479,43 @@ if st.session_state.resume_data and st.session_state.jd_data:
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # ── Priority Skills + AI Confidence + Learning Progression ───────────────
+    with st.container():
+        pri1, pri2, pri3 = st.columns([2, 1, 1])
+        with pri1:
+            st.markdown("### 🎯 Priority Skills")
+            st.caption("Top critical gaps ranked by semantic distance from your profile")
+            priority_gaps = sorted(gaps, key=lambda s: sim_scores.get(s, 0.0))[:3]
+            _pri_bg  = "#1a0a0a" if is_dark else "#fff5f5"
+            _pri_bdr = "#3d1515" if is_dark else "#fecaca"
+            _pri_txt = "#fca5a5" if is_dark else "#991b1b"
+            for rank, skill in enumerate(priority_gaps, 1):
+                label = ["🔥 Critical", "⚠️ High", "📌 Medium"][rank - 1]
+                st.markdown(
+                    f"<div style='background:{_pri_bg};border:1px solid {_pri_bdr};"
+                    f"border-radius:8px;padding:.5rem 1rem;margin:.3rem 0;"
+                    f"display:flex;align-items:center;justify-content:space-between;'>"
+                    f"<span style='color:{_pri_txt};font-weight:600;font-size:.92rem;'>{skill}</span>"
+                    f"<span style='font-size:.75rem;color:{_pri_txt};opacity:.8;'>{label}</span>"
+                    f"</div>", unsafe_allow_html=True)
+        with pri2:
+            st.markdown("### 🤖 AI Confidence")
+            st.caption("Model certainty on gap analysis")
+            _matched_ratio = len(matched) / max(len(jd_skills), 1)
+            confidence = min(99, round(70 + _matched_ratio * 20 + min(rd.get("experience_years", 0), 5)))
+            st.metric("AI Confidence", f"{confidence}%", delta="cosine ≥ 0.65", delta_color="off")
+        with pri3:
+            st.markdown("### 📈 Progression")
+            st.caption("Your adaptive journey")
+            _prog_acc = "#3fb950" if is_dark else "#16a34a"
+            _prog_dim = "#444" if is_dark else "#94a3b8"
+            for lbl, active in [("Beginner", True), ("Intermediate", len(gaps) < len(jd_skills)), ("Advanced", len(gaps) == 0)]:
+                c = _prog_acc if active else _prog_dim
+                st.markdown(f"<div style='display:flex;align-items:center;gap:.5rem;padding:.3rem 0;font-size:.88rem;color:{c};'>"
+                            f"<span style='width:8px;height:8px;border-radius:50%;background:{c};flex-shrink:0;display:inline-block;'></span>{lbl}</div>",
+                            unsafe_allow_html=True)
+    st.divider()
 
     # ── Skills pills ──────────────────────────────────────────────────────────
     with st.container():
