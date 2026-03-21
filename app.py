@@ -388,7 +388,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     # [Improvement] adaptive signal — communicates live system behavior to judges/users
     st.info("AI is dynamically adapting your learning pathway based on skill gaps...")
-    st.markdown(f"### Analysis: **{from_role}** → **{to_role}**")
+    st.markdown(f"### Analysis: **{from_role}**  **{to_role}**")
 
     # ── Architecture Flow Banner ──────────────────────────────────────────────
     _af_bg  = "#0d1117" if is_dark else "#f8fafc"
@@ -399,7 +399,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _steps  = ["Resume", "LLM Parse", "Skills", "Embeddings", "Gap Analysis", "Optimizer", "Pathway", "Feedback Loop"]
     _step_html = "".join(
         f"<span style='color:{_af_acc};font-weight:600;font-size:.8rem;'>{s}</span>"
-        + (f"<span style='color:{_af_arr};margin:0 .4rem;'>→</span>" if i < len(_steps)-1 else "")
+        + (f"<span style='color:{_af_arr};margin:0 .4rem;'></span>" if i < len(_steps)-1 else "")
         for i, s in enumerate(_steps)
     )
     st.markdown(f"""
@@ -470,7 +470,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
                     border-top:1px solid {'#30363d' if is_dark else '#e2e8f0'};
                     font-size:.82rem;color:{_es_sub};">
             <span style="color:{_es_acc};">&#9679;</span>&nbsp;
-            {from_role} &nbsp;→&nbsp; {to_role} &nbsp;·&nbsp;
+            {from_role} &nbsp;&nbsp; {to_role} &nbsp;·&nbsp;
             {len(matched)} of {len(jd_skills)} required skills matched &nbsp;·&nbsp;
             {len(_pathway_preview)} course(s) recommended
         </div>
@@ -497,10 +497,10 @@ if st.session_state.resume_data and st.session_state.jd_data:
     <div style="background:{_ai_bg};border:1px solid {_ai_bdr};border-radius:12px;
                 padding:1.4rem 1.8rem;margin:0 0 1.6rem 0;">
         <div style="font-size:.7rem;letter-spacing:2px;text-transform:uppercase;
-                    color:{_ai_lbl};margin-bottom:1rem;">&#129302; AI INTELLIGENCE REPORT</div>
+                    color:{_ai_lbl};margin-bottom:1rem;"> AI INTELLIGENCE REPORT</div>
         <div style="display:flex;flex-direction:column;gap:.9rem;">
             <div style="display:flex;gap:.8rem;align-items:flex-start;">
-                <span style="font-size:1.1rem;flex-shrink:0;">&#9989;</span>
+                <span style="font-size:1.1rem;flex-shrink:0;"></span>
                 <div>
                     <div style="font-size:.72rem;font-weight:700;letter-spacing:1px;
                                 text-transform:uppercase;color:{_ai_grn};margin-bottom:.2rem;">STRENGTHS</div>
@@ -508,7 +508,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 </div>
             </div>
             <div style="display:flex;gap:.8rem;align-items:flex-start;">
-                <span style="font-size:1.1rem;flex-shrink:0;">&#9888;&#65039;</span>
+                <span style="font-size:1.1rem;flex-shrink:0;"></span>
                 <div>
                     <div style="font-size:.72rem;font-weight:700;letter-spacing:1px;
                                 text-transform:uppercase;color:{_ai_red};margin-bottom:.2rem;">AREAS TO DEVELOP</div>
@@ -516,7 +516,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 </div>
             </div>
             <div style="display:flex;gap:.8rem;align-items:flex-start;">
-                <span style="font-size:1.1rem;flex-shrink:0;">&#128161;</span>
+                <span style="font-size:1.1rem;flex-shrink:0;"></span>
                 <div>
                     <div style="font-size:.72rem;font-weight:700;letter-spacing:1px;
                                 text-transform:uppercase;color:{_ai_blu};margin-bottom:.2rem;">OPTIMIZED PATH RATIONALE</div>
@@ -615,8 +615,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
         score = sim_scores.get(skill, 1.0 if have else 0.0)
         pct   = round(score * 100)
         color = _have_col if have else (_gap_hi_col if pct < 40 else _gap_lo_col)
-        label = f"✓ {pct}%" if have else f"✗ {pct}%"
-        match_hint = f" → {best_match[skill]}" if best_match.get(skill) and not have else ""
+        label = f" {pct}%" if have else f" {pct}%"
+        match_hint = f"  {best_match[skill]}" if best_match.get(skill) and not have else ""
         st.markdown(
             f"<div style='display:flex;align-items:center;margin-bottom:6px;gap:10px;'>"
             f"<span style='width:160px;color:{_skill_lbl};font-size:13px;'>{skill}</span>"
@@ -680,7 +680,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         (10 if missing_skills_count == 0 else max(0, 10 - missing_skills_count))
     ))
 
-    readiness_delta = f"+{100 - role_readiness_score}% after path" if role_readiness_score < 100 else "✅ Fully ready"
+    readiness_delta = f"+{100 - role_readiness_score}% after path" if role_readiness_score < 100 else " Fully ready"
     coverage_delta  = f"{missing_skills_count} gap(s) to close"
     missing_delta   = f"out of {len(jd_skills)} required"
 
@@ -848,7 +848,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
             <div style="flex:1;text-align:center;padding:.6rem .4rem;">
                 <div style="font-size:.78rem;color:{_sb};letter-spacing:.5px;text-transform:uppercase;margin-bottom:.25rem;">Role</div>
                 <div style="font-size:.95rem;font-weight:600;color:{_sv};line-height:1.2;">{from_role}<br>
-                    <span style="color:{_sb};font-size:.8rem;font-weight:400;">→ {to_role}</span></div>
+                    <span style="color:{_sb};font-size:.8rem;font-weight:400;"> {to_role}</span></div>
             </div>
         </div>""", unsafe_allow_html=True)
 
@@ -1022,14 +1022,14 @@ if st.session_state.resume_data and st.session_state.jd_data:
         # ── Readiness progress bar ───────────────────────────────────────────────
         current_readiness = max(10, 100 - len(gaps) * 8)
         st.progress(current_readiness / 100)
-        st.caption(f"Current estimated readiness: **{current_readiness}%** → **100%** after completing this path")
+        st.caption(f"Current estimated readiness: **{current_readiness}%**  **100%** after completing this path")
         st.markdown("")
 
         # ── Completion date estimate ───────────────────────────────────────────────
         import datetime as _dtt
         days_needed = round(total_hours / 4)
         ready_date  = _dtt.date.today() + _dtt.timedelta(days=days_needed)
-        st.info(f"📅 At **4 hrs/day**, you’ll be role-ready by **{ready_date.strftime('%B %d, %Y')}** ({days_needed} days)")
+        st.info(f" At **4 hrs/day**, you’ll be role-ready by **{ready_date.strftime('%B %d, %Y')}** ({days_needed} days)")
 
         st.subheader("Optimized Learning Roadmap")
         st.caption(f"Efficiency-ranked · Prerequisite-ordered · Total: {total_hours}h · Closes all {len(gaps)} gap(s)")
@@ -1137,7 +1137,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.plotly_chart(fig_tl, use_container_width=True)
 
     with tab2:
-        st.success(f"Standard onboarding: **{static_hours} hours** → Your AI path: **{total_hours} hours** (You save **{hours_saved} hours!**)")
+        st.success(f"Standard onboarding: **{static_hours} hours**  Your AI path: **{total_hours} hours** (You save **{hours_saved} hours!**)")
         _bbg = "#0a0a0a" if is_dark else "#f8fafc"
         fig = go.Figure(go.Bar(
             x=["Static Onboarding", "AI-Adaptive Onboarding"],
@@ -1150,7 +1150,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
             font_color=txt_color, yaxis_title="Hours Required",
             showlegend=False, height=350, margin=dict(t=20, b=20))
         fig.add_annotation(x=1, y=total_hours+1,
-            text=f"🎯 {efficiency}% more efficient",
+            text=f" {efficiency}% more efficient",
             showarrow=False, font=dict(color=accent, size=14))
         st.plotly_chart(fig, use_container_width=True)
 
@@ -1171,7 +1171,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
             df_gantt, x_start="Start", x_end="Finish", y="Course",
             color="Difficulty",
             color_discrete_map={"beginner": "#00ff9d", "intermediate": "#00bfff", "advanced": "#ff4b4b"},
-            title="📅 Your Onboarding Timeline"
+            title=" Your Onboarding Timeline"
         )
         fig_gantt.update_yaxes(autorange="reversed")
         fig_gantt.update_layout(
@@ -1276,8 +1276,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
         _fl3.metric("Coverage",          f"{_after_cov}%",                f"+{_after_cov - _before_cov}% improved" if _after_cov > _before_cov else "No change yet")
         _fl4.metric("Confidence",        f"{round(_new_conf * 100)}%",    "adaptive score")
 
-        # [Improvement] live coverage progress bar — shows before → after
-        st.progress(_after_cov / 100, text=f"Coverage: {_before_cov}% → {_after_cov}%")
+        # [Improvement] live coverage progress bar — shows before  after
+        st.progress(_after_cov / 100, text=f"Coverage: {_before_cov}%  {_after_cov}%")
 
         if _sim_closed:
             st.success(f"Skills acquired: {', '.join(sorted(_sim_closed))}")
@@ -1328,16 +1328,16 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── Simulate Onboarding ───────────────────────────────────────────────────
-    if st.button("🚀 Simulate Completing My Path", help="See how fast you become role-ready", use_container_width=True):
+    if st.button(" Simulate Completing My Path", help="See how fast you become role-ready", use_container_width=True):
         bar    = st.progress(0)
         status = st.empty()
         for pct in range(101):
             bar.progress(pct)
-            status.markdown(f"💪 **Progress: {pct}%** — {'Getting started...' if pct < 30 else 'Building momentum...' if pct < 70 else 'Almost role-ready!' if pct < 100 else '✅ Done!'}")
+            status.markdown(f" **Progress: {pct}%** — {'Getting started...' if pct < 30 else 'Building momentum...' if pct < 70 else 'Almost role-ready!' if pct < 100 else ' Done!'}")
             time.sleep(0.03)
         st.balloons()
         salary_boost = f"₹{2 + len(gaps) * 0.4:.1f} LPA"
-        st.success(f"🌟 Simulation Complete! You’re now fully onboarded & confident. Estimated salary boost: +{salary_boost}")
+        st.success(f" Simulation Complete! You’re now fully onboarded & confident. Estimated salary boost: +{salary_boost}")
 
     st.divider()
 
@@ -1348,30 +1348,30 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _aip_acc = "#58a6ff" if is_dark else "#0ea5e9"
     _aip_grn = "#3fb950" if is_dark else "#16a34a"
 
-    st.markdown("### 🧠 Adaptive Intelligence Panel")
+    st.markdown("###  Adaptive Intelligence Panel")
     st.caption("How SkillBridge learns, improves, and explains its decisions")
 
     aip1, aip2, aip3 = st.columns(3)
 
     with aip1:
-        st.markdown("#### 🔁 Continuous Learning Loop")
+        st.markdown("####  Continuous Learning Loop")
         st.write("Recommendations improve as users complete courses and reduce skill gaps.")
         _improved = min(100, readiness + 30)
-        st.write(f"Simulated improvement: **{readiness}%** → **{_improved}%**")
+        st.write(f"Simulated improvement: **{readiness}%**  **{_improved}%**")
         st.progress(_improved / 100)
 
     with aip2:
-        st.markdown("#### 📈 Learning Evolution")
+        st.markdown("####  Learning Evolution")
         _before = readiness
         _after  = min(100, readiness + 35)
-        st.write(f"Skill coverage improves from **{_before}%** → **{_after}%** after completing this path.")
+        st.write(f"Skill coverage improves from **{_before}%**  **{_after}%** after completing this path.")
         st.progress(_after / 100)
         st.line_chart([_before, _after])
 
     with aip3:
-        st.markdown("#### 🧠 AI Decision Flow")
-        st.write("Resume → Skills → Gap Detection → Optimization → Feedback Loop → Final Path")
-        for _step in ["✅ Resume parsed", "✅ Gaps detected", "✅ Path optimized", "🔁 Feedback loop active"]:
+        st.markdown("####  AI Decision Flow")
+        st.write("Resume  Skills  Gap Detection  Optimization  Feedback Loop  Final Path")
+        for _step in [" Resume parsed", " Gaps detected", " Path optimized", " Feedback loop active"]:
             st.markdown(f"<div style='font-size:.85rem;padding:2px 0;'>{_step}</div>", unsafe_allow_html=True)
 
     st.divider()
@@ -1384,7 +1384,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.markdown(f"""
         <div style="background:{_card_bg};padding:1.5rem;border-radius:16px;
                     margin-top:1rem;border:1px solid {'#334155' if is_dark else '#e2e8f0'}">
-            <h3 style="color:{_card_h};margin:0 0 .5rem 0;">📤 Export & Share Your Roadmap</h3>
+            <h3 style="color:{_card_h};margin:0 0 .5rem 0;"> Export & Share Your Roadmap</h3>
             <p style="color:{_export_sub};margin:0;">Download as PDF · CSV timeline · Plain-text HR summary</p>
         </div>
         """, unsafe_allow_html=True)
@@ -1396,7 +1396,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _c.setFont("Helvetica-Bold", 20)
     _c.drawString(60, 750, "AI Adaptive Onboarding Pathway")
     _c.setFont("Helvetica", 13)
-    _c.drawString(60, 720, f"For: {from_role}  →  {to_role}")
+    _c.drawString(60, 720, f"For: {from_role}    {to_role}")
     _c.drawString(60, 700, f"Total: {total_hours}h  |  Saved: {hours_saved}h ({efficiency}%)")
     _c.setFont("Helvetica-Bold", 14)
     _c.drawString(60, 670, "Your Personalized Learning Path:")
@@ -1429,36 +1429,36 @@ if st.session_state.resume_data and st.session_state.jd_data:
         })
         _day += _course["duration"] + 1
     csv_data = pd.DataFrame(_csv_rows).to_csv(index=False)
-    txt_content = f"AI Onboarding Plan: {from_role} → {to_role}\nTotal: {total_hours}h | Saved: {hours_saved}h\n\n" + \
+    txt_content = f"AI Onboarding Plan: {from_role}  {to_role}\nTotal: {total_hours}h | Saved: {hours_saved}h\n\n" + \
                   "\n".join([f"{i}. {c['title']} ({c['duration']}h) — {c['why']}" for i, c in enumerate(pathway, 1)])
 
     ex1, ex2, ex3 = st.columns(3)
     with ex1:
-        st.download_button("📄 Download PDF",  pdf_buffer,  "Onboarding_Roadmap.pdf",  "application/pdf", use_container_width=True)
+        st.download_button(" Download PDF",  pdf_buffer,  "Onboarding_Roadmap.pdf",  "application/pdf", use_container_width=True)
     with ex2:
-        st.download_button("📊 Export CSV",    csv_data,    "onboarding_timeline.csv", "text/csv",        use_container_width=True)
+        st.download_button(" Export CSV",    csv_data,    "onboarding_timeline.csv", "text/csv",        use_container_width=True)
     with ex3:
-        st.download_button("📧 Email to HR",   txt_content, "onboarding_plan.txt",     "text/plain",      use_container_width=True)
+        st.download_button(" Email to HR",   txt_content, "onboarding_plan.txt",     "text/plain",      use_container_width=True)
 
     # ── Impact Scorecard ──────────────────────────────────────────────────────
-    with st.expander("🚀 Your Onboarding Impact Score", expanded=False):
+    with st.expander(" Your Onboarding Impact Score", expanded=False):
         sc1, sc2, sc3 = st.columns(3)
         with sc1:
-            st.metric("⏱️ Time Saved", f"{hours_saved} hours", f"{efficiency}% faster")
+            st.metric(" Time Saved", f"{hours_saved} hours", f"{efficiency}% faster")
         with sc2:
-            st.metric("🎯 Skill Coverage", "100%", f"All {len(gaps)} gaps closed")
+            st.metric(" Skill Coverage", "100%", f"All {len(gaps)} gaps closed")
         with sc3:
             confidence = min(99, 70 + len(matched) * 3)
-            st.metric("💪 Confidence Score", f"{confidence}%", "Ready for Day 1")
+            st.metric(" Confidence Score", f"{confidence}%", "Ready for Day 1")
 
     # ── FEATURE 4: PDF Download (legacy — kept for compatibility) ────────────────────
-    if st.button("📄 Download My Roadmap as PDF", help="Download your personalized learning roadmap as a PDF"):
-        st.download_button("✅ Download PDF Now", pdf_buffer, "My_Personalized_Onboarding_Roadmap.pdf", "application/pdf")
+    if st.button(" Download My Roadmap as PDF", help="Download your personalized learning roadmap as a PDF"):
+        st.download_button(" Download PDF Now", pdf_buffer, "My_Personalized_Onboarding_Roadmap.pdf", "application/pdf")
 
     st.divider()
 
     # ── Reasoning Trace ───────────────────────────────────────────────────────
-    with st.expander("🔍 AI Reasoning Trace — How Your Pathway Was Built", expanded=False):
+    with st.expander(" AI Reasoning Trace — How Your Pathway Was Built", expanded=False):
         _tr_bg  = "#0d1117" if is_dark else "#f8fafc"
         _tr_bdr = "#21262d" if is_dark else "#e2e8f0"
         _tr_lbl = "#8b949e" if is_dark else "#64748b"
@@ -1499,11 +1499,11 @@ if st.session_state.resume_data and st.session_state.jd_data:
                         color:{_tr_blu};font-weight:700;margin-bottom:.6rem;">STEP 1 · EXTRACT SKILLS</div>
             <div style="display:flex;gap:2rem;flex-wrap:wrap;">
                 <div style="flex:1;min-width:200px;">
-                    <div style="font-size:.75rem;color:{_tr_lbl};margin-bottom:.3rem;">RESUME ({len(rd.get('skills',[]))} raw → {len(candidate_skills)} normalised)</div>
+                    <div style="font-size:.75rem;color:{_tr_lbl};margin-bottom:.3rem;">RESUME ({len(rd.get('skills',[]))} raw  {len(candidate_skills)} normalised)</div>
                     <div style="font-size:.9rem;color:{_tr_grn};font-weight:600;">{', '.join(sorted(candidate_skills)) or '—'}</div>
                 </div>
                 <div style="flex:1;min-width:200px;">
-                    <div style="font-size:.75rem;color:{_tr_lbl};margin-bottom:.3rem;">JOB DESCRIPTION ({len(jd.get('skills',[]))} raw → {len(jd_skills)} normalised)</div>
+                    <div style="font-size:.75rem;color:{_tr_lbl};margin-bottom:.3rem;">JOB DESCRIPTION ({len(jd.get('skills',[]))} raw  {len(jd_skills)} normalised)</div>
                     <div style="font-size:.9rem;color:{_tr_blu};font-weight:600;">{', '.join(sorted(jd_skills)) or '—'}</div>
                 </div>
             </div>
@@ -1515,13 +1515,13 @@ if st.session_state.resume_data and st.session_state.jd_data:
             f"<tr><td style='padding:4px 10px;color:{_tr_val};'>{s}</td>"
             f"<td style='padding:4px 10px;color:{_tr_lbl};'>{best_match.get(s, s)}</td>"
             f"<td style='padding:4px 10px;color:{_tr_grn};font-weight:600;'>{sim_scores.get(s,1.0):.3f}</td>"
-            f"<td style='padding:4px 10px;color:{_tr_grn};'>✅ Matched</td></tr>"
+            f"<td style='padding:4px 10px;color:{_tr_grn};'> Matched</td></tr>"
             for s in sorted(matched)
         ) + "".join(
             f"<tr><td style='padding:4px 10px;color:{_tr_val};'>{s}</td>"
             f"<td style='padding:4px 10px;color:{_tr_lbl};'>{best_match.get(s,'—')}</td>"
             f"<td style='padding:4px 10px;color:{_tr_red};font-weight:600;'>{sim_scores.get(s,0.0):.3f}</td>"
-            f"<td style='padding:4px 10px;color:{_tr_red};'>❌ Gap</td></tr>"
+            f"<td style='padding:4px 10px;color:{_tr_red};'> Gap</td></tr>"
             for s in sorted(gaps)
         )
         st.markdown(f"""
@@ -1622,7 +1622,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         """, unsafe_allow_html=True)
 
     # ── Plain-English Explanation (for HR & Managers) ───────────────────────
-    with st.expander("📖 Plain-English Explanation (for HR & Managers)", expanded=False):
+    with st.expander(" Plain-English Explanation (for HR & Managers)", expanded=False):
         st.text(generate_plain_english_trace(sorted(matched), sorted(gaps), pathway))
 
     # ── Floating AI Chat Agent ────────────────────────────────────────────────
@@ -1740,7 +1740,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     """, unsafe_allow_html=True)
 
     # ── FAB toggle button ─────────────────────────────────────────────────────
-    _fab_label = "✕ Close" if st.session_state.chat_open else "🤖 Ask AI"
+    _fab_label = " Close" if st.session_state.chat_open else " Ask AI"
     # Inject CSS to make this specific button fixed bottom-right
     st.markdown("""
     <style>
@@ -1811,7 +1811,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
         if not st.session_state.chat_messages:
             st.markdown(f"""
-                <div class="cm-ai">👋 Hi! I know your full learning path for <b>{from_role} → {to_role}</b>.<br>
+                <div class="cm-ai"> Hi! I know your full learning path for <b>{from_role}  {to_role}</b>.<br>
                 Ask me anything about your roadmap, gaps, or timeline!</div>
             """, unsafe_allow_html=True)
 
@@ -1840,7 +1840,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
             _user_q = st.chat_input("Ask about your path...", key="float_chat_input")
         with _col_clr:
             if st.session_state.chat_messages:
-                if st.button("🗑️", key="clear_chat", help="Clear chat"):
+                if st.button("", key="clear_chat", help="Clear chat"):
                     st.session_state.chat_messages = []
                     st.rerun()
 
@@ -1881,7 +1881,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
                     with _ureq.urlopen(_req, timeout=30) as _r:
                         _ans = _json.loads(_r.read()).get("response", "No response")
                 except Exception:
-                    _ans = "⚠️ AI unavailable — add OpenAI key to `.streamlit/secrets.toml` or run `ollama serve`"
+                    _ans = " AI unavailable — add OpenAI key to `.streamlit/secrets.toml` or run `ollama serve`"
 
             st.session_state.chat_messages.append({"role": "assistant", "content": _ans})
             st.rerun()
