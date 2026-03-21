@@ -1034,73 +1034,110 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 fit_content=True
             )
         else:
-            # ── Clean horizontal hierarchical roadmap ─────────────────────────
-            import numpy as np
-            _all_nodes = ["START"] + [c["id"] for c in pathway] + ["END"]
-            _n = len(_all_nodes)
-            # Evenly spaced left→right
-            _xs = {nid: i / max(_n - 1, 1) for i, nid in enumerate(_all_nodes)}
-            _ys = {nid: 0.5 for nid in _all_nodes}
+            # ── Horizontal roadmap: rect shapes + annotation labels ──────────
+            _all_ids   = ["START"] + [c["id"] for c in pathway] + ["END"]
+            _all_nodes_map = {nd["id"]: nd for nd in nodes}
+            _n         = len(_all_ids)
+            _gbg       = "#0d0d0d" if is_dark else "#f8fafc"
+            _sub_txt   = "#94a3b8" if is_dark else "#64748b"
+            _arrow_col = "#475569" if is_dark else "#94a3b8"
 
-            _gbg   = "#0a0a0a" if is_dark else "#f8fafc"
-            _gtxt  = "#e2e8f0" if is_dark else "#1e293b"
-            _gline = "#334155" if is_dark else "#cbd5e1"
+            # Layout constants (paper coords 0-1)
+            _W, _H     = 0.13, 0.28   # node width / height in paper fraction
+            _GAP       = (1.0 - _n * _W) / max(_n - 1, 1)  # gap between nodes
+            _CY        = 0.62          # centre Y of nodes
 
-            fig_g = go.Figure()
+            fig_g      = go.Figure()
+            _shapes    = []
+            _annots    = []
 
-            # Draw curved edges with arrows
-            for e in edges:
-                x0, y0 = _xs[e["start"]], _ys[e["start"]]
-                x1, y1 = _xs[e["end"]],   _ys[e["end"]]
-                fig_g.add_annotation(
-                    x=x1, y=y1, ax=x0, ay=y0,
-                    xref="x", yref="y", axref="x", ayref="y",
-                    showarrow=True, arrowhead=3, arrowsize=1.4,
-                    arrowwidth=2, arrowcolor=_gline
-                )
+            for i, nid in enumerate(_all_ids):
+                nd     = _all_nodes_map[nid]
+                color  = nd["properties"]["background"]
+                lbl    = nd["label"]
+                tip    = nd["properties"].get("tooltip", "")
+                is_cap = nid in ("START", "END")
 
-            # Draw nodes
-            for nd in nodes:
-                nid   = nd["id"]
-                color = nd["properties"]["background"]
-                lbl   = nd["label"]
-                tip   = nd["properties"].get("tooltip", "")
-                is_end_node = nid in ("START", "END")
+                x0 = i * (_W + _GAP)
+                x1 = x0 + _W
+                y0 = _CY - _H / 2
+                y1 = _CY + _H / 2
+                cx = (x0 + x1) / 2
+
+                # Node rectangle / pill
+                _shapes.append(dict(
+                    type="rect",
+                    x0=x0, y0=y0, x1=x1, y1=y1,
+                    xref="paper", yref="paper",
+                    fillcolor=color,
+                    line=dict(color="rgba(255,255,255,0.25)", width=1.5),
+                    layer="below"
+                ))
+
+                # Wrap long labels
+                _words = lbl.split()
+                _lines, _cur = [], ""
+                for w in _words:
+                    if len(_cur) + len(w) > 14:
+                        _lines.append(_cur.strip()); _cur = w + " "
+                    else:
+                        _cur += w + " "
+                if _cur.strip(): _lines.append(_cur.strip())
+                _label_html = "<br>".join(_lines)
+
+                # Label inside node
+                _annots.append(dict(
+                    x=cx, y=_CY,
+                    xref="paper", yref="paper",
+                    text=f"<b>{_label_html}</b>",
+                    showarrow=False,
+                    font=dict(size=10 if is_cap else 9, color="#ffffff", family="Arial"),
+                    align="center"
+                ))
+
+                # Step + duration label below node
+                if not is_cap:
+                    step_i = _all_ids.index(nid)  # 1-based step
+                    c_data = next((c for c in pathway if c["id"] == nid), {})
+                    _annots.append(dict(
+                        x=cx, y=y0 - 0.07,
+                        xref="paper", yref="paper",
+                        text=f"Step {step_i} · {c_data.get('duration','?')}h",
+                        showarrow=False,
+                        font=dict(size=9, color=_sub_txt),
+                        align="center"
+                    ))
+
+                # Arrow to next node
+                if i < _n - 1:
+                    next_x0 = (i + 1) * (_W + _GAP)
+                    _annots.append(dict(
+                        x=next_x0, y=_CY,
+                        ax=x1, ay=_CY,
+                        xref="paper", yref="paper",
+                        axref="paper", ayref="paper",
+                        showarrow=True, arrowhead=2,
+                        arrowsize=1.2, arrowwidth=2,
+                        arrowcolor=_arrow_col, text=""
+                    ))
+
+                # Invisible scatter for hover tooltip
                 fig_g.add_trace(go.Scatter(
-                    x=[_xs[nid]], y=[_ys[nid]],
-                    mode="markers+text",
-                    marker=dict(
-                        size=52 if is_end_node else 44,
-                        color=color,
-                        symbol="circle" if is_end_node else "square",
-                        line=dict(width=3, color="#ffffff" if is_dark else "#0f172a")
-                    ),
-                    text=lbl,
-                    textposition="middle center",
-                    textfont=dict(size=9, color="#ffffff", family="Arial Black"),
+                    x=[cx], y=[0.5],
+                    mode="markers",
+                    marker=dict(size=1, opacity=0),
                     hovertext=tip, hoverinfo="text",
                     showlegend=False
                 ))
 
-            # Step number labels below each course node
-            for i, c in enumerate(pathway, 1):
-                fig_g.add_annotation(
-                    x=_xs[c["id"]], y=0.18,
-                    text=f"<b>Step {i}</b><br>{c['duration']}h · {c['difficulty'].title()}",
-                    showarrow=False,
-                    font=dict(size=10, color="#94a3b8" if is_dark else "#475569"),
-                    xref="x", yref="y"
-                )
-
             fig_g.update_layout(
-                height=320,
+                height=260,
                 paper_bgcolor=_gbg, plot_bgcolor=_gbg,
+                shapes=_shapes, annotations=_annots,
                 showlegend=False,
-                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False,
-                           range=[-0.08, 1.08]),
-                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False,
-                           range=[0.0, 1.0]),
-                margin=dict(t=20, b=60, l=20, r=20),
+                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False, range=[0, 1]),
+                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False, range=[0, 1]),
+                margin=dict(t=10, b=50, l=10, r=10),
                 hovermode="closest"
             )
             st.plotly_chart(fig_g, use_container_width=True)
