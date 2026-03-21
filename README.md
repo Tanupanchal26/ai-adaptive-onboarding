@@ -14,9 +14,8 @@
 | | Link |
 |---|---|
 | 🚀 **Live App** | [https://ai-adaptive.streamlit.app/](https://ai-adaptive.streamlit.app/) — click any persona, no login needed |
-| 🎬 **Demo Video** | [Watch the 2-min walkthrough](YOUR_VIDEO_LINK_HERE) |
-| 📊 **5-Slide Deck** | [View the presentation](YOUR_SLIDES_LINK_HERE) |
-| 🐳 **Docker** | `docker run -p 8501:8501 skillbridge-v2` |
+| 🎬 **Demo Video** | ⚠️ REPLACE THIS → [Watch the 2-min walkthrough](https://youtube.com/YOUR_LINK) |
+| 📊 **5-Slide Deck** | ⚠️ REPLACE THIS → [View the presentation](https://slides.com/YOUR_LINK) |
 
 No API key. No file upload. Just click **Junior Dev** or **Warehouse** and watch the engine work.
 
@@ -268,18 +267,7 @@ ai-adaptive-onboarding/
 
 ---
 
-## Docker
-
-```bash
-docker build -t skillbridge-v2 .
-docker run -p 8501:8501 skillbridge-v2
-```
-
-Open [http://localhost:8501](http://localhost:8501)
-
----
-
-## Quick Start (Local)
+## Quick Start
 
 ```bash
 git clone https://github.com/Tanupanchal26/ai-adaptive-onboarding.git
