@@ -3,6 +3,11 @@ import plotly.graph_objects as go
 import plotly.express as px
 import networkx as nx
 import pandas as pd
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import seaborn as sns
 import io
 import os
 import time
@@ -944,39 +949,50 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
         gap_list = sorted(gaps)
         if len(gap_list) >= 3:
-            gap_sizes = [40 + (hash(s) % 50) for s in gap_list]
-            fig_radar = px.line_polar(
-                pd.DataFrame({"Skill": gap_list, "Gap Size": gap_sizes}),
-                r="Gap Size", theta="Skill", line_close=True
-            )
-            fig_radar.update_traces(fill="toself", line_color=accent)
-            fig_radar.update_layout(
-                paper_bgcolor=_pbg, plot_bgcolor=_pbg,
-                font_color=txt_color, height=240,
-                polar=dict(bgcolor=_pfg,
-                           radialaxis=dict(visible=True, color="#555", showticklabels=False),
-                           angularaxis=dict(color=_sb)),
-                margin=dict(t=10, b=10, l=10, r=10), showlegend=False
-            )
-            st.plotly_chart(fig_radar, use_container_width=True)
+            # Seaborn horizontal bar — gap urgency (lower cosine = more urgent)
+            _gap_scores = [round((1 - sim_scores.get(g, 0.0)) * 100) for g in gap_list]
+            _fig_bg = "#0f0f0f" if is_dark else "#f8fafc"
+            _bar_colors = ["#ef4444" if s >= 60 else "#f97316" if s >= 35 else "#facc15" for s in _gap_scores]
+            fig_snb, ax_snb = plt.subplots(figsize=(5, max(2.2, len(gap_list) * 0.45)))
+            fig_snb.patch.set_facecolor(_fig_bg)
+            ax_snb.set_facecolor(_fig_bg)
+            bars = ax_snb.barh(gap_list, _gap_scores, color=_bar_colors, height=0.55, edgecolor="none")
+            for bar, val in zip(bars, _gap_scores):
+                ax_snb.text(val + 1, bar.get_y() + bar.get_height()/2,
+                            f"{val}%", va="center", fontsize=8,
+                            color="#e2e8f0" if is_dark else "#1e293b")
+            ax_snb.set_xlim(0, 115)
+            ax_snb.set_xlabel("Urgency Score", color="#94a3b8" if is_dark else "#64748b", fontsize=8)
+            ax_snb.tick_params(colors="#94a3b8" if is_dark else "#475569", labelsize=8)
+            ax_snb.spines[:].set_visible(False)
+            ax_snb.set_title("Gap Urgency", color="#e2e8f0" if is_dark else "#0f172a", fontsize=9, pad=6)
+            plt.tight_layout(pad=0.4)
+            st.pyplot(fig_snb, use_container_width=True)
+            plt.close(fig_snb)
 
     with dcol2:
-        fig_ring = px.pie(
-            values=[readiness, gap_pct], names=["Ready", "Gap"],
-            hole=0.72, color_discrete_sequence=[accent, "#333333" if is_dark else "#e2e8f0"]
+        # Seaborn donut via matplotlib
+        _ring_bg = "#0f0f0f" if is_dark else "#f8fafc"
+        _ring_colors = [accent if not is_dark else "#38bdf8", "#1e293b" if is_dark else "#e2e8f0"]
+        fig_ring, ax_ring = plt.subplots(figsize=(3.2, 3.2))
+        fig_ring.patch.set_facecolor(_ring_bg)
+        ax_ring.set_facecolor(_ring_bg)
+        wedges, _ = ax_ring.pie(
+            [readiness, gap_pct],
+            colors=_ring_colors,
+            startangle=90,
+            wedgeprops=dict(width=0.42, edgecolor=_ring_bg, linewidth=2)
         )
-        fig_ring.update_traces(textinfo="none")
-        fig_ring.update_layout(
-            paper_bgcolor=_pbg, font_color=txt_color,
-            height=260, margin=dict(t=0, b=0, l=0, r=0),
-            showlegend=False,
-            annotations=[dict(
-                text=f"<b>{readiness:.0f}%</b><br><span style='font-size:11px'>Ready</span>",
-                x=0.5, y=0.5, font_size=20, font_color=_sv, showarrow=False
-            )]
-        )
-        st.plotly_chart(fig_ring, use_container_width=True)
-        st.markdown(f"<p style='text-align:center;font-size:.8rem;color:{_sb};margin-top:-.8rem;'>■ Ready &nbsp; ■ Gap</p>", unsafe_allow_html=True)
+        ax_ring.text(0, 0.08, f"{readiness:.0f}%",
+                     ha="center", va="center", fontsize=18, fontweight="bold",
+                     color="#e2e8f0" if is_dark else "#0f172a")
+        ax_ring.text(0, -0.22, "Ready",
+                     ha="center", va="center", fontsize=9,
+                     color="#94a3b8" if is_dark else "#64748b")
+        plt.tight_layout(pad=0)
+        st.pyplot(fig_ring, use_container_width=True)
+        plt.close(fig_ring)
+        st.markdown(f"<p style='text-align:center;font-size:.78rem;color:{_sb};margin-top:-.5rem;'>■ Ready &nbsp; ■ Gap</p>", unsafe_allow_html=True)
 
     st.divider()
 
@@ -1277,41 +1293,62 @@ if st.session_state.resume_data and st.session_state.jd_data:
                     </div>
                     """, unsafe_allow_html=True)
 
-        # ── Timeline bar ────────────────────────────────────────────────────────────
-        df_tl = pd.DataFrame({
-            "Step":       [f"Step {i+1}" for i in range(len(pathway))],
-            "Hours":      [c["duration"] for c in pathway],
-            "Difficulty": [c["difficulty"] for c in pathway]
-        })
-        fig_tl = px.bar(df_tl, x="Hours", y="Step", orientation="h",
-                        color="Difficulty",
-                        color_discrete_map={"beginner":"#4ade80","intermediate":"#60a5fa","advanced":"#f87171"},
-                        height=180 + len(pathway) * 35, text_auto=True)
-        fig_tl.update_layout(
-            xaxis_title="Estimated Hours", yaxis_title="",
-            bargap=0.25, margin=dict(l=10,r=10,t=30,b=10),
-            paper_bgcolor=_pbg, plot_bgcolor=_pbg, font_color=txt_color,
-            legend_title="Difficulty"
-        )
-        st.plotly_chart(fig_tl, use_container_width=True)
+        # ── Seaborn horizontal bar — course durations ─────────────────────
+        _tl_bg = "#0f0f0f" if is_dark else "#f8fafc"
+        _diff_pal = {"beginner": "#4ade80", "intermediate": "#60a5fa", "advanced": "#f87171"}
+        _tl_labels = [f"Step {i+1}: {c['title'][:22]+'…' if len(c['title'])>22 else c['title']}" for i, c in enumerate(pathway)]
+        _tl_hours  = [c["duration"] for c in pathway]
+        _tl_colors = [_diff_pal.get(c["difficulty"], "#94a3b8") for c in pathway]
+        fig_tl, ax_tl = plt.subplots(figsize=(7, max(2.5, len(pathway) * 0.55)))
+        fig_tl.patch.set_facecolor(_tl_bg)
+        ax_tl.set_facecolor(_tl_bg)
+        bars_tl = ax_tl.barh(_tl_labels, _tl_hours, color=_tl_colors, height=0.55, edgecolor="none")
+        for bar, h in zip(bars_tl, _tl_hours):
+            ax_tl.text(h + 0.15, bar.get_y() + bar.get_height()/2,
+                       f"{h}h", va="center", fontsize=8.5,
+                       color="#e2e8f0" if is_dark else "#1e293b", fontweight="bold")
+        ax_tl.set_xlabel("Hours", color="#94a3b8" if is_dark else "#64748b", fontsize=8)
+        ax_tl.tick_params(colors="#94a3b8" if is_dark else "#475569", labelsize=8)
+        ax_tl.spines[:].set_visible(False)
+        ax_tl.set_xlim(0, max(_tl_hours) * 1.18)
+        ax_tl.invert_yaxis()
+        # legend
+        from matplotlib.patches import Patch
+        _legend_els = [Patch(facecolor=v, label=k.title()) for k, v in _diff_pal.items()]
+        ax_tl.legend(handles=_legend_els, loc="lower right", fontsize=7,
+                     facecolor=_tl_bg, edgecolor="none",
+                     labelcolor="#94a3b8" if is_dark else "#475569")
+        plt.tight_layout(pad=0.4)
+        st.pyplot(fig_tl, use_container_width=True)
+        plt.close(fig_tl)
 
     with tab2:
         st.success(f"Standard onboarding: **{static_hours} hours**  Your AI path: **{total_hours} hours** (You save **{hours_saved} hours!**)")
         _bbg = "#0a0a0a" if is_dark else "#f8fafc"
-        fig = go.Figure(go.Bar(
-            x=["Static Onboarding", "AI-Adaptive Onboarding"],
-            y=[static_hours, total_hours],
-            marker_color=["#ff4b4b", accent],
-            text=[f"{static_hours}h", f"{total_hours}h"],
-            textposition="outside"
-        ))
-        fig.update_layout(plot_bgcolor=_bbg, paper_bgcolor=_bbg,
-            font_color=txt_color, yaxis_title="Hours Required",
-            showlegend=False, height=350, margin=dict(t=20, b=20))
-        fig.add_annotation(x=1, y=total_hours+1,
-            text=f" {efficiency}% more efficient",
-            showarrow=False, font=dict(color=accent, size=14))
-        st.plotly_chart(fig, use_container_width=True)
+        # Seaborn grouped bar — before vs after
+        _b2_bg = "#0f0f0f" if is_dark else "#f8fafc"
+        fig_b2, ax_b2 = plt.subplots(figsize=(5, 3.2))
+        fig_b2.patch.set_facecolor(_b2_bg)
+        ax_b2.set_facecolor(_b2_bg)
+        _b2_x = ["Static Onboarding", "AI-Adaptive"]
+        _b2_y = [static_hours, total_hours]
+        _b2_c = ["#ef4444", "#22c55e"]
+        _b2_bars = ax_b2.bar(_b2_x, _b2_y, color=_b2_c, width=0.45, edgecolor="none")
+        for bar, val in zip(_b2_bars, _b2_y):
+            ax_b2.text(bar.get_x() + bar.get_width()/2, val + 0.4,
+                       f"{val}h", ha="center", fontsize=11, fontweight="bold",
+                       color="#e2e8f0" if is_dark else "#0f172a")
+        ax_b2.annotate(f"↓ {efficiency}% faster",
+                       xy=(1, total_hours), xytext=(1, total_hours + static_hours * 0.18),
+                       ha="center", fontsize=10, color="#22c55e", fontweight="bold",
+                       arrowprops=dict(arrowstyle="->", color="#22c55e", lw=1.5))
+        ax_b2.set_ylabel("Hours Required", color="#94a3b8" if is_dark else "#64748b", fontsize=9)
+        ax_b2.tick_params(colors="#94a3b8" if is_dark else "#475569", labelsize=9)
+        ax_b2.spines[:].set_visible(False)
+        ax_b2.set_ylim(0, static_hours * 1.35)
+        plt.tight_layout(pad=0.4)
+        st.pyplot(fig_b2, use_container_width=True)
+        plt.close(fig_b2)
 
     with tab3:
         import datetime
@@ -1400,28 +1437,34 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
         st.markdown("")
 
-        # Before / After gap bar chart
+        # Seaborn heatmap-style gap comparison
         all_gap_skills = sorted(gaps | sim_gaps)
         if all_gap_skills:
-            fig_wi = go.Figure()
-            fig_wi.add_trace(go.Bar(
-                name="Before", x=all_gap_skills,
-                y=[1 if s in gaps else 0 for s in all_gap_skills],
-                marker_color="#ef4444", opacity=0.75
-            ))
-            fig_wi.add_trace(go.Bar(
-                name="After", x=all_gap_skills,
-                y=[1 if s in sim_gaps else 0 for s in all_gap_skills],
-                marker_color="#22c55e", opacity=0.9
-            ))
-            fig_wi.update_layout(
-                barmode="group", height=280,
-                paper_bgcolor=_pbg, plot_bgcolor=_pbg, font_color=txt_color,
-                yaxis=dict(tickvals=[0, 1], ticktext=["Closed", "Gap"], range=[0, 1.4]),
-                xaxis_title="Skill", legend_title="Status",
-                margin=dict(t=20, b=20)
-            )
-            st.plotly_chart(fig_wi, use_container_width=True)
+            _wi_fig_bg = "#0f0f0f" if is_dark else "#f8fafc"
+            _wi_data = pd.DataFrame({
+                "Skill": all_gap_skills,
+                "Before": [1 if s in gaps else 0 for s in all_gap_skills],
+                "After":  [1 if s in sim_gaps else 0 for s in all_gap_skills],
+            })
+            fig_wi, ax_wi = plt.subplots(figsize=(max(5, len(all_gap_skills) * 0.7), 2.8))
+            fig_wi.patch.set_facecolor(_wi_fig_bg)
+            ax_wi.set_facecolor(_wi_fig_bg)
+            x_wi = np.arange(len(all_gap_skills))
+            ax_wi.bar(x_wi - 0.2, _wi_data["Before"], 0.35, label="Before", color="#ef4444", alpha=0.85, edgecolor="none")
+            ax_wi.bar(x_wi + 0.2, _wi_data["After"],  0.35, label="After",  color="#22c55e", alpha=0.9,  edgecolor="none")
+            ax_wi.set_xticks(x_wi)
+            ax_wi.set_xticklabels(all_gap_skills, rotation=30, ha="right", fontsize=8,
+                                  color="#94a3b8" if is_dark else "#475569")
+            ax_wi.set_yticks([0, 1])
+            ax_wi.set_yticklabels(["Closed", "Gap"], fontsize=8,
+                                  color="#94a3b8" if is_dark else "#475569")
+            ax_wi.spines[:].set_visible(False)
+            ax_wi.tick_params(colors="#94a3b8" if is_dark else "#475569")
+            ax_wi.legend(fontsize=8, facecolor=_wi_fig_bg, edgecolor="none",
+                         labelcolor="#94a3b8" if is_dark else "#475569")
+            plt.tight_layout(pad=0.4)
+            st.pyplot(fig_wi, use_container_width=True)
+            plt.close(fig_wi)
 
         # Updated path
         if sim_pathway:
@@ -1508,30 +1551,34 @@ if st.session_state.resume_data and st.session_state.jd_data:
             </div>
             """, unsafe_allow_html=True)
 
-            # ── Bar chart: F1 comparison ──────────────────────────────────────
-            _fig_bench = go.Figure()
-            _fig_bench.add_trace(go.Bar(
-                name="Keyword Baseline",
-                x=["Overall F1", "Synonym F1"],
-                y=[_kw["f1"], 0.0],
-                marker_color="#ef4444", text=[f"{_kw['f1']:.3f}", "0.000"],
-                textposition="outside"
-            ))
-            _fig_bench.add_trace(go.Bar(
-                name="Semantic (ours)",
-                x=["Overall F1", "Synonym F1"],
-                y=[_sem["f1"], 0.20],
-                marker_color="#22c55e", text=[f"{_sem['f1']:.3f}", "0.200"],
-                textposition="outside"
-            ))
-            _fig_bench.update_layout(
-                barmode="group", height=320,
-                paper_bgcolor=_pbg, plot_bgcolor=_pbg, font_color=txt_color,
-                yaxis=dict(range=[0, 1.15], title="F1 Score"),
-                legend=dict(orientation="h", y=1.1),
-                margin=dict(t=30, b=20, l=10, r=10)
-            )
-            st.plotly_chart(_fig_bench, use_container_width=True)
+            # ── Seaborn grouped bar — F1 comparison ──────────────────────
+            _bench_bg = "#0f0f0f" if is_dark else "#f8fafc"
+            _bench_cats = ["Overall F1", "Synonym F1"]
+            _bench_kw  = [_kw["f1"], 0.0]
+            _bench_sem = [_sem["f1"], 0.20]
+            fig_bench, ax_bench = plt.subplots(figsize=(5, 3.2))
+            fig_bench.patch.set_facecolor(_bench_bg)
+            ax_bench.set_facecolor(_bench_bg)
+            _bx = np.arange(len(_bench_cats))
+            _bw = 0.32
+            b1 = ax_bench.bar(_bx - _bw/2, _bench_kw,  _bw, label="Keyword",  color="#ef4444", edgecolor="none")
+            b2 = ax_bench.bar(_bx + _bw/2, _bench_sem, _bw, label="Semantic", color="#22c55e", edgecolor="none")
+            for bar, val in [(b, v) for bars, vals in [(b1, _bench_kw), (b2, _bench_sem)] for b, v in zip(bars, vals)]:
+                ax_bench.text(bar.get_x() + bar.get_width()/2, val + 0.02,
+                              f"{val:.3f}", ha="center", fontsize=8, fontweight="bold",
+                              color="#e2e8f0" if is_dark else "#0f172a")
+            ax_bench.set_xticks(_bx)
+            ax_bench.set_xticklabels(_bench_cats, fontsize=9,
+                                     color="#94a3b8" if is_dark else "#475569")
+            ax_bench.set_ylim(0, 1.18)
+            ax_bench.set_ylabel("F1 Score", color="#94a3b8" if is_dark else "#64748b", fontsize=9)
+            ax_bench.tick_params(colors="#94a3b8" if is_dark else "#475569", labelsize=8)
+            ax_bench.spines[:].set_visible(False)
+            ax_bench.legend(fontsize=8, facecolor=_bench_bg, edgecolor="none",
+                            labelcolor="#94a3b8" if is_dark else "#475569")
+            plt.tight_layout(pad=0.4)
+            st.pyplot(fig_bench, use_container_width=True)
+            plt.close(fig_bench)
 
             # ── Sample errors ─────────────────────────────────────────────────
             _errors = _report.get("errors", [])
