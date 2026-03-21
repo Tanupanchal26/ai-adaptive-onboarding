@@ -394,6 +394,49 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     st.divider()
 
+    # ── Skill Graph ───────────────────────────────────────────────────────────
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    with st.container():
+        st.markdown("#### 🕸️ Skill Graph")
+        G_skill = nx.Graph()
+        center  = "You"
+        G_skill.add_node(center, kind="center")
+        for s in matched:
+            G_skill.add_node(s, kind="matched")
+            G_skill.add_edge(center, s)
+        for s in gaps:
+            G_skill.add_node(s, kind="gap")
+            G_skill.add_edge(center, s)
+
+        pos_skill = nx.spring_layout(G_skill, seed=7, k=1.8)
+        node_colors = []
+        for n in G_skill.nodes():
+            kind = G_skill.nodes[n]["kind"]
+            node_colors.append("#f59e0b" if kind == "center" else "#22c55e" if kind == "matched" else "#ef4444")
+
+        _fig_bg = "#0f0f0f" if is_dark else "#f8fafc"
+        _lbl_c  = "#e0e0e0" if is_dark else "#1e293b"
+        fig_sk, ax = plt.subplots(figsize=(8, 4.5))
+        fig_sk.patch.set_facecolor(_fig_bg)
+        ax.set_facecolor(_fig_bg)
+        nx.draw_networkx_edges(G_skill, pos_skill, ax=ax,
+                               edge_color="#444" if is_dark else "#cbd5e1", width=1.2, alpha=0.7)
+        nx.draw_networkx_nodes(G_skill, pos_skill, ax=ax,
+                               node_color=node_colors, node_size=900, alpha=0.95)
+        nx.draw_networkx_labels(G_skill, pos_skill, ax=ax,
+                                font_size=8, font_color=_lbl_c, font_weight="bold")
+        ax.axis("off")
+        plt.tight_layout(pad=0.3)
+
+        st.pyplot(fig_sk, use_container_width=True)
+        plt.close(fig_sk)
+        st.caption("🟡 You  🟢 Matched skills  🔴 Skill gaps")
+
+    st.divider()
+
     # ── Skill Intelligence Metrics ────────────────────────────────────────────
     skill_coverage_pct  = round(len(matched) / max(len(jd_skills), 1) * 100)
     missing_skills_count = len(gaps)
@@ -959,13 +1002,13 @@ if st.session_state.resume_data and st.session_state.jd_data:
     txt_content = f"AI Onboarding Plan: {from_role} → {to_role}\nTotal: {total_hours}h | Saved: {hours_saved}h\n\n" + \
                   "\n".join([f"{i}. {c['title']} ({c['duration']}h) — {c['why']}" for i, c in enumerate(pathway, 1)])
 
-        ex1, ex2, ex3 = st.columns(3)
-        with ex1:
-            st.download_button("📄 Download PDF",    pdf_buffer,  "Onboarding_Roadmap.pdf",      "application/pdf", use_container_width=True)
-        with ex2:
-            st.download_button("📊 Export CSV",      csv_data,    "onboarding_timeline.csv",     "text/csv",        use_container_width=True)
-        with ex3:
-            st.download_button("📧 Email to HR",    txt_content, "onboarding_plan.txt",         "text/plain",      use_container_width=True)
+    ex1, ex2, ex3 = st.columns(3)
+    with ex1:
+        st.download_button("📄 Download PDF",  pdf_buffer,  "Onboarding_Roadmap.pdf",  "application/pdf", use_container_width=True)
+    with ex2:
+        st.download_button("📊 Export CSV",    csv_data,    "onboarding_timeline.csv", "text/csv",        use_container_width=True)
+    with ex3:
+        st.download_button("📧 Email to HR",   txt_content, "onboarding_plan.txt",     "text/plain",      use_container_width=True)
 
     # ── Impact Scorecard ──────────────────────────────────────────────────────
     with st.expander("🚀 Your Onboarding Impact Score", expanded=False):
