@@ -364,51 +364,70 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     st.divider()
 
-    dash1, dash2, dash3 = st.columns([1, 2, 1])
+    # ── Dashboard: compact stats + ring in one row ─────────────────────────────
+    _sb  = "#777777" if is_dark else "#64748b"
+    _sv  = "#ffffff" if is_dark else "#0f172a"
+    _cbd = "#222222" if is_dark else "#e2e8f0"
+    stats = [
+        ("Readiness",      f"{readiness:.0f}%"),
+        ("Courses",         str(len(pathway))),
+        ("Gaps to Close",   str(len(gaps))),
+        ("Efficiency Gain", f"{efficiency}%"),
+    ]
+    stat_html = "".join(f"""
+        <div style="flex:1;text-align:center;padding:.6rem .4rem;border-right:1px solid {_cbd};">
+            <div style="font-size:.78rem;color:{_sb};letter-spacing:.5px;text-transform:uppercase;margin-bottom:.25rem;">{lbl}</div>
+            <div style="font-size:1.55rem;font-weight:700;color:{_sv};line-height:1;">{val}</div>
+        </div>""" for lbl, val in stats)
 
-    with dash1:
-        st.markdown("**📊 Profile Snapshot**")
-        st.metric("Readiness Now",   f"{readiness:.0f}%")
-        st.metric("Courses",         len(pathway))
-        st.metric("Gaps to Close",   len(gaps))
-        st.metric("Efficiency Gain", f"{efficiency}%")
+    dcol1, dcol2 = st.columns([3, 2])
+    with dcol1:
+        st.markdown(f"""
+        <div style="background:{bg_card};border:1px solid {_cbd};border-radius:10px;
+                    display:flex;align-items:stretch;overflow:hidden;margin-bottom:.5rem;">
+            {stat_html}
+            <div style="flex:1;text-align:center;padding:.6rem .4rem;">
+                <div style="font-size:.78rem;color:{_sb};letter-spacing:.5px;text-transform:uppercase;margin-bottom:.25rem;">Role</div>
+                <div style="font-size:.95rem;font-weight:600;color:{_sv};line-height:1.2;">{from_role}<br>
+                    <span style="color:{_sb};font-size:.8rem;font-weight:400;">→ {to_role}</span></div>
+            </div>
+        </div>""", unsafe_allow_html=True)
 
-    with dash2:
         gap_list = sorted(gaps)
         if len(gap_list) >= 3:
             gap_sizes = [40 + (hash(s) % 50) for s in gap_list]
             fig_radar = px.line_polar(
                 pd.DataFrame({"Skill": gap_list, "Gap Size": gap_sizes}),
-                r="Gap Size", theta="Skill", line_close=True, title="🕸️ Skill Gap Radar"
+                r="Gap Size", theta="Skill", line_close=True
             )
             fig_radar.update_traces(fill="toself", line_color=accent)
             fig_radar.update_layout(
                 paper_bgcolor=_pbg, plot_bgcolor=_pbg,
-                font_color=txt_color, height=320,
+                font_color=txt_color, height=240,
                 polar=dict(bgcolor=_pfg,
-                           radialaxis=dict(visible=True, color="#64748b"),
-                           angularaxis=dict(color="#94a3b8")),
-                margin=dict(t=40, b=10, l=10, r=10)
+                           radialaxis=dict(visible=True, color="#555", showticklabels=False),
+                           angularaxis=dict(color=_sb)),
+                margin=dict(t=10, b=10, l=10, r=10), showlegend=False
             )
             st.plotly_chart(fig_radar, use_container_width=True)
-        else:
-            st.info("3+ gaps needed for radar chart.")
 
-    with dash3:
+    with dcol2:
         fig_ring = px.pie(
             values=[readiness, gap_pct], names=["Ready", "Gap"],
-            hole=0.7, color_discrete_sequence=[accent, "#ff2d55"]
+            hole=0.72, color_discrete_sequence=[accent, "#333333" if is_dark else "#e2e8f0"]
         )
         fig_ring.update_traces(textinfo="none")
         fig_ring.update_layout(
             paper_bgcolor=_pbg, font_color=txt_color,
-            height=280, margin=dict(t=10, b=10, l=10, r=10),
-            showlegend=True,
-            annotations=[dict(text=f"<b>{readiness:.0f}%</b>", x=0.5, y=0.5,
-                              font_size=22, font_color=accent, showarrow=False)]
+            height=260, margin=dict(t=0, b=0, l=0, r=0),
+            showlegend=False,
+            annotations=[dict(
+                text=f"<b>{readiness:.0f}%</b><br><span style='font-size:11px'>Ready</span>",
+                x=0.5, y=0.5, font_size=20, font_color=_sv, showarrow=False
+            )]
         )
         st.plotly_chart(fig_ring, use_container_width=True)
-        st.caption("🟢 Ready  🔴 Gap")
+        st.markdown(f"<p style='text-align:center;font-size:.8rem;color:{_sb};margin-top:-.8rem;'>■ Ready &nbsp; ■ Gap</p>", unsafe_allow_html=True)
 
     st.divider()
 
