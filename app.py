@@ -1,62 +1,56 @@
 import streamlit as st
 import plotly.graph_objects as go
+import plotly.express as px
 import networkx as nx
+import io
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas as rl_canvas
 from parser import parse_file
 from gap_logic import normalize_skills, compute_gaps
 from path_generator import build_learning_path, estimate_time
 
 try:
-    from yfiles_jupyter_graphs_for_streamlit import GraphWidget
+    from yfiles_graphs_for_streamlit import yfiles_graph
     YFILES = True
 except ImportError:
     YFILES = False
 
-st.set_page_config(page_title="AI Adaptive Onboarding", layout="wide", page_icon="🎯")
+st.set_page_config(
+    page_title="AI Adaptive Onboarding Engine",
+    page_icon="🎯",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# ── Custom CSS ────────────────────────────────────────────────────────────────
+# ── Modern 2026 Theme ─────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-body { background-color: #0d1117; }
-.metric-card {
-    background: linear-gradient(135deg,#1a1a2e,#16213e);
-    border: 1px solid #0f3460;
-    border-radius: 14px;
-    padding: 20px;
-    text-align: center;
-}
-.impact-banner {
-    background: linear-gradient(135deg,#0a3d0a,#0d5c0d);
-    border: 2px solid #2ecc71;
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-    margin: 16px 0;
-}
-.skill-pill {
-    display:inline-block;
-    background:#1a1a2e;
-    border:1px solid #00d4ff44;
-    border-radius:20px;
-    padding:4px 12px;
-    margin:3px;
-    font-size:13px;
-    color:#00d4ff;
-}
-.gap-pill {
-    display:inline-block;
-    background:#2d0a0a;
-    border:1px solid #e74c3c44;
-    border-radius:20px;
-    padding:4px 12px;
-    margin:3px;
-    font-size:13px;
-    color:#e74c3c;
-}
-.section-header {
-    font-size:22px;
-    font-weight:700;
-    margin:24px 0 12px 0;
-}
+    .stApp { background-color: #0e1117; color: #ffffff; }
+    .block-container { padding-top: 2rem; }
+    h1 { font-size: 2.8rem; font-weight: 700; color: #00ff9d; }
+    .stButton>button {
+        width: 100%; height: 3rem;
+        background: linear-gradient(90deg, #00ff9d, #00bfff);
+        color: black; font-weight: bold; border-radius: 12px; border: none;
+    }
+    .stButton>button:hover { opacity: 0.85; transform: scale(1.02); transition: .2s; }
+    .metric-card { background: #1e2937; padding: 1rem; border-radius: 12px; }
+    .impact-banner {
+        background: linear-gradient(135deg,#0a3d0a,#0d5c0d);
+        border: 2px solid #00ff9d; border-radius: 16px;
+        padding: 24px; text-align: center; margin: 16px 0;
+    }
+    .skill-pill {
+        display:inline-block; background:#1a2535;
+        border:1px solid #00ff9d44; border-radius:20px;
+        padding:4px 12px; margin:3px; font-size:13px; color:#00ff9d;
+    }
+    .gap-pill {
+        display:inline-block; background:#2d0a0a;
+        border:1px solid #ff4b4b44; border-radius:20px;
+        padding:4px 12px; margin:3px; font-size:13px; color:#ff4b4b;
+    }
+    div[data-testid="stExpander"] { background:#1e2937; border-radius:12px; border:1px solid #2a3a4a; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -110,17 +104,8 @@ with st.sidebar:
     st.caption("Powered by LLaMA 3.2 · SkillBridge")
 
 # ── Header ────────────────────────────────────────────────────────────────────
-st.markdown("""
-<div style='text-align:center;padding:32px 0 8px 0;'>
-  <div style='font-size:42px;font-weight:800;background:linear-gradient(90deg,#00d4ff,#9b59b6);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;'>
-    🎯 AI-Adaptive Onboarding Engine
-  </div>
-  <div style='color:#aaa;font-size:17px;margin-top:8px;'>
-    Upload Resume + Job Description → Get your personalized learning path in seconds
-  </div>
-</div>
-""", unsafe_allow_html=True)
+st.title("🎯 AI-Adaptive Onboarding Engine")
+st.markdown("**Upload Resume + Job Description → Get your personalized, gap-free learning path in seconds**")
 
 st.divider()
 
@@ -168,7 +153,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     gaps             = gap_result["gaps"]
     matched          = gap_result["matched"]
 
-    st.success(f"✅ Analysis complete: **{rd.get('role','Candidate')}** → **{jd.get('role','Target Role')}**")
+    st.markdown(f"**{rd.get('main_role', rd.get('role','Candidate'))}** → **{jd.get('main_role', jd.get('role','Target Role'))}**")
 
     # ── Skills overview ───────────────────────────────────────────────────────
     sc1, sc2 = st.columns(2)
@@ -258,12 +243,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
         nodes = [{"id": n, "label": G.nodes[n].get("label", n),
                   "color": G.nodes[n].get("color","#aaa"),
                   "tooltip": G.nodes[n].get("tooltip","")} for n in G.nodes]
-        edges = [{"start": u, "end": v} for u, v in G.edges]
-        w = GraphWidget()
-        w.nodes = nodes; w.edges = edges
-        w.set_node_styles_mapping(lambda node: {"color": node.get("color","#aaa"), "shape": "round-rectangle"})
-        w.set_tooltip_mapping("tooltip")
-        w.show()
+        edges = [{"source": u, "target": v} for u, v in G.edges]
+        yfiles_graph(nodes=nodes, edges=edges)
     else:
         pos = nx.spring_layout(G, seed=42, k=2.5)
         ex, ey = [], []
