@@ -1481,7 +1481,6 @@ if st.session_state.resume_data and st.session_state.jd_data:
                     unsafe_allow_html=True
                 )
         elif not sim_gaps:
-            st.balloons()
             st.success("No gaps remaining — you're already role-ready with this skill set!")
         else:
             st.warning("No courses found for the remaining gaps.")
@@ -1743,7 +1742,6 @@ if st.session_state.resume_data and st.session_state.jd_data:
         if _sim_closed:
             st.success(f"Skills acquired: {', '.join(sorted(_sim_closed))}")
         if not _sim_remaining and progress > 0:
-            st.balloons()
             st.success("All gaps closed — fully role-ready!")
         elif progress > 0:
             st.info(f"Still to learn: {', '.join(sorted(_sim_remaining))}")
@@ -1805,7 +1803,6 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.session_state.sim_salary = f"₹{2 + len(gaps) * 0.4:.1f} LPA"
 
     if st.session_state.get("sim_done"):
-        st.balloons()
         st.success(f"Simulation Complete! You are now fully onboarded and confident. Estimated salary boost: +{st.session_state.sim_salary}")
 
     st.divider()
