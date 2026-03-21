@@ -21,7 +21,7 @@ st.set_page_config(
     page_title="AI Adaptive Onboarding Engine",
     page_icon="🎯",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="auto"
 )
 
 # ── Theme CSS (applied before sidebar radio so it's always ready) ─────────────
@@ -57,6 +57,19 @@ DARK_CSS = """
     [data-testid="metric-container"] { background:#1e293b; border-radius:12px; padding:12px; border:1px solid #334155; animation:fadeIn .4s ease; }
     .main .block-container { padding-top:2rem !important; padding-bottom:4rem !important; max-width:1100px; margin:0 auto; }
     hr { margin:2.5rem 0; border-color:#334155; }
+    .pro-card { background:#1e293b; border:1px solid #334155; border-radius:10px; padding:1.4rem; margin:1.2rem 0; }
+    @media (max-width:768px) {
+        .block-container { padding-left:1rem !important; padding-right:1rem !important; }
+        [data-testid="stHorizontalBlock"] > div { flex:1 1 100% !important; max-width:100% !important; margin-bottom:1rem !important; }
+        .stPlotlyChart, .element-container iframe { width:100% !important; max-width:100% !important; }
+        h1 { font-size:1.8rem !important; }
+        h2 { font-size:1.5rem !important; }
+        .stButton > button, .stFileUploader, .stTextInput > div > div > input { width:100% !important; }
+    }
+    @media (max-width:480px) {
+        .pro-card { padding:1rem; }
+        .stMetric { font-size:1.1rem !important; }
+    }
 </style>
 """
 LIGHT_CSS = """
@@ -91,6 +104,19 @@ LIGHT_CSS = """
     [data-testid="metric-container"] { background:#fff; border-radius:12px; padding:12px; border:1px solid #e2e8f0; box-shadow:0 1px 4px #0001; animation:fadeIn .4s ease; }
     .main .block-container { padding-top:2rem !important; padding-bottom:4rem !important; max-width:1100px; margin:0 auto; }
     hr { margin:2.5rem 0; border-color:#e2e8f0; }
+    .pro-card { background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:1.4rem; margin:1.2rem 0; }
+    @media (max-width:768px) {
+        .block-container { padding-left:1rem !important; padding-right:1rem !important; }
+        [data-testid="stHorizontalBlock"] > div { flex:1 1 100% !important; max-width:100% !important; margin-bottom:1rem !important; }
+        .stPlotlyChart, .element-container iframe { width:100% !important; max-width:100% !important; }
+        h1 { font-size:1.8rem !important; }
+        h2 { font-size:1.5rem !important; }
+        .stButton > button, .stFileUploader, .stTextInput > div > div > input { width:100% !important; }
+    }
+    @media (max-width:480px) {
+        .pro-card { padding:1rem; }
+        .stMetric { font-size:1.1rem !important; }
+    }
 </style>
 """
 
@@ -318,8 +344,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         (hm3, "Gaps Closed",         str(len(gaps)),          _my),
     ]:
         col.markdown(f"""
-        <div style="background:{_mbg};padding:1.4rem;border-radius:10px;
-                    border:1px solid {_mbd};text-align:center;">
+        <div class="pro-card" style="text-align:center;">
             <div style="font-size:.9rem;color:{_mst};margin-bottom:.4rem;">{label}</div>
             <div style="font-size:2rem;font-weight:700;color:{color};">{value}</div>
         </div>""", unsafe_allow_html=True)
