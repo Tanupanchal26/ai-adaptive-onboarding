@@ -905,62 +905,132 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 unsafe_allow_html=True
             )
 
-    # ── Ask AI About Your Path ────────────────────────────────────────────────
-    import json, urllib.request as _ureq
+    # ── AI Chat Assistant ────────────────────────────────────────────────────────────
+    import json as _json
+    import urllib.request as _ureq
+    from parser import _get_openai_key
+    try:
+        from openai import OpenAI as _OAI
+        _OAI_AVAIL = True
+    except ImportError:
+        _OAI_AVAIL = False
+
     _ai_bg  = "#111111" if is_dark else "#ffffff"
-    _ai_bdr = "#333333" if is_dark else "#e2e8f0"
+    _ai_bdr = "#222222" if is_dark else "#e2e8f0"
     _ai_h   = "#ffffff" if is_dark else "#0f172a"
     _ai_sub = "#777777" if is_dark else "#64748b"
+
     st.markdown(f"""
     <div style="background:{_ai_bg};border:1px solid {_ai_bdr};border-radius:12px;
-                padding:1.6rem 1.8rem;margin:1.5rem 0;">
-        <h3 style="color:{_ai_h};margin:0 0 .3rem 0;">💬 Ask AI About Your Path</h3>
-        <p style="color:{_ai_sub};margin:0 0 1rem 0;font-size:.93rem;">
-            Ask anything about your learning roadmap — why a course is recommended, what to study first, or how long it takes.
-        </p>
+                padding:1.4rem 1.6rem 1rem;margin:1.5rem 0 .5rem;">
+        <div style="font-weight:700;font-size:1.1rem;color:{_ai_h};margin-bottom:.2rem;">
+            💬 Ask AI About Your Path
+        </div>
+        <div style="font-size:.88rem;color:{_ai_sub};">
+            Context-aware assistant — knows your gaps, courses &amp; role transition
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    _ctx = (
-        f"The candidate is a {from_role} transitioning to {to_role}. "
+    # System prompt with full context
+    _sys = (
+        f"You are a concise, helpful onboarding assistant. "
+        f"The candidate is a {from_role} transitioning to {to_role} with "
+        f"{rd.get('experience_years', '?')} years experience. "
         f"Skill gaps: {', '.join(sorted(gaps))}. "
-        f"Recommended courses in order: {', '.join([c['title'] for c in pathway])}. "
-        f"Total learning time: {total_hours}h."
+        f"Recommended learning path: {', '.join([c['title'] for c in pathway])}. "
+        f"Total learning time: {total_hours}h (saves {hours_saved}h vs static onboarding). "
+        f"Answer in 2-3 sentences max. Be direct and practical."
     )
-    _suggestions = ["Why is the first course recommended?", "How long will this take daily?", "Which skill is most critical?"]
-    _scols = st.columns(3)
-    for _i, _s in enumerate(_suggestions):
-        if _scols[_i].button(_s, key=f"ai_sug_{_i}", use_container_width=True):
-            st.session_state["ai_q_val"] = _s
 
-    _q_default = st.session_state.get("ai_q_val", "")
-    question = st.text_input("Your question:", value=_q_default, placeholder="e.g. Why Python before JavaScript?", key="ai_q")
+    # Init chat history in session state
+    if "chat_messages" not in st.session_state:
+        st.session_state.chat_messages = []
 
-    if st.button("Ask AI", key="ai_ask", use_container_width=True):
-        if question.strip():
-            with st.spinner("Thinking..."):
-                _payload = json.dumps({
-                    "model": "llama3.2",
-                    "prompt": f"{_ctx}\n\nAnswer in 3 sentences max: {question}",
-                    "stream": False
-                }).encode()
-                try:
-                    _req = _ureq.Request(
-                        "http://localhost:11434/api/generate",
-                        data=_payload, headers={"Content-Type": "application/json"}
-                    )
-                    with _ureq.urlopen(_req, timeout=30) as _r:
-                        _ans = json.loads(_r.read()).get("response", "No response")
-                    st.markdown(f"""
-                    <div style="background:{'#1a1a1a' if is_dark else '#f0fdf4'};border-left:4px solid {'#ffffff' if is_dark else '#16a34a'};
-                                padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-top:.8rem;">
-                        <span style="color:{'#e0e0e0' if is_dark else '#0f172a'};font-size:.97rem;">{_ans}</span>
-                    </div>
-                    """, unsafe_allow_html=True)
-                except Exception as _e:
-                    st.error(f"Ollama not running — start it with: ollama serve")
-        else:
-            st.warning("Type a question first.")
+    # Suggestion chips (only show when chat is empty)
+    if not st.session_state.chat_messages:
+        _chip_style = (
+            f"display:inline-block;background:{'#1a1a1a' if is_dark else '#f1f5f9'};"
+            f"border:1px solid {'#333' if is_dark else '#e2e8f0'};border-radius:20px;"
+            f"padding:5px 14px;margin:3px;font-size:.83rem;cursor:pointer;"
+            f"color:{'#ccc' if is_dark else '#475569'};"
+        )
+        st.markdown(f"""
+        <div style="margin-bottom:.6rem;">
+            <span style="font-size:.75rem;color:{_ai_sub};text-transform:uppercase;
+                         letter-spacing:1px;margin-right:.5rem;">Try asking:</span>
+            <span style='{_chip_style}'>Why is the first course recommended?</span>
+            <span style='{_chip_style}'>How long will this take daily?</span>
+            <span style='{_chip_style}'>Which skill is most critical?</span>
+            <span style='{_chip_style}'>What salary boost can I expect?</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Render existing chat history
+    for _msg in st.session_state.chat_messages:
+        with st.chat_message(_msg["role"]):
+            st.markdown(_msg["content"])
+
+    # Chat input
+    _user_q = st.chat_input("Ask anything about your learning path...")
+
+    if _user_q:
+        st.session_state.chat_messages.append({"role": "user", "content": _user_q})
+        with st.chat_message("user"):
+            st.markdown(_user_q)
+
+        with st.chat_message("assistant"):
+            _oai_key = _get_openai_key() if _OAI_AVAIL else None
+
+            if _OAI_AVAIL and _oai_key:
+                # ── OpenAI streaming ──────────────────────────────────────────
+                _client = _OAI(api_key=_oai_key)
+                _history = [{"role": "system", "content": _sys}] + [
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.chat_messages
+                ]
+                _stream = _client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=_history,
+                    temperature=0.5,
+                    max_tokens=400,
+                    stream=True
+                )
+                _full = ""
+                _ph   = st.empty()
+                for _chunk in _stream:
+                    _delta = _chunk.choices[0].delta.content or ""
+                    _full += _delta
+                    _ph.markdown(_full + "◌")
+                _ph.markdown(_full)
+                _ans = _full
+            else:
+                # ── Ollama fallback ────────────────────────────────────────────
+                with st.spinner("Thinking..."):
+                    _payload = _json.dumps({
+                        "model": "llama3.2",
+                        "prompt": f"{_sys}\n\nQuestion: {_user_q}",
+                        "stream": False
+                    }).encode()
+                    try:
+                        _req = _ureq.Request(
+                            "http://localhost:11434/api/generate",
+                            data=_payload, headers={"Content-Type": "application/json"}
+                        )
+                        with _ureq.urlopen(_req, timeout=30) as _r:
+                            _ans = _json.loads(_r.read()).get("response", "No response")
+                        st.markdown(_ans)
+                    except Exception:
+                        _ans = "⚠️ AI not available — add OpenAI key to `.streamlit/secrets.toml` or run `ollama serve`"
+                        st.warning(_ans)
+
+            st.session_state.chat_messages.append({"role": "assistant", "content": _ans})
+
+    # Clear chat button
+    if st.session_state.chat_messages:
+        if st.button("Clear chat", key="clear_chat"):
+            st.session_state.chat_messages = []
+            st.rerun()
 
     # ── Footer ────────────────────────────────────────────────────────────────
     st.markdown("---")
