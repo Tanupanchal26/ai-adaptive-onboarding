@@ -27,6 +27,7 @@ def build_learning_path(gaps: set) -> list:
                 "duration":   course["duration"],
                 "difficulty": course["difficulty"],
                 "skills":     course["skills"],
+                "prereq":     course.get("prereq", []),
                 "why":        f"Covers your gap: {', '.join(covering)}"
             })
 

@@ -34,4 +34,9 @@ def load_catalog() -> pd.DataFrame:
         data = json.load(f)
     df = pd.DataFrame(data)
     df["difficulty_rank"] = df["difficulty"].map(DIFFICULTY_ORDER)
+    # normalize field name — support both formats
+    if "skills_covered" in df.columns and "skills" not in df.columns:
+        df["skills"] = df["skills_covered"]
+    if "duration_hrs" in df.columns and "duration" not in df.columns:
+        df["duration"] = df["duration_hrs"]
     return df
