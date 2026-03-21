@@ -12,6 +12,25 @@ import urllib.request
 import urllib.error
 from config import PRIMARY_MODEL, FALLBACK_MODEL, OLLAMA_URL, REQUEST_TIMEOUT
 
+try:
+    import pdfplumber
+    PDFPLUMBER_AVAILABLE = True
+except ImportError:
+    PDFPLUMBER_AVAILABLE = False
+
+try:
+    from docx import Document as DocxDocument
+    DOCX_AVAILABLE = True
+except ImportError:
+    DOCX_AVAILABLE = False
+
+try:
+    import pytesseract
+    from pdf2image import convert_from_bytes
+    OCR_AVAILABLE = True
+except ImportError:
+    OCR_AVAILABLE = False
+
 # ── OpenAI client (optional — graceful if not installed / no key) ─────────────
 try:
     from openai import OpenAI as _OpenAI
@@ -197,12 +216,58 @@ def fuzzy_match_skills(raw_skills: list, standard_skills: set, threshold: float 
     return normalize_to_taxonomy(raw_skills, standard_skills, threshold)
 
 # ── Text extraction ───────────────────────────────────────────────────────────
-def extract_text(file_bytes: bytes, filename: str) -> str:
+def _extract_pdf(file_bytes: bytes) -> str:
+    """Try PyMuPDF → pdfplumber → OCR. Raises ValueError if password-protected."""
+    # 1. PyMuPDF
     try:
-        if filename.lower().endswith(".pdf"):
-            doc = fitz.open(stream=file_bytes, filetype="pdf")
-            return "\n".join(page.get_text() for page in doc)
+        doc = fitz.open(stream=file_bytes, filetype="pdf")
+        if doc.is_encrypted:
+            raise ValueError("PDF is password-protected")
+        text = "\n".join(page.get_text() for page in doc)
+        if text.strip():
+            return text
+    except ValueError:
+        raise
+    except Exception:
+        pass
+
+    # 2. pdfplumber fallback (handles some edge-case PDFs)
+    if PDFPLUMBER_AVAILABLE:
+        try:
+            import io
+            with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+                text = "\n".join(p.extract_text() or "" for p in pdf.pages)
+            if text.strip():
+                return text
+        except Exception:
+            pass
+
+    # 3. OCR fallback for scanned PDFs
+    if OCR_AVAILABLE:
+        try:
+            images = convert_from_bytes(file_bytes)
+            return "\n".join(pytesseract.image_to_string(img) for img in images)
+        except Exception:
+            pass
+
+    return ""
+
+
+def extract_text(file_bytes: bytes, filename: str) -> str:
+    fname = filename.lower()
+    try:
+        if fname.endswith(".pdf"):
+            return _extract_pdf(file_bytes)
+        if fname.endswith(".docx"):
+            if not DOCX_AVAILABLE:
+                return file_bytes.decode("utf-8", errors="ignore")
+            import io
+            doc = DocxDocument(io.BytesIO(file_bytes))
+            return "\n".join(p.text for p in doc.paragraphs)
+        # Plain text / TXT
         return file_bytes.decode("utf-8", errors="ignore")
+    except ValueError as e:
+        return f"__ERROR__: {e}"
     except Exception:
         return ""
 
@@ -210,8 +275,10 @@ def extract_text(file_bytes: bytes, filename: str) -> str:
 def parse_file(file_bytes: bytes, filename: str) -> dict:
     """Extract text → OpenAI (if key set) → Ollama fallback → return structured data."""
     text = extract_text(file_bytes, filename)
+    if text.startswith("__ERROR__:"):
+        return {"error": text.replace("__ERROR__: ", "")}
     if not text.strip():
-        return {"error": "Could not extract text from file"}
+        return {"error": "Could not extract text from file. Ensure the file is a valid, non-scanned PDF or DOCX."}
 
     # Try OpenAI first
     if OPENAI_AVAILABLE:
