@@ -1165,70 +1165,118 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── Reasoning Trace ───────────────────────────────────────────────────────
-    with st.expander("🔍 How the AI built your pathway — Step-by-Step Reasoning", expanded=False):
-        st.caption(f"Transparent breakdown of every decision made for **{from_role} → {to_role}**")
-        st.markdown("")
+    with st.expander("🔍 AI Reasoning Trace — How Your Pathway Was Built", expanded=False):
+        _tr_bg  = "#0d1117" if is_dark else "#f8fafc"
+        _tr_bdr = "#21262d" if is_dark else "#e2e8f0"
+        _tr_lbl = "#8b949e" if is_dark else "#64748b"
+        _tr_val = "#e6edf3" if is_dark else "#0f172a"
+        _tr_grn = "#3fb950" if is_dark else "#16a34a"
+        _tr_red = "#f85149" if is_dark else "#dc2626"
+        _tr_blu = "#58a6ff" if is_dark else "#2563eb"
+        _tr_ylw = "#d29922" if is_dark else "#d97706"
 
-        # Step 1 — Extract Skills
-        st.markdown("##### Step 1 · Extract Skills")
-        r1c1, r1c2 = st.columns(2)
-        with r1c1:
-            st.success(
-                f"**Your resume** listed {len(rd.get('skills', []))} skills.  \n"
-                f"After normalising against the standard taxonomy, "
-                f"**{len(candidate_skills)} were recognised**: "
-                f"{', '.join(sorted(candidate_skills)) or 'none'}."
-            )
-        with r1c2:
-            st.info(
-                f"**The job description** listed {len(jd.get('skills', []))} skills.  \n"
-                f"After normalising, **{len(jd_skills)} were recognised**: "
-                f"{', '.join(sorted(jd_skills)) or 'none'}."
-            )
-        st.divider()
+        # ── Step 1 ────────────────────────────────────────────────────────────
+        st.markdown(f"""
+        <div style="background:{_tr_bg};border:1px solid {_tr_bdr};border-radius:10px;
+                    padding:1.1rem 1.4rem;margin-bottom:.8rem;">
+            <div style="font-size:.68rem;letter-spacing:1.8px;text-transform:uppercase;
+                        color:{_tr_blu};font-weight:700;margin-bottom:.6rem;">STEP 1 · EXTRACT SKILLS</div>
+            <div style="display:flex;gap:2rem;flex-wrap:wrap;">
+                <div style="flex:1;min-width:200px;">
+                    <div style="font-size:.75rem;color:{_tr_lbl};margin-bottom:.3rem;">RESUME ({len(rd.get('skills',[]))} raw → {len(candidate_skills)} normalised)</div>
+                    <div style="font-size:.9rem;color:{_tr_grn};font-weight:600;">{', '.join(sorted(candidate_skills)) or '—'}</div>
+                </div>
+                <div style="flex:1;min-width:200px;">
+                    <div style="font-size:.75rem;color:{_tr_lbl};margin-bottom:.3rem;">JOB DESCRIPTION ({len(jd.get('skills',[]))} raw → {len(jd_skills)} normalised)</div>
+                    <div style="font-size:.9rem;color:{_tr_blu};font-weight:600;">{', '.join(sorted(jd_skills)) or '—'}</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-        # Step 2 — Match Skills
-        st.markdown("##### Step 2 · Semantic Skill Matching")
-        st.caption("Model: `all-MiniLM-L6-v2` · Method: cosine similarity · Threshold: 0.65")
-        if matched:
-            rows = []
-            for s in sorted(matched):
-                rows.append({"JD Skill": s, "Best Match (Resume)": best_match.get(s, s), "Cosine Score": f"{sim_scores.get(s, 1.0):.4f}", "Result": "✅ Matched"})
-            for s in sorted(gaps):
-                rows.append({"JD Skill": s, "Best Match (Resume)": best_match.get(s, "—"), "Cosine Score": f"{sim_scores.get(s, 0.0):.4f}", "Result": "❌ Gap"})
-            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
-        else:
-            st.warning("No direct skill matches were found between your resume and the job description.")
-        st.divider()
-
-        # Step 3 — Identify Gaps
-        st.markdown("##### Step 3 · Identify Gaps")
-        if gaps:
-            st.warning(
-                f"By subtracting your matched skills from the JD requirements, "
-                f"the AI identified **{len(gaps)} skill gap(s)** you need to close:  \n"
-                f"❌ {', '.join(sorted(gaps))}"
-            )
-        else:
-            st.success("No gaps found — your skills fully cover the role requirements.")
-        st.divider()
-
-        # Step 4 — Optimise Courses
-        st.markdown("##### Step 4 · Optimise Courses")
-        st.info(
-            f"The AI scored every course in the catalog by **efficiency = gaps covered ÷ hours**.  \n"
-            f"It then sorted them using a prerequisite dependency graph (beginner → advanced) "
-            f"to ensure you learn in the right order.  \n"
-            f"**{len(pathway)} course(s) were selected** to close all {len(gaps)} gap(s) "
-            f"in {total_hours}h — saving you {hours_saved}h vs the {static_hours}h static baseline."
+        # ── Step 2 ────────────────────────────────────────────────────────────
+        match_rows = "".join(
+            f"<tr><td style='padding:4px 10px;color:{_tr_val};'>{s}</td>"
+            f"<td style='padding:4px 10px;color:{_tr_lbl};'>{best_match.get(s, s)}</td>"
+            f"<td style='padding:4px 10px;color:{_tr_grn};font-weight:600;'>{sim_scores.get(s,1.0):.3f}</td>"
+            f"<td style='padding:4px 10px;color:{_tr_grn};'>✅ Matched</td></tr>"
+            for s in sorted(matched)
+        ) + "".join(
+            f"<tr><td style='padding:4px 10px;color:{_tr_val};'>{s}</td>"
+            f"<td style='padding:4px 10px;color:{_tr_lbl};'>{best_match.get(s,'—')}</td>"
+            f"<td style='padding:4px 10px;color:{_tr_red};font-weight:600;'>{sim_scores.get(s,0.0):.3f}</td>"
+            f"<td style='padding:4px 10px;color:{_tr_red};'>❌ Gap</td></tr>"
+            for s in sorted(gaps)
         )
-        for i, c in enumerate(pathway, 1):
-            covered = [s for s in c.get("covers", c["skills"]) if s in gaps]
-            st.markdown(
-                f"**{i}. {c['title']}** ({c['duration']}h · {c['difficulty'].title()})  \n"
-                f"Closes: {', '.join(covered) if covered else 'supporting skills'} · "
-                f"Efficiency score: {c.get('score', 0):.2f} gaps/hr"
-            )
+        st.markdown(f"""
+        <div style="background:{_tr_bg};border:1px solid {_tr_bdr};border-radius:10px;
+                    padding:1.1rem 1.4rem;margin-bottom:.8rem;">
+            <div style="font-size:.68rem;letter-spacing:1.8px;text-transform:uppercase;
+                        color:{_tr_blu};font-weight:700;margin-bottom:.6rem;">
+                STEP 2 · SEMANTIC MATCHING &nbsp;<span style="font-weight:400;color:{_tr_lbl};">model: all-MiniLM-L6-v2 · threshold: 0.65</span>
+            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+                <thead><tr>
+                    <th style="padding:4px 10px;color:{_tr_lbl};text-align:left;font-weight:600;font-size:.75rem;">JD SKILL</th>
+                    <th style="padding:4px 10px;color:{_tr_lbl};text-align:left;font-weight:600;font-size:.75rem;">BEST RESUME MATCH</th>
+                    <th style="padding:4px 10px;color:{_tr_lbl};text-align:left;font-weight:600;font-size:.75rem;">COSINE SCORE</th>
+                    <th style="padding:4px 10px;color:{_tr_lbl};text-align:left;font-weight:600;font-size:.75rem;">RESULT</th>
+                </tr></thead>
+                <tbody>{match_rows}</tbody>
+            </table>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # ── Step 3 ────────────────────────────────────────────────────────────
+        gap_pills = " ".join(
+            f"<span style='background:{_tr_red}22;border:1px solid {_tr_red}55;"
+            f"border-radius:4px;padding:2px 10px;font-size:.82rem;color:{_tr_red};'>{g}</span>"
+            for g in sorted(gaps)
+        ) or f"<span style='color:{_tr_grn};'>None — fully qualified!</span>"
+        st.markdown(f"""
+        <div style="background:{_tr_bg};border:1px solid {_tr_bdr};border-radius:10px;
+                    padding:1.1rem 1.4rem;margin-bottom:.8rem;">
+            <div style="font-size:.68rem;letter-spacing:1.8px;text-transform:uppercase;
+                        color:{_tr_blu};font-weight:700;margin-bottom:.6rem;">STEP 3 · GAP IDENTIFICATION</div>
+            <div style="font-size:.8rem;color:{_tr_lbl};margin-bottom:.5rem;">
+                {len(gaps)} gap(s) identified &nbsp;·&nbsp; {len(matched)} of {len(jd_skills)} JD skills already matched
+            </div>
+            <div style="line-height:2;">{gap_pills}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # ── Step 4 ────────────────────────────────────────────────────────────
+        course_rows = "".join(
+            f"<tr>"
+            f"<td style='padding:5px 10px;color:{_tr_val};font-weight:600;'>{i}. {c['title']}</td>"
+            f"<td style='padding:5px 10px;color:{_tr_lbl};'>{c['duration']}h · {c['difficulty'].title()}</td>"
+            f"<td style='padding:5px 10px;color:{_tr_ylw};font-weight:700;'>{c.get('score',0):.2f} gaps/hr</td>"
+            f"<td style='padding:5px 10px;color:{_tr_grn};'>{', '.join(s for s in c.get('covers', c['skills']) if s in gaps) or '—'}</td>"
+            f"</tr>"
+            for i, c in enumerate(pathway, 1)
+        )
+        st.markdown(f"""
+        <div style="background:{_tr_bg};border:1px solid {_tr_bdr};border-radius:10px;
+                    padding:1.1rem 1.4rem;">
+            <div style="font-size:.68rem;letter-spacing:1.8px;text-transform:uppercase;
+                        color:{_tr_blu};font-weight:700;margin-bottom:.6rem;">STEP 4 · OPTIMIZE COURSES &nbsp;<span style="font-weight:400;color:{_tr_lbl};">greedy set-cover · efficiency = gaps/hr</span></div>
+            <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+                <thead><tr>
+                    <th style="padding:5px 10px;color:{_tr_lbl};text-align:left;font-weight:600;font-size:.75rem;">COURSE</th>
+                    <th style="padding:5px 10px;color:{_tr_lbl};text-align:left;font-weight:600;font-size:.75rem;">DURATION · LEVEL</th>
+                    <th style="padding:5px 10px;color:{_tr_lbl};text-align:left;font-weight:600;font-size:.75rem;">EFFICIENCY</th>
+                    <th style="padding:5px 10px;color:{_tr_lbl};text-align:left;font-weight:600;font-size:.75rem;">GAPS CLOSED</th>
+                </tr></thead>
+                <tbody>{course_rows}</tbody>
+            </table>
+            <div style="margin-top:.8rem;padding-top:.6rem;border-top:1px solid {_tr_bdr};
+                        font-size:.82rem;color:{_tr_lbl};">
+                Total: <b style="color:{_tr_val};">{total_hours}h</b> &nbsp;·&nbsp;
+                Baseline: <b style="color:{_tr_val};">{static_hours}h</b> &nbsp;·&nbsp;
+                Saved: <b style="color:{_tr_grn};">{hours_saved}h ({efficiency}% faster)</b>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     # ── Floating AI Chat Agent ────────────────────────────────────────────────
     import json as _json
