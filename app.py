@@ -1349,6 +1349,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         _after  = min(100, readiness + 35)
         st.write(f"Skill coverage improves from **{_before}%** → **{_after}%** after completing this path.")
         st.progress(_after / 100)
+        st.line_chart([_before, _after])
 
     with aip3:
         st.markdown("#### 🧠 AI Decision Flow")
