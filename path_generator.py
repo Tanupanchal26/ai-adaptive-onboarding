@@ -196,6 +196,25 @@ def build_bonus_courses(gaps: set, candidate_skills: set, experience_years: int)
 
 BASELINE_HOURS = 35
 
+
+def generate_plain_english_trace(matched: list, gaps: list, pathway: list) -> str:
+    """HR-friendly reasoning trace — no technical jargon."""
+    total = sum(c["duration"] for c in pathway)
+    steps = "\n".join(
+        f"  {i+1}. {c['title']} — covers: {', '.join(c['covers'])}"
+        for i, c in enumerate(pathway)
+    )
+    return (
+        f"WHY THIS PATHWAY WAS CHOSEN FOR YOU:\n\n"
+        f"✅ What you already know: {', '.join(matched)}\n"
+        f"   (These were detected using AI — including synonyms like 'scikit-learn' = 'Machine Learning')\n\n"
+        f"📌 What this role needs that you don't have yet: {', '.join(gaps)}\n\n"
+        f"📚 The shortest path to close every gap:\n{steps}\n\n"
+        f"⏱️ Total learning time: {total}h\n"
+        f"   vs. 35h standard onboarding — saving you {35 - total}h"
+    )
+
+
 def estimate_time(pathway: list) -> dict:
     """Return total, static baseline (35h industry standard), saved hours, efficiency %, and learning efficiency score."""
     total      = sum(c["duration"] for c in pathway)

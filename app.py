@@ -9,7 +9,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas as rl_canvas
 from parser import parse_file
 from gap_logic import normalize_skills, compute_gaps, _adaptive_confidence
-from path_generator import build_learning_path, build_bonus_courses, estimate_time, generate_ai_insight
+from path_generator import build_learning_path, build_bonus_courses, estimate_time, generate_ai_insight, generate_plain_english_trace
 
 try:
     from yfiles_graphs_for_streamlit import yfiles_graph
@@ -1568,6 +1568,10 @@ if st.session_state.resume_data and st.session_state.jd_data:
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+    # ── Plain-English Explanation (for HR teams) ──────────────────────────
+    with st.expander("📖 Plain-English Explanation (for HR teams)", expanded=False):
+        st.text(generate_plain_english_trace(sorted(matched), sorted(gaps), pathway))
 
     # ── Floating AI Chat Agent ────────────────────────────────────────────────
     import json as _json
