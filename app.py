@@ -292,22 +292,35 @@ with st.container():
     st.divider()
 
     st.markdown("#### Instant Demo — Try a Sample Profile")
+    st.markdown("""
+    <style>
+    div[data-testid="stHorizontalBlock"] > div[data-testid="stColumn"] button {
+        height: 2.8rem !important;
+        min-height: 2.8rem !important;
+        font-size: 0.82rem !important;
+        padding: 0 0.4rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     b1, b2, b3, b4, b5, b6, b7, b8 = st.columns(8)
-    if b1.button("Junior Dev",      use_container_width=True):
+    if b1.button("Junior Dev",   use_container_width=True):
         st.session_state.resume_data = SAMPLES["junior"];      st.session_state.jd_data = JD_SAMPLES["junior"]
-    if b2.button("Senior Engineer", use_container_width=True):
+    if b2.button("Senior Eng",   use_container_width=True):
         st.session_state.resume_data = SAMPLES["senior"];      st.session_state.jd_data = JD_SAMPLES["senior"]
-    if b3.button("Sales Role",        use_container_width=True):
+    if b3.button("Sales Role",   use_container_width=True):
         st.session_state.resume_data = SAMPLES["sales"];       st.session_state.jd_data = JD_SAMPLES["sales"]
-    if b4.button("Marketing Role",    use_container_width=True):
+    if b4.button("Marketing",    use_container_width=True):
         st.session_state.resume_data = SAMPLES["marketing"];   st.session_state.jd_data = JD_SAMPLES["marketing"]
-    if b5.button("Cross-Domain",      use_container_width=True):
+    if b5.button("Cross-Domain", use_container_width=True):
         st.session_state.resume_data = SAMPLES["crossdomain"]; st.session_state.jd_data = JD_SAMPLES["crossdomain"]
-    if b6.button("HR Role",           use_container_width=True):
+    if b6.button("HR Role",      use_container_width=True):
         st.session_state.resume_data = SAMPLES["hr"];          st.session_state.jd_data = JD_SAMPLES["hr"]
-    if b7.button("Warehouse",         use_container_width=True):
+    if b7.button("Warehouse",    use_container_width=True):
         st.session_state.resume_data = SAMPLES["warehouse"];   st.session_state.jd_data = JD_SAMPLES["warehouse"]
-    if b8.button("Field Tech",        use_container_width=True):
+    if b8.button("Field Tech",   use_container_width=True):
         st.session_state.resume_data = SAMPLES["fieldtech"];   st.session_state.jd_data = JD_SAMPLES["fieldtech"]
 
     st.divider()
