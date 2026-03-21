@@ -168,31 +168,6 @@ with st.sidebar:
             st.markdown(f"📌 {s}")
         st.divider()
 
-    # ── Ask AI Chat ───────────────────────────────────────────────────────────
-    with st.expander("💬 Ask AI About Your Path", expanded=False):
-        question = st.text_input("e.g. Why Python first?", key="ai_q")
-        if st.button("Ask", key="ai_ask"):
-            if question.strip():
-                with st.spinner("Thinking..."):
-                    import json, urllib.request
-                    payload = json.dumps({
-                        "model": "llama3.2",
-                        "prompt": f"Answer in 2 sentences max: {question}",
-                        "stream": False
-                    }).encode()
-                    try:
-                        req = urllib.request.Request(
-                            "http://localhost:11434/api/generate",
-                            data=payload, headers={"Content-Type": "application/json"}
-                        )
-                        with urllib.request.urlopen(req, timeout=30) as r:
-                            ans = json.loads(r.read()).get("response", "No response")
-                        st.write(ans)
-                    except Exception as e:
-                        st.error(f"Ollama not running: {e}")
-            else:
-                st.warning("Type a question first.")
-
     st.caption("Powered by LLaMA 3.2 · SkillBridge")
 
 # ── Hero Section ─────────────────────────────────────────────────────────────
@@ -800,6 +775,63 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 f"<span style='color:{_tr_sub};font-size:13px;'>{detail}</span></div>",
                 unsafe_allow_html=True
             )
+
+    # ── Ask AI About Your Path ────────────────────────────────────────────────
+    import json, urllib.request as _ureq
+    _ai_bg  = "#111111" if is_dark else "#ffffff"
+    _ai_bdr = "#333333" if is_dark else "#e2e8f0"
+    _ai_h   = "#ffffff" if is_dark else "#0f172a"
+    _ai_sub = "#777777" if is_dark else "#64748b"
+    st.markdown(f"""
+    <div style="background:{_ai_bg};border:1px solid {_ai_bdr};border-radius:12px;
+                padding:1.6rem 1.8rem;margin:1.5rem 0;">
+        <h3 style="color:{_ai_h};margin:0 0 .3rem 0;">💬 Ask AI About Your Path</h3>
+        <p style="color:{_ai_sub};margin:0 0 1rem 0;font-size:.93rem;">
+            Ask anything about your learning roadmap — why a course is recommended, what to study first, or how long it takes.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    _ctx = (
+        f"The candidate is a {from_role} transitioning to {to_role}. "
+        f"Skill gaps: {', '.join(sorted(gaps))}. "
+        f"Recommended courses in order: {', '.join([c['title'] for c in pathway])}. "
+        f"Total learning time: {total_hours}h."
+    )
+    _suggestions = ["Why is the first course recommended?", "How long will this take daily?", "Which skill is most critical?"]
+    _scols = st.columns(3)
+    for _i, _s in enumerate(_suggestions):
+        if _scols[_i].button(_s, key=f"ai_sug_{_i}", use_container_width=True):
+            st.session_state["ai_q_val"] = _s
+
+    _q_default = st.session_state.get("ai_q_val", "")
+    question = st.text_input("Your question:", value=_q_default, placeholder="e.g. Why Python before JavaScript?", key="ai_q")
+
+    if st.button("Ask AI", key="ai_ask", use_container_width=True):
+        if question.strip():
+            with st.spinner("Thinking..."):
+                _payload = json.dumps({
+                    "model": "llama3.2",
+                    "prompt": f"{_ctx}\n\nAnswer in 3 sentences max: {question}",
+                    "stream": False
+                }).encode()
+                try:
+                    _req = _ureq.Request(
+                        "http://localhost:11434/api/generate",
+                        data=_payload, headers={"Content-Type": "application/json"}
+                    )
+                    with _ureq.urlopen(_req, timeout=30) as _r:
+                        _ans = json.loads(_r.read()).get("response", "No response")
+                    st.markdown(f"""
+                    <div style="background:{'#1a1a1a' if is_dark else '#f0fdf4'};border-left:4px solid {'#ffffff' if is_dark else '#16a34a'};
+                                padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin-top:.8rem;">
+                        <span style="color:{'#e0e0e0' if is_dark else '#0f172a'};font-size:.97rem;">{_ans}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                except Exception as _e:
+                    st.error(f"Ollama not running — start it with: ollama serve")
+        else:
+            st.warning("Type a question first.")
 
     # ── Footer ────────────────────────────────────────────────────────────────
     st.markdown("---")
