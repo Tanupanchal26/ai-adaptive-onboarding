@@ -998,10 +998,15 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 )
                 _full = ""
                 _ph   = st.empty()
+                _buf  = ""
                 for _chunk in _stream:
                     _delta = _chunk.choices[0].delta.content or ""
                     _full += _delta
-                    _ph.markdown(_full + "◌")
+                    _buf  += _delta
+                    if len(_buf) >= 8:          # re-render every 8 chars
+                        _ph.markdown(_full + "▍")
+                        _buf = ""
+                _ph.markdown(_full)             # final render, no cursor
                 _ph.markdown(_full)
                 _ans = _full
             else:
