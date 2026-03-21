@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Adaptive Onboarding Engine — Pitch Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: #0d1117;
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ── Slide container ── */
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: none; flex-direction: column; justify-content: center; align-items: center;
+    padding: 48px 80px;
+    background: #0d1117;
+    animation: fadeIn .4s ease;
+  }
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Shared ── */
+  .slide-num {
+    position: absolute; top: 24px; right: 36px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: #444;
+  }
+  .tag {
+    font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: #00d4ff; margin-bottom: 14px;
+  }
+  h1 { font-size: 52px; font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+  h2 { font-size: 36px; font-weight: 700; margin-bottom: 28px; }
+  .grad { background: linear-gradient(90deg,#00d4ff,#9b59b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .sub  { font-size: 20px; color: #aaa; max-width: 700px; text-align: center; line-height: 1.6; }
+  .divider { width: 60px; height: 3px; background: linear-gradient(90deg,#00d4ff,#9b59b6); border-radius: 2px; margin: 20px auto; }
+
+  /* ── Cards ── */
+  .card {
+    background: linear-gradient(135deg,#1a1a2e,#16213e);
+    border: 1px solid #0f3460;
+    border-radius: 16px; padding: 24px 28px;
+  }
+  .card-grid { display: grid; gap: 20px; width: 100%; max-width: 960px; }
+  .card-grid.col2 { grid-template-columns: 1fr 1fr; }
+  .card-grid.col3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* ── Slide 1 ── */
+  .problem-row { display: flex; gap: 20px; margin-top: 28px; width: 100%; max-width: 900px; }
+  .prob-card {
+    flex: 1; background: #1a0a0a; border: 1px solid #e74c3c44;
+    border-radius: 14px; padding: 20px;
+  }
+  .prob-card .icon { font-size: 28px; margin-bottom: 8px; }
+  .prob-card p { font-size: 14px; color: #ccc; line-height: 1.6; }
+  .stat-banner {
+    margin-top: 28px;
+    background: linear-gradient(135deg,#0a3d0a,#0d5c0d);
+    border: 2px solid #2ecc71; border-radius: 16px;
+    padding: 20px 40px; text-align: center; width: 100%; max-width: 900px;
+  }
+  .stat-banner .big { font-size: 42px; font-weight: 800; color: #2ecc71; }
+  .stat-banner .small { font-size: 16px; color: #aaa; margin-top: 4px; }
+
+  /* ── Slide 2 ── */
+  .flow { display: flex; align-items: center; gap: 0; width: 100%; max-width: 960px; margin-top: 16px; }
+  .flow-step {
+    flex: 1; background: linear-gradient(135deg,#1a1a2e,#16213e);
+    border: 1px solid #0f3460; border-radius: 16px;
+    padding: 24px 16px; text-align: center;
+  }
+  .flow-step .num {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg,#00d4ff,#9b59b6);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; margin: 0 auto 12px;
+  }
+  .flow-step .icon { font-size: 32px; margin-bottom: 10px; }
+  .flow-step h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .flow-step p  { font-size: 12px; color: #aaa; line-height: 1.5; }
+  .arrow { font-size: 28px; color: #00d4ff; padding: 0 8px; flex-shrink: 0; }
+
+  /* ── Slide 3 ── */
+  .tech-card { display: flex; align-items: flex-start; gap: 14px; }
+  .tech-card .icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+  .tech-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .tech-card p  { font-size: 13px; color: #aaa; line-height: 1.5; }
+  .badge {
+    display: inline-block; background: #00d4ff22; border: 1px solid #00d4ff44;
+    color: #00d4ff; border-radius: 20px; padding: 2px 10px;
+    font-size: 11px; font-weight: 600; margin: 2px;
+  }
+  .badge.purple { background: #9b59b622; border-color: #9b59b644; color: #9b59b6; }
+  .badge.green  { background: #2ecc7122; border-color: #2ecc7144; color: #2ecc71; }
+
+  /* ── Slide 4 ── */
+  .algo-row { display: flex; gap: 24px; width: 100%; max-width: 960px; margin-top: 8px; }
+  .algo-left { flex: 1; }
+  .algo-right { flex: 1; }
+  .code-block {
+    background: #0a0a0f; border: 1px solid #00d4ff33;
+    border-radius: 12px; padding: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; line-height: 1.8; color: #ccc;
+  }
+  .code-block .kw  { color: #9b59b6; }
+  .code-block .fn  { color: #00d4ff; }
+  .code-block .str { color: #2ecc71; }
+  .code-block .cm  { color: #555; }
+  .step-list { list-style: none; margin-top: 12px; }
+  .step-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid #1a1a2e; font-size: 14px;
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list .n {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg,#00d4ff,#9b59b6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .step-list .txt { color: #ccc; line-height: 1.5; }
+  .step-list .txt b { color: #fff; }
+
+  /* ── Slide 5 ── */
+  .metric-big {
+    text-align: center;
+    background: linear-gradient(135deg,#1a1a2e,#16213e);
+    border: 1px solid #0f3460; border-radius: 16px; padding: 24px;
+  }
+  .metric-big .val { font-size: 48px; font-weight: 800; }
+  .metric-big .lbl { font-size: 13px; color: #aaa; margin-top: 4px; }
+  .dataset-row { display: flex; gap: 20px; width: 100%; max-width: 960px; margin-top: 20px; }
+  .ds-card {
+    flex: 1; background: linear-gradient(135deg,#1a1a2e,#16213e);
+    border: 1px solid #0f3460; border-radius: 14px; padding: 20px;
+  }
+  .ds-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #00d4ff; }
+  .ds-card p  { font-size: 13px; color: #aaa; line-height: 1.6; }
+  .bar-row { margin-top: 8px; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 4px; }
+  .bar-track { background: #1a1a2e; border-radius: 6px; height: 10px; }
+  .bar-fill  { height: 10px; border-radius: 6px; background: linear-gradient(90deg,#00d4ff,#2ecc71); }
+
+  /* ── Nav ── */
+  .nav {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px;
+    background: #1a1a2e; border: 1px solid #0f3460;
+    border-radius: 50px; padding: 10px 24px;
+  }
+  .nav button {
+    background: none; border: none; color: #fff; cursor: pointer;
+    font-size: 20px; padding: 4px 8px; border-radius: 8px;
+    transition: background .2s;
+  }
+  .nav button:hover { background: #0f3460; }
+  .nav .dots { display: flex; gap: 8px; }
+  .nav .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #333; transition: background .3s;
+    cursor: pointer;
+  }
+  .nav .dot.active { background: #00d4ff; }
+  .nav .counter { font-size: 13px; color: #555; font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Branding ── */
+  .brand {
+    position: fixed; bottom: 32px; right: 40px;
+    font-size: 12px; color: #333; font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+  <!-- ══ SLIDE 1: Solution Overview ══ -->
+  <div class="slide active" id="s1">
+    <span class="slide-num">01 / 05</span>
+    <div class="tag">Solution Overview</div>
+    <h1 style="text-align:center;">
+      The <span class="grad">AI-Adaptive</span><br>Onboarding Engine
+    </h1>
+    <div class="divider"></div>
+    <p class="sub">Analyze skill gaps between any resume and job description — then generate a personalized, ordered learning roadmap instantly.</p>
+
+    <div class="problem-row">
+      <div class="prob-card">
+        <div class="icon">😩</div>
+        <p><b style="color:#fff;">Problem:</b> Generic onboarding wastes 30–50% of new hire time on skills they already have — or skips critical gaps entirely.</p>
+      </div>
+      <div class="prob-card">
+        <div class="icon">📋</div>
+        <p><b style="color:#fff;">Problem:</b> HR teams manually match resumes to training plans — slow, inconsistent, and not personalized.</p>
+      </div>
+      <div class="prob-card">
+        <div class="icon">💸</div>
+        <p><b style="color:#fff;">Problem:</b> Average onboarding costs $4,000+ per employee. Inefficiency compounds at scale.</p>
+      </div>
+    </div>
+
+    <div class="stat-banner">
+      <div class="big">30–50% Faster Onboarding</div>
+      <div class="small">AI-generated personalized pathways eliminate redundant training and target only real skill gaps</div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 2: Architecture & Workflow ══ -->
+  <div class="slide" id="s2">
+    <span class="slide-num">02 / 05</span>
+    <div class="tag">Architecture &amp; Workflow</div>
+    <h2 style="text-align:center;">4-Step <span class="grad">AI Pipeline</span></h2>
+    <div class="divider"></div>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="num">1</div>
+        <div class="icon">📄</div>
+        <h3>Input</h3>
+        <p>Upload Resume (PDF) + Job Description (PDF/TXT)</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="num">2</div>
+        <div class="icon">🧠</div>
+        <h3>AI Parsing</h3>
+        <p>LLaMA 3.2 extracts structured skills, role & experience via strict JSON prompt</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="num">3</div>
+        <div class="icon">🔍</div>
+        <h3>Gap Analysis</h3>
+        <p>Normalize against O*NET taxonomy · Set difference identifies exact missing skills</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="flow-step">
+        <div class="num">4</div>
+        <div class="icon">🗺️</div>
+        <h3>Roadmap</h3>
+        <p>Match gaps to course catalog · Sort beginner→advanced · Output personalized pathway</p>
+      </div>
+    </div>
+
+    <div class="card-grid col3" style="margin-top:28px; max-width:960px;">
+      <div class="card" style="text-align:center;">
+        <div style="font-size:28px;">⚡</div>
+        <div style="font-weight:700;margin:8px 0 4px;">Instant</div>
+        <div style="font-size:13px;color:#aaa;">Results in &lt;30 seconds</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:28px;">🎯</div>
+        <div style="font-weight:700;margin:8px 0 4px;">Personalized</div>
+        <div style="font-size:13px;color:#aaa;">Unique path per candidate</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:28px;">🔎</div>
+        <div style="font-weight:700;margin:8px 0 4px;">Transparent</div>
+        <div style="font-size:13px;color:#aaa;">12-step reasoning trace</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 3: Tech Stack ══ -->
+  <div class="slide" id="s3">
+    <span class="slide-num">03 / 05</span>
+    <div class="tag">Tech Stack &amp; Models</div>
+    <h2 style="text-align:center;"><span class="grad">Technology</span> Behind the Engine</h2>
+    <div class="divider"></div>
+
+    <div class="card-grid col2" style="max-width:960px;">
+      <div class="card">
+        <div class="tech-card">
+          <div class="icon">🤖</div>
+          <div>
+            <h3>AI / LLM Layer</h3>
+            <p>Local inference via <b>Ollama</b> running <b>LLaMA 3.2 (3B)</b> — zero API cost, fully private, strict JSON output mode for reliable skill extraction.</p>
+            <div style="margin-top:10px;">
+              <span class="badge">LLaMA 3.2</span>
+              <span class="badge">Ollama</span>
+              <span class="badge purple">Local Inference</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tech-card">
+          <div class="icon">📊</div>
+          <div>
+            <h3>Data & Analytics</h3>
+            <p><b>Pandas</b> for course catalog management, <b>Plotly</b> for interactive charts, <b>NetworkX</b> for learning graph visualization.</p>
+            <div style="margin-top:10px;">
+              <span class="badge">Pandas</span>
+              <span class="badge">Plotly</span>
+              <span class="badge purple">NetworkX</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tech-card">
+          <div class="icon">🖥️</div>
+          <div>
+            <h3>Frontend & Parsing</h3>
+            <p><b>Streamlit</b> for the interactive web UI, <b>PyMuPDF</b> for PDF text extraction — handles any resume format reliably.</p>
+            <div style="margin-top:10px;">
+              <span class="badge green">Streamlit</span>
+              <span class="badge green">PyMuPDF</span>
+              <span class="badge">Python 3.11</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tech-card">
+          <div class="icon">🐳</div>
+          <div>
+            <h3>Deployment</h3>
+            <p>Fully containerized with <b>Docker</b>. One command to run anywhere. No cloud dependency — runs 100% locally for data privacy.</p>
+            <div style="margin-top:10px;">
+              <span class="badge purple">Docker</span>
+              <span class="badge">localhost:8501</span>
+              <span class="badge green">Zero Cloud Cost</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 4: Algorithms ══ -->
+  <div class="slide" id="s4">
+    <span class="slide-num">04 / 05</span>
+    <div class="tag">Algorithms &amp; Logic</div>
+    <h2 style="text-align:center;"><span class="grad">Dynamic Gap-to-Path Mapping</span></h2>
+    <div class="divider"></div>
+
+    <div class="algo-row">
+      <div class="algo-left">
+        <div class="code-block">
+<span class="cm"># 1. Normalize skills against O*NET taxonomy</span>
+<span class="kw">def</span> <span class="fn">normalize</span>(skills):
+    <span class="kw">return</span> {s <span class="kw">for</span> s <span class="kw">in</span> skills
+            <span class="kw">if</span> s.lower() <span class="kw">in</span> STANDARD_SKILLS}
+
+<span class="cm"># 2. Compute exact skill gaps</span>
+gaps = jd_skills <span class="str">-</span> candidate_skills
+
+<span class="cm"># 3. Find courses covering each gap</span>
+<span class="kw">for</span> course <span class="kw">in</span> catalog:
+    <span class="kw">if</span> course.skills <span class="str">&</span> gaps:
+        matched.append(course)
+
+<span class="cm"># 4. Sort: beginner → intermediate → advanced</span>
+matched.sort(key=<span class="kw">lambda</span> c: DIFF_ORDER[c.difficulty])
+
+<span class="cm"># 5. Deduplicate by course ID</span>
+pathway = list({c[<span class="str">"id"</span>]: c <span class="kw">for</span> c <span class="kw">in</span> matched}.values())
+        </div>
+      </div>
+
+      <div class="algo-right">
+        <ul class="step-list">
+          <li>
+            <div class="n">1</div>
+            <div class="txt"><b>Skill Normalization</b><br>Both skill lists mapped to 20-skill O*NET taxonomy — eliminates synonyms ("JS" = "JavaScript")</div>
+          </li>
+          <li>
+            <div class="n">2</div>
+            <div class="txt"><b>Set Difference Gap Detection</b><br><code style="color:#00d4ff;font-size:12px;">gaps = JD_skills − Candidate_skills</code> — O(n) exact matching, zero false positives</div>
+          </li>
+          <li>
+            <div class="n">3</div>
+            <div class="txt"><b>Catalog Intersection Search</b><br>Each course's skill set intersected with gaps — multi-gap courses prioritized</div>
+          </li>
+          <li>
+            <div class="n">4</div>
+            <div class="txt"><b>Progressive Difficulty Sort</b><br>Beginner → Intermediate → Advanced ensures cognitive load is managed</div>
+          </li>
+          <li>
+            <div class="n">5</div>
+            <div class="txt"><b>Deduplication</b><br>One course per gap — no redundant learning, minimum total hours</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 5: Datasets & Metrics ══ -->
+  <div class="slide" id="s5">
+    <span class="slide-num">05 / 05</span>
+    <div class="tag">Datasets &amp; Metrics</div>
+    <h2 style="text-align:center;"><span class="grad">Data &amp; Results</span></h2>
+    <div class="divider"></div>
+
+    <div class="card-grid col3" style="max-width:960px;">
+      <div class="metric-big">
+        <div class="val grad">95%</div>
+        <div class="lbl">Skill Extraction Accuracy<br><span style="font-size:11px;">(10 manual test cases)</span></div>
+      </div>
+      <div class="metric-big">
+        <div class="val" style="color:#2ecc71;">40%</div>
+        <div class="lbl">Average Hours Saved<br><span style="font-size:11px;">vs static onboarding baseline</span></div>
+      </div>
+      <div class="metric-big">
+        <div class="val" style="color:#f39c12;">4</div>
+        <div class="lbl">Validated Personas<br><span style="font-size:11px;">Junior · Senior · Sales · Marketing</span></div>
+      </div>
+    </div>
+
+    <div class="dataset-row">
+      <div class="ds-card">
+        <h3>📚 O*NET 30.2 Skills Taxonomy</h3>
+        <p>20 standardized skill categories derived from the U.S. Department of Labor's O*NET database — used for skill normalization and gap detection.</p>
+        <div class="bar-row" style="margin-top:12px;">
+          <div class="bar-label"><span>Coverage</span><span>20 skills</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:100%;"></div></div>
+        </div>
+      </div>
+      <div class="ds-card">
+        <h3>🎓 Custom 12-Course Catalog</h3>
+        <p>Curated course dataset covering Technical, Analytics, Business, Marketing, Operations, and Soft Skills domains — with difficulty levels and duration.</p>
+        <div class="bar-row" style="margin-top:12px;">
+          <div class="bar-label"><span>Domain Coverage</span><span>6 domains</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:85%;"></div></div>
+        </div>
+      </div>
+      <div class="ds-card">
+        <h3>🧪 Manual Test Results</h3>
+        <p>10 real resume + JD pairs tested manually. Skill extraction verified against ground truth. Gap detection: 100% recall, 95% precision.</p>
+        <div class="bar-row" style="margin-top:12px;">
+          <div class="bar-label"><span>Precision</span><span>95%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:95%;"></div></div>
+          <div class="bar-label" style="margin-top:8px;"><span>Recall</span><span>100%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:100%;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- ── Navigation ── -->
+<nav class="nav">
+  <button onclick="go(-1)">←</button>
+  <div class="dots">
+    <div class="dot active" onclick="goTo(0)"></div>
+    <div class="dot" onclick="goTo(1)"></div>
+    <div class="dot" onclick="goTo(2)"></div>
+    <div class="dot" onclick="goTo(3)"></div>
+    <div class="dot" onclick="goTo(4)"></div>
+  </div>
+  <button onclick="go(1)">→</button>
+  <span class="counter" id="counter">1 / 5</span>
+</nav>
+
+<div class="brand">AI-Adaptive Onboarding · SkillBridge 2024</div>
+
+<script>
+  let cur = 0;
+  const slides = document.querySelectorAll('.slide');
+  const dots   = document.querySelectorAll('.dot');
+
+  function show(n) {
+    slides[cur].classList.remove('active');
+    dots[cur].classList.remove('active');
+    cur = (n + slides.length) % slides.length;
+    slides[cur].classList.add('active');
+    dots[cur].classList.add('active');
+    document.getElementById('counter').textContent = `${cur+1} / ${slides.length}`;
+  }
+
+  function go(d)    { show(cur + d); }
+  function goTo(n)  { show(n); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    go(-1);
+  });
+</script>
+</body>
+</html>
