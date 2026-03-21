@@ -155,7 +155,7 @@ After pathway generation, an LLM (GPT-4o-mini or LLaMA 3.2) produces a human-rea
 | 🤖 **AI Chat Agent** | Floating assistant answers questions about your roadmap |
 | 📤 **Export** | Download roadmap as PDF, CSV timeline, or plain-text HR summary |
 | 🔎 **Reasoning Trace** | 4-step transparent breakdown of every AI decision made |
-| ⚡ **Instant Demo** | 6 built-in personas (tech + non-tech) — no upload needed |
+| ⚡ **Instant Demo** | 8 built-in personas (tech + non-tech) — no upload needed |
 
 ---
 
