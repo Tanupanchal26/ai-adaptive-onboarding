@@ -1367,16 +1367,24 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── Simulate Onboarding ───────────────────────────────────────────────────
+    if "sim_done" not in st.session_state:
+        st.session_state.sim_done = False
+
     if st.button(" Simulate Completing My Path", help="See how fast you become role-ready", use_container_width=True):
         bar    = st.progress(0)
         status = st.empty()
         for pct in range(101):
             bar.progress(pct)
-            status.markdown(f" **Progress: {pct}%** — {'Getting started...' if pct < 30 else 'Building momentum...' if pct < 70 else 'Almost role-ready!' if pct < 100 else ' Done!'}")
+            status.markdown(f" **Progress: {pct}%** — {'Getting started...' if pct < 30 else 'Building momentum...' if pct < 70 else 'Almost role-ready!' if pct < 100 else 'Done!'}")
             time.sleep(0.03)
+        bar.empty()
+        status.empty()
+        st.session_state.sim_done = True
+        st.session_state.sim_salary = f"₹{2 + len(gaps) * 0.4:.1f} LPA"
+
+    if st.session_state.get("sim_done"):
         st.balloons()
-        salary_boost = f"₹{2 + len(gaps) * 0.4:.1f} LPA"
-        st.success(f" Simulation Complete! You’re now fully onboarded & confident. Estimated salary boost: +{salary_boost}")
+        st.success(f"Simulation Complete! You are now fully onboarded and confident. Estimated salary boost: +{st.session_state.sim_salary}")
 
     st.divider()
 
