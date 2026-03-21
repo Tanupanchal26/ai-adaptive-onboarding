@@ -137,18 +137,20 @@ LIGHT_CSS = """
 
 # ── Sample personas ───────────────────────────────────────────────────────────
 SAMPLES = {
-    "junior":    {"skills": ["Python", "Git", "Communication"],                                           "experience_years": 1, "role": "Junior Developer"},
-    "senior":    {"skills": ["Python", "AWS", "Docker", "Leadership", "SQL", "Agile", "Machine Learning"],"experience_years": 6, "role": "Senior Engineer"},
-    "sales":     {"skills": ["Communication", "Sales", "Excel", "Public Speaking"],                       "experience_years": 3, "role": "Sales Manager"},
-    "marketing": {"skills": ["Marketing", "Excel", "Communication", "Public Speaking"],                   "experience_years": 2, "role": "Marketing Executive"},
-    "crossdomain": {"skills": ["Communication", "Sales", "Public Speaking"],                              "experience_years": 3, "role": "Sales Representative"},
+    "junior":      {"skills": ["Python", "Git", "Communication"],                                              "experience_years": 1, "role": "Junior Developer"},
+    "senior":      {"skills": ["Python", "AWS", "Docker", "Leadership", "SQL", "Agile", "Machine Learning"],   "experience_years": 6, "role": "Senior Engineer"},
+    "sales":       {"skills": ["Communication", "Sales", "Excel", "Public Speaking", "Negotiation"],           "experience_years": 3, "role": "Sales Manager"},
+    "marketing":   {"skills": ["Marketing", "Excel", "Communication", "Public Speaking", "SEO"],               "experience_years": 2, "role": "Marketing Executive"},
+    "crossdomain": {"skills": ["Communication", "Sales", "Public Speaking"],                                   "experience_years": 3, "role": "Sales Representative"},
+    "hr":          {"skills": ["Communication", "HR", "Recruitment", "Excel"],                                 "experience_years": 2, "role": "HR Executive"},
 }
 JD_SAMPLES = {
-    "junior":    {"skills": ["Python", "SQL", "Git", "JavaScript", "Agile"],                                              "experience_years": 2, "role": "Software Engineer"},
-    "senior":    {"skills": ["Python", "AWS", "Docker", "Machine Learning", "Leadership", "SQL", "Agile", "React"],       "experience_years": 5, "role": "Senior Engineer"},
-    "sales":     {"skills": ["Sales", "Communication", "Marketing", "Excel", "Public Speaking", "Leadership"],            "experience_years": 3, "role": "Sales Lead"},
-    "marketing": {"skills": ["Marketing", "Tableau", "SQL", "Communication", "Leadership", "Excel", "Public Speaking"],  "experience_years": 3, "role": "Marketing Manager"},
-    "crossdomain": {"skills": ["Marketing", "Tableau", "Data Analysis", "Leadership", "Communication", "Excel"],         "experience_years": 3, "role": "Marketing Manager"},
+    "junior":      {"skills": ["Python", "SQL", "Git", "JavaScript", "Agile"],                                                    "experience_years": 2, "role": "Software Engineer"},
+    "senior":      {"skills": ["Python", "AWS", "Docker", "Machine Learning", "Leadership", "SQL", "Agile", "React"],             "experience_years": 5, "role": "Senior Engineer"},
+    "sales":       {"skills": ["Sales", "Communication", "Marketing", "Excel", "Public Speaking", "Leadership", "CRM"],           "experience_years": 3, "role": "Sales Lead"},
+    "marketing":   {"skills": ["Marketing", "Tableau", "SQL", "Communication", "Leadership", "Excel", "Content Marketing"],      "experience_years": 3, "role": "Marketing Manager"},
+    "crossdomain": {"skills": ["Marketing", "Tableau", "Data Analysis", "Leadership", "Communication", "Excel"],                 "experience_years": 3, "role": "Marketing Manager"},
+    "hr":          {"skills": ["HR", "Recruitment", "Leadership", "Communication", "Training", "Excel", "Strategy"],             "experience_years": 3, "role": "HR Manager"},
 }
 DIFF_COLOR = {"beginner": "#00ff9d", "intermediate": "#00bfff", "advanced": "#ff4b4b"}
 
@@ -282,7 +284,7 @@ with st.container():
     st.divider()
 
     st.markdown("#### ⚡ Try a Sample Profile")
-    b1, b2, b3, b4, b5 = st.columns(5)
+    b1, b2, b3, b4, b5, b6 = st.columns(6)
     if b1.button("🧑💻 Junior Dev",      use_container_width=True):
         st.session_state.resume_data = SAMPLES["junior"];      st.session_state.jd_data = JD_SAMPLES["junior"]
     if b2.button("👨💼 Senior Engineer", use_container_width=True):
@@ -293,6 +295,8 @@ with st.container():
         st.session_state.resume_data = SAMPLES["marketing"];   st.session_state.jd_data = JD_SAMPLES["marketing"]
     if b5.button("🔀 Cross-Domain",      use_container_width=True):
         st.session_state.resume_data = SAMPLES["crossdomain"]; st.session_state.jd_data = JD_SAMPLES["crossdomain"]
+    if b6.button("👥 HR Role",           use_container_width=True):
+        st.session_state.resume_data = SAMPLES["hr"];          st.session_state.jd_data = JD_SAMPLES["hr"]
 
     st.divider()
 

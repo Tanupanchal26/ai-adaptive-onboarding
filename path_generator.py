@@ -4,21 +4,34 @@ from semantic_engine import optimize_courses
 
 # Prerequisite graph: edge A → B means "learn A before B"
 _PREREQ_EDGES = [
-    ("Python",      "Machine Learning"),
-    ("Python",      "Data Analysis"),
-    ("SQL",         "Data Analysis"),
-    ("Statistics",  "Machine Learning"),
-    ("JavaScript",  "React"),
-    ("JavaScript",  "Node.js"),
-    ("HTML",        "JavaScript"),
-    ("CSS",         "JavaScript"),
-    ("Docker",      "Kubernetes"),
-    ("Git",         "Agile"),
-    ("Data Analysis", "Tableau"),
-    ("Data Analysis", "Power BI"),
-    ("Python",      "Deep Learning"),
+    # Technical
+    ("Python",           "Machine Learning"),
+    ("Python",           "Data Analysis"),
+    ("SQL",              "Data Analysis"),
+    ("Statistics",       "Machine Learning"),
+    ("JavaScript",       "React"),
+    ("JavaScript",       "Node.js"),
+    ("HTML",             "JavaScript"),
+    ("CSS",              "JavaScript"),
+    ("Docker",           "Kubernetes"),
+    ("Git",              "Agile"),
+    ("Data Analysis",    "Tableau"),
+    ("Data Analysis",    "Power BI"),
+    ("Python",           "Deep Learning"),
     ("Machine Learning", "Deep Learning"),
-    ("AWS",         "Kubernetes"),
+    ("AWS",              "Kubernetes"),
+    # Non-technical
+    ("Communication",    "Public Speaking"),
+    ("Communication",    "Leadership"),
+    ("Sales",            "Negotiation"),
+    ("Sales",            "CRM"),
+    ("Marketing",        "SEO"),
+    ("Marketing",        "Content Marketing"),
+    ("Marketing",        "Brand Management"),
+    ("Excel",            "Financial Analysis"),
+    ("Leadership",       "Strategy"),
+    ("Leadership",       "Coaching"),
+    ("Project Management", "Strategy"),
 ]
 
 
@@ -106,68 +119,70 @@ def build_learning_path(gaps: set) -> list:
 
 
 def build_bonus_courses(gaps: set, candidate_skills: set, experience_years: int) -> list:
-    """
-    Suggest high-value bonus courses based on:
-    - What gaps exist (career-adjacent skills)
-    - Experience level (junior vs senior recommendations)
-    Returns list of bonus dicts with title, duration, reason.
-    """
     bonus = []
-    gaps_lower    = {g.lower() for g in gaps}
-    skills_lower  = {s.lower() for s in candidate_skills}
-    seen_titles   = set()
+    gaps_lower   = {g.lower() for g in gaps}
+    skills_lower = {s.lower() for s in candidate_skills}
+    seen_titles  = set()
 
     def add(title, duration, reason):
         if title not in seen_titles:
             seen_titles.add(title)
             bonus.append({"title": title, "duration": duration, "reason": reason})
 
-    # Frontend gap → suggest TypeScript (most React/JS jobs require it)
+    # ── Technical bonuses ──────────────────────────────────────────────────────────────
     if ("react" in gaps_lower or "javascript" in gaps_lower) and "typescript" not in skills_lower:
         add("TypeScript for Developers", 6,
-            "Most React/JS roles in 2025 require TypeScript — adds 20–40% more interview calls")
-
-    # Has JS/React but no Next.js and 2+ years experience
+            "Most React/JS roles require TypeScript — adds 20–40% more interview calls")
     if ("javascript" in skills_lower or "react" in skills_lower) and \
        "next.js" not in skills_lower and experience_years >= 2:
         add("Next.js App Router & SSR", 10,
-            "High-demand full-stack framework — opens ₹15–35+ LPA opportunities")
-
-    # Junior dev without testing skills
+            "High-demand full-stack framework — opens senior full-stack opportunities")
     if experience_years < 3 and "testing" not in skills_lower and \
        ("javascript" in skills_lower or "react" in skills_lower or "javascript" in gaps_lower):
         add("Testing with Jest & Cypress", 8,
-            "Testing = senior roles & better packages — most companies require it for mid+ level")
-
-    # Any dev role without DSA
-    if "dsa" not in skills_lower and "problem solving" not in skills_lower and \
-       experience_years < 5:
+            "Testing skills required for mid+ level roles")
+    if "dsa" not in skills_lower and "problem solving" not in skills_lower and experience_years < 5 and \
+       any(t in skills_lower | gaps_lower for t in ("python", "java", "javascript")):
         add("Data Structures & Algorithms", 12,
-            "Required for FAANG & product company interviews regardless of stack")
-
-    # Backend gap or Node.js missing for full-stack roles
-    if ("backend" in gaps_lower or "node.js" in gaps_lower or "rest api" in gaps_lower) and \
-       "node.js" not in skills_lower:
-        add("REST APIs & Node.js", 7,
-            "Full-stack capability — doubles job options vs pure frontend")
-
-    # Cloud gap for senior engineers
-    if experience_years >= 3 and "aws" not in skills_lower and "cloud" not in skills_lower:
+            "Required for product company & FAANG interviews")
+    if experience_years >= 3 and "aws" not in skills_lower and "cloud" not in skills_lower and \
+       any(t in skills_lower for t in ("python", "docker", "backend", "node.js")):
         add("AWS Cloud Practitioner", 8,
-            "Cloud skills add ₹3–8 LPA to compensation at senior levels")
-
-    # Docker without Kubernetes for 4+ years experience
+            "Cloud skills add significant compensation at senior levels")
     if ("docker" in skills_lower or "devops" in skills_lower) and \
        "kubernetes" not in skills_lower and experience_years >= 4:
         add("Kubernetes & Cloud Native", 10,
-            "K8s is the standard for production deployments — required for DevOps/SRE roles")
-
-    # System design for senior candidates
-    if experience_years >= 3 and "system design" not in skills_lower:
+            "K8s is standard for production deployments")
+    if experience_years >= 3 and "system design" not in skills_lower and \
+       any(t in skills_lower for t in ("python", "java", "backend", "aws")):
         add("System Design & Architecture", 10,
-            "System design rounds are mandatory for senior/staff engineer interviews")
+            "Mandatory for senior/staff engineer interviews")
 
-    return bonus[:4]  # cap at 4 bonus courses to avoid overwhelming
+    # ── Non-technical bonuses ──────────────────────────────────────────────────────────
+    is_sales_role    = any(t in skills_lower | gaps_lower for t in ("sales", "crm", "negotiation", "salesforce"))
+    is_mkt_role      = any(t in skills_lower | gaps_lower for t in ("marketing", "seo", "content marketing", "brand management"))
+    is_people_role   = any(t in skills_lower | gaps_lower for t in ("leadership", "hr", "coaching", "recruitment"))
+
+    if is_sales_role and "crm" not in skills_lower:
+        add("CRM & Salesforce Basics", 6,
+            "CRM proficiency is expected in 80%+ of sales roles — boosts close rates")
+    if is_sales_role and "negotiation" not in skills_lower:
+        add("Sales & Negotiation", 4,
+            "Structured negotiation frameworks directly improve deal conversion")
+    if is_mkt_role and "seo" not in skills_lower:
+        add("SEO & Content Marketing", 5,
+            "SEO is a core digital marketing skill — expected in most marketing manager JDs")
+    if is_mkt_role and "tableau" not in skills_lower and "power bi" not in skills_lower:
+        add("Tableau for Data Viz", 6,
+            "Data-driven marketing decisions require visualization tools")
+    if is_people_role and "strategy" not in skills_lower and experience_years >= 3:
+        add("Executive Leadership & Strategy", 8,
+            "Strategy skills differentiate managers from individual contributors")
+    if (is_sales_role or is_mkt_role) and "excel" not in skills_lower:
+        add("Excel for Business", 4,
+            "Excel is the baseline tool for sales reporting and marketing analytics")
+
+    return bonus[:4]
 
 
 def estimate_time(pathway: list) -> dict:

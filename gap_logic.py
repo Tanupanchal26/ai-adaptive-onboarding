@@ -3,14 +3,23 @@ import pandas as pd
 from pathlib import Path
 
 STANDARD_SKILLS = {
-    "Python", "SQL", "Leadership", "Communication", "Java",
-    "Excel", "Project Management", "Machine Learning", "Data Analysis",
-    "JavaScript", "React", "AWS", "Docker", "Git", "Agile",
-    "Tableau", "Power BI", "Marketing", "Sales", "Public Speaking",
-    "TypeScript", "Next.js", "Testing", "Jest", "Cypress",
-    "DSA", "Problem Solving", "Node.js", "REST API", "Backend",
-    "MongoDB", "Database", "Kubernetes", "Cloud", "DevOps",
-    "HTML", "CSS", "System Design", "Architecture", "Deep Learning"
+    # ── Technical ──────────────────────────────────────────────────────────────
+    "Python", "SQL", "Java", "JavaScript", "React", "TypeScript", "Next.js",
+    "Node.js", "REST API", "Backend", "HTML", "CSS",
+    "AWS", "Docker", "Kubernetes", "Cloud", "DevOps", "Git", "Agile",
+    "Machine Learning", "Deep Learning", "Data Analysis", "Statistics",
+    "Tableau", "Power BI", "Database", "MongoDB", "System Design", "Architecture",
+    "Testing", "Jest", "Cypress", "DSA", "Problem Solving",
+    "Linux", "Networking", "Security", "Cybersecurity",
+    # ── Business / Non-technical ───────────────────────────────────────────────
+    "Leadership", "Communication", "Public Speaking", "Project Management",
+    "Excel", "Marketing", "Sales", "Negotiation",
+    "CRM", "Salesforce", "SEO", "Content Marketing", "Social Media",
+    "Brand Management", "Market Research", "Customer Success",
+    "Financial Analysis", "Budgeting", "Business Development",
+    "HR", "Recruitment", "Training", "Coaching",
+    "Strategy", "Operations", "Supply Chain", "Logistics",
+    "Product Management", "UX Design", "Figma",
 }
 
 CATALOG_PATH = Path(__file__).parent / "course_catalog.json"
