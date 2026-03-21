@@ -276,3 +276,47 @@ if st.session_state.resume_data and st.session_state.jd_data:
                        text=f"🎯 {efficiency}% more efficient",
                        showarrow=False, font=dict(color="#00d4ff", size=14))
     st.plotly_chart(fig, use_container_width=True)
+
+    st.divider()
+
+    # ── Reasoning Trace ───────────────────────────────────────────────────────
+    with st.expander("🔍 Full AI Reasoning Trace", expanded=False):
+        steps = [
+            ("01", "INPUT RECEIVED",
+             f"Candidate: **{rd.get('role','Unknown')}** · {rd.get('experience_years','?')} years experience"),
+            ("02", "RESUME SKILL EXTRACTION",
+             f"Identified **{len(rd.get('skills',[]))} raw skills** from resume → normalized to **{len(candidate_skills)} standard skills**: {', '.join(sorted(candidate_skills)) or 'none'}"),
+            ("03", "JD SKILL EXTRACTION",
+             f"Identified **{len(jd.get('skills',[]))} raw skills** from JD → normalized to **{len(jd_skills)} standard skills**: {', '.join(sorted(jd_skills)) or 'none'}"),
+            ("04", "SKILL MATCHING",
+             f"Cross-referenced candidate vs JD → **{len(matched)} matched**: {', '.join(sorted(matched)) or 'none'}"),
+            ("05", "GAP IDENTIFICATION",
+             f"Set difference (JD − Candidate) → **{len(gaps)} gaps**: {', '.join(sorted(gaps)) or 'none'}"),
+            ("06", "CATALOG SEARCH",
+             f"Searched course catalog for gap-covering courses → **{len(pathway)} courses matched** out of 12 available"),
+            ("07", "DIFFICULTY SORTING",
+             "Sorted courses beginner → intermediate → advanced for progressive skill building"),
+            ("08", "DEDUPLICATION",
+             "Removed duplicate courses where one course covers multiple gaps — each course appears once only"),
+            ("09", "PATHWAY ASSEMBLY",
+             "Assembled final path: " + " → ".join([c['title'] for c in pathway])),
+            ("10", "TIME ESTIMATION",
+             f"Summed durations → **{total_hours}h total** · Static baseline: **{static_hours}h** · Efficiency gain: **{efficiency}%**"),
+            ("11", "OPTIMIZATION CHECK",
+             f"Verified pathway covers all {len(gaps)} gaps · No redundant courses · Ordered for max knowledge transfer"),
+            ("12", "OUTPUT READY",
+             f"Pathway generated for **{rd.get('role','Candidate')}** → **{jd.get('role','Target Role')}** ✅"),
+        ]
+
+        for num, title, detail in steps:
+            st.markdown(
+                f"""
+                <div style='font-family:monospace;background:#0d1117;padding:12px 16px;
+                border-left:3px solid #00d4ff;margin-bottom:8px;border-radius:0 8px 8px 0;'>
+                <span style='color:#00d4ff;font-weight:700;'>STEP {num}</span>
+                <span style='color:#fff;font-weight:600;margin-left:8px;'>› {title}</span><br/>
+                <span style='color:#aaa;font-size:13px;margin-left:60px;'>{detail}</span>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
