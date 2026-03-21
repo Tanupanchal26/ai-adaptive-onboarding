@@ -61,11 +61,14 @@ def build_learning_path(gaps: set) -> list:
     """
     Dependency-aware, efficiency-ranked learning pathway.
 
-    Pipeline:
-    1. Score all catalog courses via optimize_courses (score = covered_gaps / duration)
-    2. Sort by score DESC, topo-order as tiebreak
-    3. Deduplicate by course id
-    4. Return structured list with 'covers' and 'score' on every item
+    Pipeline
+    --------
+    1. optimize_courses() runs greedy set-cover — returns the minimal
+       non-redundant course set, each covering only *new* gaps.
+    2. Topo-sort the selected courses so prerequisites come first:
+       the course whose earliest-prerequisite gap has the lowest topo rank
+       is placed first.
+    3. Attach full catalog metadata and build the final pathway list.
     """
     if not gaps:
         return []
@@ -73,30 +76,23 @@ def build_learning_path(gaps: set) -> list:
     ordered_gaps = _order_by_prerequisites(gaps)
     topo_rank    = {s: i for i, s in enumerate(ordered_gaps)}
 
-    # Load catalog as list-of-dicts for optimize_courses
-    df = load_catalog()
-    catalog = df.to_dict("records")
+    df       = load_catalog()
+    catalog  = df.to_dict("records")
+    id_map   = {row["title"]: row for _, row in df.iterrows()}
 
-    # Score and sort via shared engine
-    scored = optimize_courses(catalog, list(gaps))
+    # Greedy set-cover — already minimal and scored
+    selected = optimize_courses(catalog, list(gaps))
 
-    # Topo tiebreak: courses covering earlier-prerequisite gaps rank higher
-    scored.sort(key=lambda x: (
+    # Apply topo ordering: sort by the earliest prereq rank among covered gaps
+    selected.sort(key=lambda x: (
+        min((topo_rank.get(s, 99) for s in x["covers"]), default=99),
         -x["score"],
-        min((topo_rank.get(s, 99) for s in x["covers"]), default=99)
     ))
-
-    # Build id → full row lookup for metadata
-    id_lookup = {row["id"]: row for _, row in df.iterrows()}
 
     seen_ids = set()
     pathway  = []
-    for item in scored:
-        # match back to catalog row by name
-        row = next(
-            (r for r in id_lookup.values() if r["title"] == item["name"]),
-            None
-        )
+    for item in selected:
+        row = id_map.get(item["name"])
         if row is None:
             continue
         rid = row["id"]
@@ -112,7 +108,10 @@ def build_learning_path(gaps: set) -> list:
             "prereq":     row.get("prereq", []),
             "covers":     item["covers"],
             "score":      item["score"],
-            "why":        f"Covers {len(item['covers'])} gap(s): {', '.join(item['covers'])}  ·  efficiency {item['score']:.2f} gaps/hr",
+            "why":        (
+                f"Closes {len(item['covers'])} gap(s): {', '.join(item['covers'])}"
+                f"  ·  {item['score']:.2f} gaps/hr"
+            ),
         })
 
     return pathway

@@ -207,11 +207,22 @@ def optimize_courses(
     threshold:      float = 0.60,
 ) -> list[dict]:
     """
-    Score every course by efficiency = semantically_covered_gaps / duration.
+    Greedy set-cover optimizer: select the minimum set of courses that closes
+    all gaps, ranked by efficiency = gaps_covered / duration.
 
-    Course skills are matched to gaps semantically (not by exact string),
-    so a course covering "Machine Learning" will match a gap of "ML" or
-    "Deep Learning Basics" if similarity >= threshold.
+    Algorithm
+    ---------
+    Phase 1 — Score every course semantically:
+        For each course, find which open gaps it covers via cosine similarity.
+        score = len(covered_gaps) / duration
+
+    Phase 2 — Greedy set-cover:
+        Repeat until all gaps are closed (or no course covers anything new):
+          1. Re-score remaining courses against *unclosed* gaps only.
+          2. Pick the course with the highest score (most gaps/hr).
+          3. Mark its covered gaps as closed.
+          4. Remove it from the candidate pool.
+        This guarantees no two selected courses cover the same gap twice.
 
     Parameters
     ----------
@@ -221,49 +232,90 @@ def optimize_courses(
 
     Returns
     -------
-    List of scored course dicts, sorted by score DESC.
-    Each dict has: name, skills, duration, score, covers (semantically matched gaps).
+    Ordered list of selected course dicts (greedy insertion order, i.e. highest
+    efficiency first).  Each dict has: name, skills, duration, score, covers.
     """
     if not gaps or not course_catalog:
         return []
 
-    # Pre-encode gaps once
-    if SEMANTIC_AVAILABLE:
-        gap_emb = _embed_many(gaps)   # (G, D)
+    gaps_list = list(gaps)
 
-    scored = []
+    # ── Phase 1: score every course against the full gap set ─────────────────
+    if SEMANTIC_AVAILABLE:
+        gap_emb = _embed_many(gaps_list)          # (G, D) — computed once
+
+    candidates = []   # list of (course_dict, frozenset_of_covered_gap_indices)
     for course in course_catalog:
         course_skills = course.get("skills", [])
         if not course_skills:
             continue
 
         if SEMANTIC_AVAILABLE:
-            cs_emb  = _embed_many(course_skills)          # (S, D)
-            sim     = _cosine_matrix(cs_emb, gap_emb)     # (S, G)
-            # A gap is "covered" if any course skill scores >= threshold against it
-            covered_gaps = [
-                gaps[g]
-                for g in range(len(gaps))
-                if sim[:, g].max() >= threshold
-            ]
+            cs_emb = _embed_many(course_skills)   # (S, D)
+            sim    = _cosine_matrix(cs_emb, gap_emb)  # (S, G)
+            covered_idx = frozenset(
+                g for g in range(len(gaps_list))
+                if float(sim[:, g].max()) >= threshold
+            )
         else:
-            gaps_lower   = {g.lower() for g in gaps}
-            covered_gaps = [
-                s for s in course_skills if s.lower() in gaps_lower
-            ]
+            gaps_lower  = {g.lower(): i for i, g in enumerate(gaps_list)}
+            covered_idx = frozenset(
+                gaps_lower[s.lower()]
+                for s in course_skills
+                if s.lower() in gaps_lower
+            )
 
-        if not covered_gaps:
+        if not covered_idx:
             continue
 
         duration = max(course.get("duration", 1), 1)
-        score    = round(len(covered_gaps) / duration, 4)
-        scored.append({
-            "name":     course.get("title", course.get("name", "")),
-            "skills":   course_skills,
-            "duration": course.get("duration", 0),
-            "score":    score,
-            "covers":   covered_gaps,
+        score    = round(len(covered_idx) / duration, 4)
+        candidates.append({
+            "course":      course,
+            "covered_idx": covered_idx,
+            "score":       score,
         })
 
-    scored.sort(key=lambda x: x["score"], reverse=True)
-    return scored
+    if not candidates:
+        return []
+
+    # ── Phase 2: greedy set-cover ─────────────────────────────────────────────
+    open_gaps   = set(range(len(gaps_list)))   # indices of unclosed gaps
+    selected    = []                           # final ordered result
+
+    while open_gaps and candidates:
+        # Re-score each candidate against *only* the still-open gaps
+        for c in candidates:
+            new_covered = c["covered_idx"] & open_gaps
+            duration    = max(c["course"].get("duration", 1), 1)
+            c["marginal_score"] = round(len(new_covered) / duration, 4)
+            c["marginal_covers"] = new_covered
+
+        # Remove candidates that no longer cover anything new
+        candidates = [c for c in candidates if c["marginal_covers"]]
+        if not candidates:
+            break
+
+        # Pick the highest marginal efficiency course
+        best = max(candidates, key=lambda c: (
+            c["marginal_score"],
+            -c["course"].get("duration", 1),   # tiebreak: prefer shorter
+            len(c["covered_idx"]),              # tiebreak: prefer broader coverage
+        ))
+
+        covered_names = [gaps_list[i] for i in sorted(best["marginal_covers"])]
+        duration      = max(best["course"].get("duration", 1), 1)
+        final_score   = round(len(covered_names) / duration, 4)
+
+        selected.append({
+            "name":     best["course"].get("title", best["course"].get("name", "")),
+            "skills":   best["course"].get("skills", []),
+            "duration": best["course"].get("duration", 0),
+            "score":    final_score,
+            "covers":   covered_names,
+        })
+
+        open_gaps -= best["marginal_covers"]
+        candidates.remove(best)
+
+    return selected
