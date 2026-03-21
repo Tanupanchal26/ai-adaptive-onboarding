@@ -99,19 +99,29 @@ def build_learning_path(gaps: set) -> list:
         if rid in seen_ids:
             continue
         seen_ids.add(rid)
+        gaps_closed   = item["covers"]
+        efficiency    = item["score"]
+        hours         = row["duration"]
+        diff          = row["difficulty"].title()
+        # Rich decision-logic explanation
+        why_parts = [
+            f"Closes {len(gaps_closed)} gap(s): {', '.join(gaps_closed)}",
+            f"Efficiency: {efficiency:.2f} gaps/hr",
+            f"Selected because it maximizes skill coverage per hour invested",
+        ]
+        if len(gaps_closed) > 1:
+            why_parts.append(f"Bundles {len(gaps_closed)} required skills into {hours}h — avoids separate courses")
         pathway.append({
             "id":         rid,
             "title":      row["title"],
-            "duration":   row["duration"],
+            "duration":   hours,
             "difficulty": row["difficulty"],
             "skills":     row["skills"],
             "prereq":     row.get("prereq", []),
-            "covers":     item["covers"],
-            "score":      item["score"],
-            "why":        (
-                f"Closes {len(item['covers'])} gap(s): {', '.join(item['covers'])}"
-                f"  ·  {item['score']:.2f} gaps/hr"
-            ),
+            "covers":     gaps_closed,
+            "score":      efficiency,
+            "why":        "  ·  ".join(why_parts[:2]),
+            "why_detail": why_parts,
         })
 
     return pathway

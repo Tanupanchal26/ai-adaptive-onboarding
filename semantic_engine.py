@@ -63,23 +63,26 @@ def _cosine_matrix(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 # ── Result type ───────────────────────────────────────────────────────────────
 @dataclass
 class MatchResult:
-    """
-    Structured output of semantic_skill_match.
-
-    Attributes
-    ----------
-    matched       : JD skills the candidate already satisfies
-    gaps          : JD skills the candidate is missing
-    scores        : similarity score for every JD skill (index-aligned with
-                    matched + gaps combined in original jd_skills order)
-    best_match    : for each JD skill, the candidate skill that scored highest
-    coverage_pct  : int — percentage of JD skills matched
-    """
     matched:      list[str]
     gaps:         list[str]
-    scores:       dict[str, float]        # jd_skill → best cosine score
-    best_match:   dict[str, str]          # jd_skill → best candidate skill
+    scores:       dict[str, float]
+    best_match:   dict[str, str]
     coverage_pct: int
+    confidence:   float = 0.0   # mean cosine score of matched skills (0–1)
+    proficiency:  dict  = None  # skill → {"level": str, "score": float}
+
+    def __post_init__(self):
+        if self.proficiency is None:
+            self.proficiency = {}
+
+
+# ── Proficiency heuristic ────────────────────────────────────────────────────
+def _proficiency_level(score: float) -> str:
+    """Map cosine similarity score to a human-readable proficiency label."""
+    if score >= 0.92:  return "Expert"
+    if score >= 0.80:  return "Advanced"
+    if score >= 0.70:  return "Intermediate"
+    return "Beginner"
 
 
 # ── Public: semantic skill matching ──────────────────────────────────────────
@@ -154,10 +157,19 @@ def semantic_skill_match(
                 best_match[jd_skill] = ""
 
     coverage_pct = round(len(matched) / max(len(jd_skills), 1) * 100)
+
+    # Confidence = mean cosine score of matched skills (higher = more certain)
+    confidence = round(float(np.mean([scores[s] for s in matched])), 4) if matched else 0.0
+
+    # Proficiency map for every JD skill
+    proficiency = {s: {"level": _proficiency_level(scores[s]), "score": scores[s]} for s in scores}
+
     return MatchResult(
         matched=matched, gaps=gaps,
         scores=scores, best_match=best_match,
         coverage_pct=coverage_pct,
+        confidence=confidence,
+        proficiency=proficiency,
     )
 
 

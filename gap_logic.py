@@ -47,10 +47,12 @@ def compute_gaps(candidate_skills: set, jd_skills: set, threshold: float = 0.65)
     return {
         "gaps":         set(result.gaps),
         "matched":      set(result.matched),
-        "scores":       result.scores,        # jd_skill → cosine score
-        "best_match":   result.best_match,    # jd_skill → best candidate skill
+        "scores":       result.scores,
+        "best_match":   result.best_match,
         "extra":        candidate_skills - jd_skills,
         "coverage_pct": result.coverage_pct,
+        "confidence":   result.confidence,    # mean cosine of matched skills
+        "proficiency":  result.proficiency,   # skill → {level, score}
     }
 
 

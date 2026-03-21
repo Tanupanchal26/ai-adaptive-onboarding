@@ -101,31 +101,35 @@ Text:
 
 def _call_ollama(text: str) -> dict:
     for model in (PRIMARY_MODEL, FALLBACK_MODEL):
-        try:
-            payload = json.dumps({
-                "model":  model,
-                "system": "You are a precise parser. Return ONLY valid JSON, nothing else.",
-                "prompt": _OLLAMA_PROMPT.format(text=text[:3000]),
-                "stream": False
-            }).encode("utf-8")
-            req = urllib.request.Request(
-                OLLAMA_URL, data=payload,
-                headers={"Content-Type": "application/json"}
-            )
-            with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
-                raw = json.loads(resp.read().decode()).get("response", "")
-                s, e = raw.find("{"), raw.rfind("}") + 1
-                if s == -1 or e <= s:
-                    raise ValueError("No JSON in response")
-                result = json.loads(raw[s:e])
-                result["_model_used"] = model
-                return result
-        except urllib.error.URLError:
-            return {"error": "Ollama not running — start with: ollama serve"}
-        except (json.JSONDecodeError, ValueError):
-            continue
-        except Exception as ex:
-            return {"error": str(ex)}
+        for attempt in range(2):   # retry once on bad JSON
+            try:
+                payload = json.dumps({
+                    "model":  model,
+                    "system": "You are a precise parser. Return ONLY valid JSON, nothing else.",
+                    "prompt": _OLLAMA_PROMPT.format(text=text[:3000]),
+                    "stream": False
+                }).encode("utf-8")
+                req = urllib.request.Request(
+                    OLLAMA_URL, data=payload,
+                    headers={"Content-Type": "application/json"}
+                )
+                with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
+                    raw = json.loads(resp.read().decode()).get("response", "")
+                    s, e = raw.find("{"), raw.rfind("}") + 1
+                    if s == -1 or e <= s:
+                        raise ValueError("No JSON in response")
+                    result = json.loads(raw[s:e])
+                    # Validate required fields
+                    if "skills" not in result or "main_role" not in result:
+                        raise ValueError("Missing required fields")
+                    result["_model_used"] = model
+                    return result
+            except urllib.error.URLError:
+                return {"error": "Ollama not running — start with: ollama serve"}
+            except (json.JSONDecodeError, ValueError):
+                continue   # retry
+            except Exception as ex:
+                return {"error": str(ex)}
     return {"error": f"Both {PRIMARY_MODEL} and {FALLBACK_MODEL} returned invalid JSON"}
 
 # ── Fuzzy skill matching ──────────────────────────────────────────────────────

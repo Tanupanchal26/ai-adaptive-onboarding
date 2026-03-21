@@ -347,8 +347,10 @@ if st.session_state.resume_data and st.session_state.jd_data:
     gap_result       = compute_gaps(candidate_skills, jd_skills)
     gaps             = gap_result["gaps"]
     matched          = gap_result["matched"]
-    sim_scores       = gap_result.get("scores", {})     # jd_skill → cosine score
-    best_match       = gap_result.get("best_match", {}) # jd_skill → best candidate skill
+    sim_scores       = gap_result.get("scores", {})
+    best_match       = gap_result.get("best_match", {})
+    match_confidence = gap_result.get("confidence", 0.0)
+    proficiency      = gap_result.get("proficiency", {})
 
     from_role = rd.get("main_role", rd.get("role", "Candidate"))
     to_role   = jd.get("main_role", jd.get("role", "Target Role"))
@@ -502,9 +504,12 @@ if st.session_state.resume_data and st.session_state.jd_data:
         with pri2:
             st.markdown("### 🤖 AI Confidence")
             st.caption("Model certainty on gap analysis")
-            _matched_ratio = len(matched) / max(len(jd_skills), 1)
-            confidence = min(99, round(70 + _matched_ratio * 20 + min(rd.get("experience_years", 0), 5)))
-            st.metric("AI Confidence", f"{confidence}%", delta="cosine ≥ 0.65", delta_color="off")
+            if match_confidence > 0:
+                confidence = min(99, round(match_confidence * 100))
+            else:
+                _matched_ratio = len(matched) / max(len(jd_skills), 1)
+                confidence = min(99, round(70 + _matched_ratio * 20 + min(rd.get("experience_years", 0), 5)))
+            st.metric("AI Confidence", f"{confidence}%", delta="cosine >= 0.65", delta_color="off")
         with pri3:
             st.markdown("### 📈 Progression")
             st.caption("Your adaptive journey")
@@ -633,6 +638,43 @@ if st.session_state.resume_data and st.session_state.jd_data:
         sim2.metric("❌ Missing Skills",       str(missing_skills_count), missing_delta)
         sim3.metric("🎯 Role Readiness Score", f"{role_readiness_score}%", readiness_delta)
 
+    st.divider()
+
+    # ── WOW: Learning Efficiency Score ───────────────────────────────────────
+    with st.container():
+        _les_bg  = "#0d1117" if is_dark else "#f0fdf4"
+        _les_bdr = "#238636" if is_dark else "#16a34a"
+        _les_sub = "#8b949e" if is_dark else "#475569"
+        _les_grn = "#3fb950" if is_dark else "#16a34a"
+        _les_acc = "#58a6ff" if is_dark else "#2563eb"
+        # Score = (gaps_closed / total_jd_skills) * (baseline / optimized) * 100, capped 100
+        _les_raw = (len(gaps) / max(len(jd_skills), 1)) * (BASELINE_HOURS / max(_opt_hours, 1)) * 100
+        les_score = min(100, round(_les_raw))
+        les_grade = "S" if les_score >= 90 else "A" if les_score >= 75 else "B" if les_score >= 60 else "C"
+        les_label = {"S": "Exceptional", "A": "Strong", "B": "Good", "C": "Developing"}[les_grade]
+        st.markdown(f"""
+        <div style="background:{_les_bg};border:1px solid {_les_bdr};border-radius:12px;
+                    padding:1.2rem 1.8rem;margin:1rem 0;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+            <div style="text-align:center;min-width:80px;">
+                <div style="font-size:2.8rem;font-weight:900;color:{_les_grn};line-height:1;">{les_grade}</div>
+                <div style="font-size:.7rem;color:{_les_sub};text-transform:uppercase;letter-spacing:1px;margin-top:.2rem;">Grade</div>
+            </div>
+            <div style="flex:1;min-width:200px;">
+                <div style="font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:{_les_sub};margin-bottom:.3rem;">LEARNING EFFICIENCY SCORE</div>
+                <div style="font-size:1.5rem;font-weight:700;color:{_les_acc};">{les_score} / 100 &nbsp;<span style="font-size:.9rem;font-weight:400;color:{_les_sub};">{les_label}</span></div>
+                <div style="font-size:.8rem;color:{_les_sub};margin-top:.3rem;">
+                    Measures how efficiently this path closes your gaps relative to time invested.
+                    Higher = more gaps closed per hour vs static onboarding.
+                </div>
+            </div>
+            <div style="text-align:center;min-width:120px;">
+                <div style="font-size:1.4rem;font-weight:700;color:{_les_grn};">{_saved_pct}%</div>
+                <div style="font-size:.72rem;color:{_les_sub};text-transform:uppercase;letter-spacing:.8px;">Time Saved</div>
+                <div style="font-size:1.4rem;font-weight:700;color:{_les_acc};margin-top:.4rem;">{_opt_hours}h</div>
+                <div style="font-size:.72rem;color:{_les_sub};text-transform:uppercase;letter-spacing:.8px;">vs {BASELINE_HOURS}h Baseline</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     st.divider()
 
     pathway      = build_learning_path(gaps)
@@ -951,10 +993,12 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
                 with col_main:
                     st.markdown(f"**{course['title']}**")
-                    st.caption(f"🎯 Closes gaps in: {reason}")
-                    st.markdown(f"> {course['why']}")
+                    st.caption(f"Optimized for maximum skill coverage per hour  ·  Closes: {reason}")
+                    # Render rich why_detail if present, else fallback
+                    for line in course.get("why_detail", [course["why"]]):
+                        st.markdown(f"> {line}")
                     skill_tags = "  ".join(
-                        f"`{'✅' if s in matched else '🔧'} {s}`"
+                        f"`{'OK' if s in matched else 'GAP'} {s}`"
                         for s in course["skills"]
                     )
                     st.markdown(skill_tags)
