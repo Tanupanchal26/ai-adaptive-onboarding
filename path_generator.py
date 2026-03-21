@@ -1,5 +1,6 @@
 import networkx as nx
 from gap_logic import load_catalog
+from semantic_engine import optimize_courses
 
 # Prerequisite graph: edge A → B means "learn A before B"
 _PREREQ_EDGES = [
@@ -45,52 +46,60 @@ def _order_by_prerequisites(gaps: set) -> list:
 
 def build_learning_path(gaps: set) -> list:
     """
-    Builds a dependency-aware learning pathway:
-    1. Orders gaps via prerequisite graph (topological sort)
-    2. Maps each ordered gap to catalog courses
-    3. Deduplicates, preserving topo order
+    Dependency-aware, efficiency-ranked learning pathway.
+
+    Pipeline:
+    1. Score all catalog courses via optimize_courses (score = covered_gaps / duration)
+    2. Sort by score DESC, topo-order as tiebreak
+    3. Deduplicate by course id
+    4. Return structured list with 'covers' and 'score' on every item
     """
     if not gaps:
         return []
 
     ordered_gaps = _order_by_prerequisites(gaps)
-    df = load_catalog().sort_values("difficulty_rank")
-    gap_lower = {s.lower(): s for s in gaps}
-    seen_ids  = set()
-    pathway   = []
+    topo_rank    = {s: i for i, s in enumerate(ordered_gaps)}
 
-    # ── Score every course: gaps_covered / duration (efficiency ratio) ──────
-    scored = []
-    for _, course in df.iterrows():
-        course_skills_lower = {s.lower() for s in course["skills"]}
-        covering = [gap_lower[s] for s in course_skills_lower if s in gap_lower]
-        if not covering:
-            continue
-        score = round(len(covering) / max(course["duration"], 1), 4)
-        scored.append((score, course, covering))
+    # Load catalog as list-of-dicts for optimize_courses
+    df = load_catalog()
+    catalog = df.to_dict("records")
 
-    # Sort by score DESC (most efficient first), then respect topo order as tiebreak
-    topo_rank = {s: i for i, s in enumerate(ordered_gaps)}
+    # Score and sort via shared engine
+    scored = optimize_courses(catalog, list(gaps))
+
+    # Topo tiebreak: courses covering earlier-prerequisite gaps rank higher
     scored.sort(key=lambda x: (
-        -x[0],
-        min((topo_rank.get(s, 99) for s in x[2]), default=99)
+        -x["score"],
+        min((topo_rank.get(s, 99) for s in x["covers"]), default=99)
     ))
+
+    # Build id → full row lookup for metadata
+    id_lookup = {row["id"]: row for _, row in df.iterrows()}
 
     seen_ids = set()
     pathway  = []
-    for score, course, covering in scored:
-        if course["id"] in seen_ids:
+    for item in scored:
+        # match back to catalog row by name
+        row = next(
+            (r for r in id_lookup.values() if r["title"] == item["name"]),
+            None
+        )
+        if row is None:
             continue
-        seen_ids.add(course["id"])
+        rid = row["id"]
+        if rid in seen_ids:
+            continue
+        seen_ids.add(rid)
         pathway.append({
-            "id":         course["id"],
-            "title":      course["title"],
-            "duration":   course["duration"],
-            "difficulty": course["difficulty"],
-            "skills":     course["skills"],
-            "prereq":     course.get("prereq", []),
-            "score":      score,
-            "why":        f"Covers {len(covering)} gap(s): {', '.join(covering)}  ·  efficiency {score:.2f} gaps/hr"
+            "id":         rid,
+            "title":      row["title"],
+            "duration":   row["duration"],
+            "difficulty": row["difficulty"],
+            "skills":     row["skills"],
+            "prereq":     row.get("prereq", []),
+            "covers":     item["covers"],
+            "score":      item["score"],
+            "why":        f"Covers {len(item['covers'])} gap(s): {', '.join(item['covers'])}  ·  efficiency {item['score']:.2f} gaps/hr",
         })
 
     return pathway
