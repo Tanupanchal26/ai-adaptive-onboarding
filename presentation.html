@@ -45,7 +45,7 @@
   }
   h1 { font-size: 52px; font-weight: 800; line-height: 1.1; margin-bottom: 16px; text-align: center; }
   h2 { font-size: 36px; font-weight: 700; margin-bottom: 28px; text-align: center; }
-  .grad { background: linear-gradient(90deg,#00d4ff,#9b59b6); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .grad { background: linear-gradient(90deg,#00d4ff,#9b59b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .sub  { font-size: 20px; color: #aaa; max-width: 700px; text-align: center; line-height: 1.6; }
   .divider { width: 60px; height: 3px; background: linear-gradient(90deg,#00d4ff,#9b59b6); border-radius: 2px; margin: 20px auto; }
 
@@ -58,8 +58,6 @@
   .card-grid { display: grid; gap: 20px; width: 100%; max-width: 960px; }
   .card-grid.col2 { grid-template-columns: 1fr 1fr; }
   .card-grid.col3 { grid-template-columns: 1fr 1fr 1fr; }
-  .tech-grid  { max-width: 960px; }
-  .metrics-grid { max-width: 960px; }
 
   /* ── Slide 1 ── */
   .problem-row { display: flex; gap: 20px; margin-top: 28px; width: 100%; max-width: 900px; }
@@ -225,15 +223,15 @@
     <div class="problem-row">
       <div class="prob-card">
         <div class="icon">😩</div>
-        <p><b>Problem:</b> Generic onboarding wastes 30–50% of new hire time on skills they already have — or skips critical gaps entirely.</p>
+        <p><b style="color:#fff;">Problem:</b> Generic onboarding wastes 30–50% of new hire time on skills they already have — or skips critical gaps entirely.</p>
       </div>
       <div class="prob-card">
         <div class="icon">📋</div>
-        <p><b>Problem:</b> HR teams manually match resumes to training plans — slow, inconsistent, and not personalized.</p>
+        <p><b style="color:#fff;">Problem:</b> HR teams manually match resumes to training plans — slow, inconsistent, and not personalized.</p>
       </div>
       <div class="prob-card">
         <div class="icon">💸</div>
-        <p><b>Problem:</b> Average onboarding costs $4,000+ per employee. Inefficiency compounds at scale.</p>
+        <p><b style="color:#fff;">Problem:</b> Average onboarding costs $4,000+ per employee. Inefficiency compounds at scale.</p>
       </div>
     </div>
 
@@ -306,7 +304,7 @@
     <h2><span class="grad">Technology</span> Behind the Engine</h2>
     <div class="divider"></div>
 
-    <div class="card-grid col2 tech-grid">
+    <div class="card-grid col2" style="max-width:960px;">
       <div class="card">
         <div class="tech-card">
           <div class="icon">🤖</div>
@@ -431,7 +429,7 @@ pathway = list({c[<span class="str">"id"</span>]: c <span class="kw">for</span> 
     <h2><span class="grad">Data &amp; Results</span></h2>
     <div class="divider"></div>
 
-    <div class="card-grid col3 metrics-grid">
+    <div class="card-grid col3" style="max-width:960px;">
       <div class="metric-big">
         <div class="val grad">95%</div>
         <div class="lbl">Skill Extraction Accuracy<br><span class="lbl-sub">(10 manual test cases)</span></div>

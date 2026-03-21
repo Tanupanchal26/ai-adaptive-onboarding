@@ -1,25 +1,90 @@
+import networkx as nx
 from gap_logic import load_catalog
+
+# Prerequisite graph: edge A → B means "learn A before B"
+_PREREQ_EDGES = [
+    ("Python",      "Machine Learning"),
+    ("Python",      "Data Analysis"),
+    ("SQL",         "Data Analysis"),
+    ("Statistics",  "Machine Learning"),
+    ("JavaScript",  "React"),
+    ("JavaScript",  "Node.js"),
+    ("HTML",        "JavaScript"),
+    ("CSS",         "JavaScript"),
+    ("Docker",      "Kubernetes"),
+    ("Git",         "Agile"),
+    ("Data Analysis", "Tableau"),
+    ("Data Analysis", "Power BI"),
+    ("Python",      "Deep Learning"),
+    ("Machine Learning", "Deep Learning"),
+    ("AWS",         "Kubernetes"),
+]
+
+
+def _build_prereq_graph() -> nx.DiGraph:
+    G = nx.DiGraph()
+    G.add_edges_from(_PREREQ_EDGES)
+    return G
+
+
+def _order_by_prerequisites(gaps: set) -> list:
+    """Return gaps sorted by prerequisite dependencies via topological sort."""
+    G = _build_prereq_graph()
+    # Keep only nodes relevant to the current gaps
+    subgraph_nodes = set(gaps)
+    for skill in gaps:
+        if skill in G:
+            subgraph_nodes.update(nx.ancestors(G, skill))
+    sub = G.subgraph(subgraph_nodes)
+    topo = list(nx.topological_sort(sub))
+    # Return only the actual gaps in topo order; append any not in graph at end
+    ordered = [s for s in topo if s in gaps]
+    ordered += [s for s in gaps if s not in ordered]
+    return ordered
 
 
 def build_learning_path(gaps: set) -> list:
     """
-    For each gap skill, find matching courses from catalog.
-    Deduplicate, sort beginner → intermediate → advanced.
-    Returns ordered list with 'why' explanation per course.
+    Builds a dependency-aware learning pathway:
+    1. Orders gaps via prerequisite graph (topological sort)
+    2. Maps each ordered gap to catalog courses
+    3. Deduplicates, preserving topo order
     """
     if not gaps:
         return []
 
+    ordered_gaps = _order_by_prerequisites(gaps)
     df = load_catalog().sort_values("difficulty_rank")
     gap_lower = {s.lower(): s for s in gaps}
-    seen_ids = set()
-    pathway = []
+    seen_ids  = set()
+    pathway   = []
 
+    for gap_skill in ordered_gaps:
+        for _, course in df.iterrows():
+            if course["id"] in seen_ids:
+                continue
+            course_skills_lower = {s.lower() for s in course["skills"]}
+            covering = [gap_lower[s] for s in course_skills_lower if s in gap_lower]
+            if gap_skill.lower() in course_skills_lower:
+                seen_ids.add(course["id"])
+                pathway.append({
+                    "id":         course["id"],
+                    "title":      course["title"],
+                    "duration":   course["duration"],
+                    "difficulty": course["difficulty"],
+                    "skills":     course["skills"],
+                    "prereq":     course.get("prereq", []),
+                    "why":        f"Covers your gap: {', '.join(covering) if covering else gap_skill}"
+                })
+                break  # one course per gap in topo pass; extras caught below
+
+    # Catch any remaining gaps not yet covered
     for _, course in df.iterrows():
+        if course["id"] in seen_ids:
+            continue
         course_skills_lower = {s.lower() for s in course["skills"]}
         covering = [gap_lower[s] for s in course_skills_lower if s in gap_lower]
-
-        if covering and course["id"] not in seen_ids:
+        if covering:
             seen_ids.add(course["id"])
             pathway.append({
                 "id":         course["id"],
