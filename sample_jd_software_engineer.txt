@@ -1,0 +1,33 @@
+Job Title: Software Engineer (Full Stack)
+Company: TechCorp Inc.
+Location: Remote / San Francisco, CA
+
+About the Role:
+We are looking for a passionate Software Engineer with 3+ years of experience to join our
+growing engineering team. You will design, build, and maintain scalable web applications.
+
+Responsibilities:
+- Design and develop RESTful APIs using Python (FastAPI / Django)
+- Build responsive frontend interfaces with React and JavaScript
+- Write clean, testable, and well-documented code
+- Collaborate with product managers and UX designers
+- Participate in code reviews and agile ceremonies (Scrum, Kanban)
+- Deploy and monitor applications on AWS (EC2, Lambda, S3)
+- Optimize application performance and database queries (SQL, PostgreSQL)
+
+Required Skills:
+- 3+ years of software engineering experience
+- Strong proficiency in Python and JavaScript
+- Experience with React, Node.js, REST APIs
+- Solid understanding of SQL and database design
+- Familiarity with Docker, Kubernetes, CI/CD pipelines
+- Experience with cloud platforms (AWS preferred)
+- Strong problem solving and critical thinking skills
+- Excellent communication and teamwork abilities
+
+Nice to Have:
+- Experience with machine learning or data pipelines
+- Knowledge of DevOps practices
+- Open source contributions
+
+We offer competitive salary, equity, and a fully remote-friendly culture.
