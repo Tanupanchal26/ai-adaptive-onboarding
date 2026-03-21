@@ -366,6 +366,27 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.info("🔄 AI is dynamically adapting your learning pathway based on skill gaps...")
     st.markdown(f"### 🎯 Analysis: **{from_role}** → **{to_role}**")
 
+    # ── Architecture Flow Banner ──────────────────────────────────────────────
+    _af_bg  = "#0d1117" if is_dark else "#f8fafc"
+    _af_bdr = "#21262d" if is_dark else "#e2e8f0"
+    _af_txt = "#8b949e" if is_dark else "#64748b"
+    _af_acc = "#58a6ff" if is_dark else "#0ea5e9"
+    _af_arr = "#444"    if is_dark else "#94a3b8"
+    _steps  = ["Resume", "LLM Parse", "Skills", "Embeddings", "Gap Analysis", "Optimizer", "Pathway"]
+    _step_html = "".join(
+        f"<span style='color:{_af_acc};font-weight:600;font-size:.8rem;'>{s}</span>"
+        + (f"<span style='color:{_af_arr};margin:0 .4rem;'>→</span>" if i < len(_steps)-1 else "")
+        for i, s in enumerate(_steps)
+    )
+    st.markdown(f"""
+    <div style="background:{_af_bg};border:1px solid {_af_bdr};border-radius:8px;
+                padding:.7rem 1.2rem;margin:.5rem 0 1.2rem 0;text-align:center;">
+        <span style="font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase;
+                     color:{_af_txt};margin-right:.8rem;">PIPELINE</span>
+        {_step_html}
+    </div>
+    """, unsafe_allow_html=True)
+
     # ── Pre-compute pathway + metrics for Executive Summary ──────────────────
     _pathway_preview  = build_learning_path(gaps)
     _t_preview        = estimate_time(_pathway_preview) if _pathway_preview else {"total": 0, "saved": 0, "efficiency": 0}
@@ -530,7 +551,9 @@ if st.session_state.resume_data and st.session_state.jd_data:
             if matched:
                 pills = " ".join(
                     f"<span class='skill-pill' title='similarity: {sim_scores.get(s, 1.0):.2f}'>"
-                    f"✅ {s} <span style='opacity:.5;font-size:11px;'>{sim_scores.get(s, 1.0):.2f}</span></span>"
+                    f"✅ {s} "
+                    f"<span style='opacity:.55;font-size:10px;'>{proficiency.get(s, {}).get('level', '')}</span>"
+                    f"</span>"
                     for s in sorted(matched)
                 )
                 st.markdown(pills, unsafe_allow_html=True)
@@ -541,7 +564,9 @@ if st.session_state.resume_data and st.session_state.jd_data:
             if gaps:
                 pills = " ".join(
                     f"<span class='gap-pill' title='best score: {sim_scores.get(s, 0.0):.2f}'>"
-                    f"❌ {s} <span style='opacity:.5;font-size:11px;'>{sim_scores.get(s, 0.0):.2f}</span></span>"
+                    f"❌ {s} "
+                    f"<span style='opacity:.55;font-size:10px;'>{proficiency.get(s, {}).get('level', 'Beginner')}</span>"
+                    f"</span>"
                     for s in sorted(gaps)
                 )
                 st.markdown(pills, unsafe_allow_html=True)
@@ -1258,6 +1283,29 @@ if st.session_state.resume_data and st.session_state.jd_data:
         _tr_blu = "#58a6ff" if is_dark else "#2563eb"
         _tr_ylw = "#d29922" if is_dark else "#d97706"
 
+        # ── Step 0: Input ─────────────────────────────────────────────────────
+        st.markdown(f"""
+        <div style="background:{_tr_bg};border:1px solid {_tr_bdr};border-radius:10px;
+                    padding:1.1rem 1.4rem;margin-bottom:.8rem;">
+            <div style="font-size:.68rem;letter-spacing:1.8px;text-transform:uppercase;
+                        color:{_tr_blu};font-weight:700;margin-bottom:.6rem;">STEP 0 · INPUT</div>
+            <div style="display:flex;gap:2rem;flex-wrap:wrap;">
+                <div style="flex:1;min-width:180px;">
+                    <div style="font-size:.75rem;color:{_tr_lbl};margin-bottom:.2rem;">FROM ROLE</div>
+                    <div style="font-size:.9rem;color:{_tr_val};font-weight:600;">{from_role}</div>
+                </div>
+                <div style="flex:1;min-width:180px;">
+                    <div style="font-size:.75rem;color:{_tr_lbl};margin-bottom:.2rem;">TO ROLE</div>
+                    <div style="font-size:.9rem;color:{_tr_val};font-weight:600;">{to_role}</div>
+                </div>
+                <div style="flex:1;min-width:180px;">
+                    <div style="font-size:.75rem;color:{_tr_lbl};margin-bottom:.2rem;">MATCHING ENGINE</div>
+                    <div style="font-size:.9rem;color:{_tr_acc if hasattr(locals(), '_tr_acc') else _tr_blu};font-weight:600;">{'Semantic (cosine)' if gap_result.get('confidence', 0) > 0 else 'Exact fallback'}</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
         # ── Step 1 ────────────────────────────────────────────────────────────
         st.markdown(f"""
         <div style="background:{_tr_bg};border:1px solid {_tr_bdr};border-radius:10px;
@@ -1357,6 +1405,33 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 Total: <b style="color:{_tr_val};">{total_hours}h</b> &nbsp;·&nbsp;
                 Baseline: <b style="color:{_tr_val};">{static_hours}h</b> &nbsp;·&nbsp;
                 Saved: <b style="color:{_tr_grn};">{hours_saved}h ({efficiency}% faster)</b>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # ── Step 5: Output ────────────────────────────────────────────────────
+        st.markdown(f"""
+        <div style="background:{_tr_bg};border:1px solid {_tr_bdr};border-radius:10px;
+                    padding:1.1rem 1.4rem;">
+            <div style="font-size:.68rem;letter-spacing:1.8px;text-transform:uppercase;
+                        color:{_tr_blu};font-weight:700;margin-bottom:.6rem;">STEP 5 · OUTPUT</div>
+            <div style="display:flex;gap:2rem;flex-wrap:wrap;">
+                <div style="flex:1;min-width:140px;text-align:center;">
+                    <div style="font-size:1.6rem;font-weight:800;color:{_tr_grn};">{_readiness_score}%</div>
+                    <div style="font-size:.72rem;color:{_tr_lbl};text-transform:uppercase;letter-spacing:.8px;">Role Readiness</div>
+                </div>
+                <div style="flex:1;min-width:140px;text-align:center;">
+                    <div style="font-size:1.6rem;font-weight:800;color:{_tr_blu};">{len(pathway)}</div>
+                    <div style="font-size:.72rem;color:{_tr_lbl};text-transform:uppercase;letter-spacing:.8px;">Courses Selected</div>
+                </div>
+                <div style="flex:1;min-width:140px;text-align:center;">
+                    <div style="font-size:1.6rem;font-weight:800;color:{_tr_ylw};">{total_hours}h</div>
+                    <div style="font-size:.72rem;color:{_tr_lbl};text-transform:uppercase;letter-spacing:.8px;">Optimized Time</div>
+                </div>
+                <div style="flex:1;min-width:140px;text-align:center;">
+                    <div style="font-size:1.6rem;font-weight:800;color:{_tr_grn};">{hours_saved}h saved</div>
+                    <div style="font-size:.72rem;color:{_tr_lbl};text-transform:uppercase;letter-spacing:.8px;">vs {static_hours}h Baseline</div>
+                </div>
             </div>
         </div>
         """, unsafe_allow_html=True)

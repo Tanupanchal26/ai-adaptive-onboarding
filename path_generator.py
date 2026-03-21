@@ -194,12 +194,14 @@ def build_bonus_courses(gaps: set, candidate_skills: set, experience_years: int)
     return bonus[:4]
 
 
+BASELINE_HOURS = 35
+
 def estimate_time(pathway: list) -> dict:
-    """Return total, static baseline, saved hours, and efficiency %."""
-    total        = sum(c["duration"] for c in pathway)
-    static       = round(total * 1.67)
-    saved        = static - total
-    efficiency   = round((saved / static) * 100) if static else 0
+    """Return total, static baseline (35h industry standard), saved hours, and efficiency %."""
+    total      = sum(c["duration"] for c in pathway)
+    static     = BASELINE_HOURS
+    saved      = max(0, static - total)
+    efficiency = round((saved / static) * 100) if saved > 0 else 0
     return {"total": total, "static": static, "saved": saved, "efficiency": efficiency}
 
 
