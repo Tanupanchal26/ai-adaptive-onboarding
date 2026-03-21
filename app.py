@@ -1353,12 +1353,54 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.progress(_improved / 100)
 
     with aip2:
-        st.markdown("####  Learning Evolution")
         _before = readiness
         _after  = min(100, readiness + 35)
-        st.write(f"Skill coverage improves from **{_before}%**  **{_after}%** after completing this path.")
-        st.progress(_after / 100)
-        st.line_chart([_before, _after])
+        _aip2_acc = "#3fb950" if is_dark else "#16a34a"
+        _aip2_sub = "#8b949e" if is_dark else "#475569"
+        _aip2_bg  = "#0d1117" if is_dark else "#f0fdf4"
+        _aip2_bdr = "#238636" if is_dark else "#16a34a"
+        _aip2_val = "#e6edf3" if is_dark else "#0f172a"
+        st.markdown(f"""
+        <div style="background:{_aip2_bg};border:1px solid {_aip2_bdr};border-radius:12px;
+                    padding:1.2rem 1.4rem;">
+            <div style="font-size:.68rem;letter-spacing:2px;text-transform:uppercase;
+                        color:{_aip2_sub};margin-bottom:.8rem;">LEARNING EVOLUTION</div>
+            <div style="font-size:.88rem;color:{_aip2_sub};margin-bottom:1rem;line-height:1.5;">
+                Skill coverage improves from
+                <b style="color:{_aip2_val};">{_before}%</b>
+                &nbsp;&rarr;&nbsp;
+                <b style="color:{_aip2_acc};">100%</b>
+                after completing this path.
+            </div>
+            <div style="margin-bottom:.5rem;">
+                <div style="display:flex;justify-content:space-between;
+                            font-size:.75rem;color:{_aip2_sub};margin-bottom:.3rem;">
+                    <span>Before</span><span>After</span>
+                </div>
+                <div style="display:flex;gap:.5rem;align-items:center;">
+                    <div style="flex:1;background:{'#1e1e1e' if is_dark else '#e2e8f0'};
+                                border-radius:6px;height:10px;overflow:hidden;">
+                        <div style="width:{_before}%;background:#ef4444;
+                                    height:10px;border-radius:6px;"></div>
+                    </div>
+                    <span style="font-size:.78rem;color:#ef4444;font-weight:700;
+                                 min-width:36px;text-align:right;">{_before}%</span>
+                </div>
+                <div style="display:flex;gap:.5rem;align-items:center;margin-top:.4rem;">
+                    <div style="flex:1;background:{'#1e1e1e' if is_dark else '#e2e8f0'};
+                                border-radius:6px;height:10px;overflow:hidden;">
+                        <div style="width:100%;background:{_aip2_acc};
+                                    height:10px;border-radius:6px;"></div>
+                    </div>
+                    <span style="font-size:.78rem;color:{_aip2_acc};font-weight:700;
+                                 min-width:36px;text-align:right;">100%</span>
+                </div>
+            </div>
+            <div style="font-size:.78rem;color:{_aip2_acc};font-weight:600;margin-top:.6rem;">
+                +{min(100, 100 - _before)}% coverage gain
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with aip3:
         st.markdown("####  AI Decision Flow")
