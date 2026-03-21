@@ -34,6 +34,10 @@ STANDARD_SKILLS = {
     "HR", "Recruitment", "Training", "Coaching",
     "Strategy", "Operations", "Supply Chain", "Logistics",
     "Product Management", "UX Design", "Figma",
+    # ── Operational / Field roles
+    "Inventory Management", "Safety Compliance", "Forklift Operation",
+    "Quality Control", "Equipment Maintenance", "Troubleshooting",
+    "Documentation", "Time Management",
 }
 
 CATALOG_PATH = Path(__file__).parent / "course_catalog.json"
