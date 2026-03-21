@@ -218,23 +218,36 @@ def fuzzy_match_skills(raw_skills: list, standard_skills: set, threshold: float 
 # ── Text extraction ───────────────────────────────────────────────────────────
 def _extract_pdf(file_bytes: bytes) -> str:
     """Try PyMuPDF → pdfplumber → OCR. Raises ValueError if password-protected."""
-    # 1. PyMuPDF
+    import io
+
+    # 1. PyMuPDF — try multiple text extraction modes
     try:
         doc = fitz.open(stream=file_bytes, filetype="pdf")
         if doc.is_encrypted:
             raise ValueError("PDF is password-protected")
-        text = "\n".join(page.get_text() for page in doc)
-        if text.strip():
-            return text
+        # try plain text first, then blocks mode for complex layouts
+        for mode in ("text", "blocks"):
+            try:
+                parts = []
+                for page in doc:
+                    raw = page.get_text(mode)
+                    if isinstance(raw, list):   # blocks returns list of tuples
+                        parts.append(" ".join(str(b[4]) for b in raw if len(b) > 4))
+                    else:
+                        parts.append(raw)
+                text = "\n".join(parts)
+                if text.strip():
+                    return text
+            except Exception:
+                continue
     except ValueError:
         raise
     except Exception:
         pass
 
-    # 2. pdfplumber fallback (handles some edge-case PDFs)
+    # 2. pdfplumber fallback
     if PDFPLUMBER_AVAILABLE:
         try:
-            import io
             with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
                 text = "\n".join(p.extract_text() or "" for p in pdf.pages)
             if text.strip():
@@ -278,7 +291,13 @@ def parse_file(file_bytes: bytes, filename: str) -> dict:
     if text.startswith("__ERROR__:"):
         return {"error": text.replace("__ERROR__: ", "")}
     if not text.strip():
-        return {"error": "Could not extract text from file. Ensure the file is a valid, non-scanned PDF or DOCX."}
+        # Last resort: try decoding raw bytes and regex-scanning for skills
+        raw = file_bytes.decode("utf-8", errors="ignore")
+        if raw.strip():
+            result = _regex_fallback(raw)
+            result["_raw_text"] = raw[:500]
+            return result
+        return {"error": "Could not extract text from file. Ensure the file is a valid, non-encrypted PDF, DOCX, or TXT."}
 
     # Try OpenAI first
     if OPENAI_AVAILABLE:
