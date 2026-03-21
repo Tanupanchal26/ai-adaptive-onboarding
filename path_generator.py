@@ -59,42 +59,39 @@ def build_learning_path(gaps: set) -> list:
     seen_ids  = set()
     pathway   = []
 
-    for gap_skill in ordered_gaps:
-        for _, course in df.iterrows():
-            if course["id"] in seen_ids:
-                continue
-            course_skills_lower = {s.lower() for s in course["skills"]}
-            covering = [gap_lower[s] for s in course_skills_lower if s in gap_lower]
-            if gap_skill.lower() in course_skills_lower:
-                seen_ids.add(course["id"])
-                pathway.append({
-                    "id":         course["id"],
-                    "title":      course["title"],
-                    "duration":   course["duration"],
-                    "difficulty": course["difficulty"],
-                    "skills":     course["skills"],
-                    "prereq":     course.get("prereq", []),
-                    "why":        f"Covers your gap: {', '.join(covering) if covering else gap_skill}"
-                })
-                break  # one course per gap in topo pass; extras caught below
-
-    # Catch any remaining gaps not yet covered
+    # ── Score every course: gaps_covered / duration (efficiency ratio) ──────
+    scored = []
     for _, course in df.iterrows():
-        if course["id"] in seen_ids:
-            continue
         course_skills_lower = {s.lower() for s in course["skills"]}
         covering = [gap_lower[s] for s in course_skills_lower if s in gap_lower]
-        if covering:
-            seen_ids.add(course["id"])
-            pathway.append({
-                "id":         course["id"],
-                "title":      course["title"],
-                "duration":   course["duration"],
-                "difficulty": course["difficulty"],
-                "skills":     course["skills"],
-                "prereq":     course.get("prereq", []),
-                "why":        f"Covers your gap: {', '.join(covering)}"
-            })
+        if not covering:
+            continue
+        score = round(len(covering) / max(course["duration"], 1), 4)
+        scored.append((score, course, covering))
+
+    # Sort by score DESC (most efficient first), then respect topo order as tiebreak
+    topo_rank = {s: i for i, s in enumerate(ordered_gaps)}
+    scored.sort(key=lambda x: (
+        -x[0],
+        min((topo_rank.get(s, 99) for s in x[2]), default=99)
+    ))
+
+    seen_ids = set()
+    pathway  = []
+    for score, course, covering in scored:
+        if course["id"] in seen_ids:
+            continue
+        seen_ids.add(course["id"])
+        pathway.append({
+            "id":         course["id"],
+            "title":      course["title"],
+            "duration":   course["duration"],
+            "difficulty": course["difficulty"],
+            "skills":     course["skills"],
+            "prereq":     course.get("prereq", []),
+            "score":      score,
+            "why":        f"Covers {len(covering)} gap(s): {', '.join(covering)}  ·  efficiency {score:.2f} gaps/hr"
+        })
 
     return pathway
 

@@ -141,12 +141,14 @@ SAMPLES = {
     "senior":    {"skills": ["Python", "AWS", "Docker", "Leadership", "SQL", "Agile", "Machine Learning"],"experience_years": 6, "role": "Senior Engineer"},
     "sales":     {"skills": ["Communication", "Sales", "Excel", "Public Speaking"],                       "experience_years": 3, "role": "Sales Manager"},
     "marketing": {"skills": ["Marketing", "Excel", "Communication", "Public Speaking"],                   "experience_years": 2, "role": "Marketing Executive"},
+    "crossdomain": {"skills": ["Communication", "Sales", "Public Speaking"],                              "experience_years": 3, "role": "Sales Representative"},
 }
 JD_SAMPLES = {
-    "junior":    {"skills": ["Python", "SQL", "Git", "JavaScript", "Agile"],                                         "experience_years": 2, "role": "Software Engineer"},
-    "senior":    {"skills": ["Python", "AWS", "Docker", "Machine Learning", "Leadership", "SQL", "Agile", "React"],  "experience_years": 5, "role": "Senior Engineer"},
-    "sales":     {"skills": ["Sales", "Communication", "Marketing", "Excel", "Public Speaking", "Leadership"],       "experience_years": 3, "role": "Sales Lead"},
-    "marketing": {"skills": ["Marketing", "Tableau", "SQL", "Communication", "Leadership", "Excel", "Public Speaking"], "experience_years": 3, "role": "Marketing Manager"},
+    "junior":    {"skills": ["Python", "SQL", "Git", "JavaScript", "Agile"],                                              "experience_years": 2, "role": "Software Engineer"},
+    "senior":    {"skills": ["Python", "AWS", "Docker", "Machine Learning", "Leadership", "SQL", "Agile", "React"],       "experience_years": 5, "role": "Senior Engineer"},
+    "sales":     {"skills": ["Sales", "Communication", "Marketing", "Excel", "Public Speaking", "Leadership"],            "experience_years": 3, "role": "Sales Lead"},
+    "marketing": {"skills": ["Marketing", "Tableau", "SQL", "Communication", "Leadership", "Excel", "Public Speaking"],  "experience_years": 3, "role": "Marketing Manager"},
+    "crossdomain": {"skills": ["Marketing", "Tableau", "Data Analysis", "Leadership", "Communication", "Excel"],         "experience_years": 3, "role": "Marketing Manager"},
 }
 DIFF_COLOR = {"beginner": "#00ff9d", "intermediate": "#00bfff", "advanced": "#ff4b4b"}
 
@@ -280,15 +282,17 @@ st.divider()
 
 # ── Quick Test Buttons ────────────────────────────────────────────────────────
 st.markdown("#### ⚡ Try a Sample Profile")
-b1, b2, b3, b4 = st.columns(4)
+b1, b2, b3, b4, b5 = st.columns(5)
 if b1.button("🧑💻 Junior Dev",      use_container_width=True):
-    st.session_state.resume_data = SAMPLES["junior"];    st.session_state.jd_data = JD_SAMPLES["junior"]
+    st.session_state.resume_data = SAMPLES["junior"];      st.session_state.jd_data = JD_SAMPLES["junior"]
 if b2.button("👨💼 Senior Engineer", use_container_width=True):
-    st.session_state.resume_data = SAMPLES["senior"];    st.session_state.jd_data = JD_SAMPLES["senior"]
+    st.session_state.resume_data = SAMPLES["senior"];      st.session_state.jd_data = JD_SAMPLES["senior"]
 if b3.button("💼 Sales Role",        use_container_width=True):
-    st.session_state.resume_data = SAMPLES["sales"];     st.session_state.jd_data = JD_SAMPLES["sales"]
+    st.session_state.resume_data = SAMPLES["sales"];       st.session_state.jd_data = JD_SAMPLES["sales"]
 if b4.button("📣 Marketing Role",    use_container_width=True):
-    st.session_state.resume_data = SAMPLES["marketing"]; st.session_state.jd_data = JD_SAMPLES["marketing"]
+    st.session_state.resume_data = SAMPLES["marketing"];   st.session_state.jd_data = JD_SAMPLES["marketing"]
+if b5.button("🔀 Cross-Domain",      use_container_width=True):
+    st.session_state.resume_data = SAMPLES["crossdomain"]; st.session_state.jd_data = JD_SAMPLES["crossdomain"]
 
 st.divider()
 
@@ -410,6 +414,31 @@ if st.session_state.resume_data and st.session_state.jd_data:
         f"AI-optimized path: <b style='color:{_ib_bold};'>{total_hours}h</b></div></div>",
         unsafe_allow_html=True
     )
+
+    # ── Skill Intelligence Panel (Upgrade 4) ──────────────────────────────────
+    coverage_ratio = len(matched) / max(len(jd_skills), 1)
+    learning_eff   = "High" if len(pathway) <= 3 else "Medium" if len(pathway) <= 6 else "Focused"
+    critical_count = sum(1 for g in gaps if g.lower() in {"machine learning","python","sql","aws","docker","react","javascript","leadership"})
+    _sip_bg  = "#111111" if is_dark else "#f8fafc"
+    _sip_bdr = "#222222" if is_dark else "#e2e8f0"
+    _sip_h   = "#ffffff" if is_dark else "#0f172a"
+    _sip_sub = "#777777" if is_dark else "#64748b"
+    _sip_acc = "#00d4ff" if is_dark else "#0ea5e9"
+    sip_cols = st.columns(4)
+    for col, lbl, val, hint in [
+        (sip_cols[0], "Skill Coverage",        f"{round(coverage_ratio*100)}%",  "Semantic match via embeddings"),
+        (sip_cols[1], "Missing Critical Skills", str(critical_count),             "High-demand market skills"),
+        (sip_cols[2], "Learning Efficiency",    learning_eff,                    "Courses per gap ratio"),
+        (sip_cols[3], "Matching Method",        "Semantic",                      "cosine similarity · all-MiniLM-L6-v2"),
+    ]:
+        col.markdown(f"""
+        <div style="background:{_sip_bg};border:1px solid {_sip_bdr};border-radius:10px;
+                    padding:1rem;text-align:center;">
+            <div style="font-size:.75rem;color:{_sip_sub};text-transform:uppercase;
+                        letter-spacing:.8px;margin-bottom:.3rem;">{lbl}</div>
+            <div style="font-size:1.6rem;font-weight:700;color:{_sip_acc};">{val}</div>
+            <div style="font-size:.72rem;color:{_sip_sub};margin-top:.25rem;">{hint}</div>
+        </div>""", unsafe_allow_html=True)
 
     # ── Dashboard Layout ──────────────────────────────────────────────────────
     readiness = gap_result["coverage_pct"]
@@ -606,7 +635,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── FEATURE 5: Tabs ───────────────────────────────────────────────────────
-    tab1, tab2, tab3 = st.tabs(["📋 Personalized Path", "⚖️ Before vs After", "📅 Timeline View"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📋 Personalized Path", "⚖️ Before vs After", "📅 Timeline View", "🔮 What-If Simulation"])
 
     with tab1:
         st.markdown("### 📚 Your Learning Pathway")
@@ -772,6 +801,63 @@ if st.session_state.resume_data and st.session_state.jd_data:
         )
         st.plotly_chart(fig_gantt, use_container_width=True)
 
+    with tab4:
+        st.markdown("### 🔮 What-If Simulation")
+        st.caption("Select a course below to see how your skill gap reduces after completing it.")
+
+        course_titles = [c["title"] for c in pathway]
+        selected = st.selectbox("Choose a course to simulate completing:", course_titles)
+        selected_course = next(c for c in pathway if c["title"] == selected)
+
+        # Skills gained from this course that are in the gap list
+        gaps_closed = {s for s in selected_course["skills"] if s in gaps}
+        remaining   = gaps - gaps_closed
+        new_coverage = round(len(matched | gaps_closed) / max(len(jd_skills), 1) * 100)
+
+        wi1, wi2, wi3 = st.columns(3)
+        _wi_bg  = "#111111" if is_dark else "#f8fafc"
+        _wi_bdr = "#222222" if is_dark else "#e2e8f0"
+        for col, lbl, val, color in [
+            (wi1, "Gaps Closed",      f"{len(gaps_closed)} / {len(gaps)}", "#22c55e"),
+            (wi2, "Remaining Gaps",   str(len(remaining)),                 "#ef4444" if remaining else "#22c55e"),
+            (wi3, "New Coverage",     f"{new_coverage}%",                  "#0ea5e9"),
+        ]:
+            col.markdown(f"""
+            <div style="background:{_wi_bg};border:1px solid {_wi_bdr};border-radius:10px;
+                        padding:1rem;text-align:center;">
+                <div style="font-size:.8rem;color:{_sip_sub};text-transform:uppercase;
+                            letter-spacing:.8px;margin-bottom:.3rem;">{lbl}</div>
+                <div style="font-size:1.8rem;font-weight:700;color:{color};">{val}</div>
+            </div>""", unsafe_allow_html=True)
+
+        st.markdown("")
+
+        # Before / After gap bar chart
+        all_gap_skills = sorted(gaps)
+        before_vals = [1] * len(all_gap_skills)
+        after_vals  = [0 if s in gaps_closed else 1 for s in all_gap_skills]
+        fig_wi = go.Figure()
+        fig_wi.add_trace(go.Bar(name="Before", x=all_gap_skills, y=before_vals,
+                                marker_color="#ef4444", opacity=0.7))
+        fig_wi.add_trace(go.Bar(name="After",  x=all_gap_skills, y=after_vals,
+                                marker_color="#22c55e", opacity=0.9))
+        fig_wi.update_layout(
+            barmode="group", height=300,
+            paper_bgcolor=_pbg, plot_bgcolor=_pbg, font_color=txt_color,
+            yaxis=dict(tickvals=[0,1], ticktext=["Closed","Gap"], range=[0,1.4]),
+            xaxis_title="Skill", legend_title="Status",
+            margin=dict(t=20, b=20)
+        )
+        st.plotly_chart(fig_wi, use_container_width=True)
+
+        if gaps_closed:
+            st.success(f"✅ Completing **{selected}** closes: {', '.join(sorted(gaps_closed))}")
+        if not remaining:
+            st.balloons()
+            st.success("🎉 This single course closes ALL your gaps — you're role-ready!")
+        else:
+            st.info(f"📌 Still remaining after this course: {', '.join(sorted(remaining))}")
+
     st.divider()
 
     # ── Simulate Onboarding ───────────────────────────────────────────────────
@@ -868,42 +954,72 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     st.divider()
 
-    # ── FEATURE 5: Reasoning Trace ────────────────────────────────────────────
-    with st.expander("🔍 Full Reasoning Trace (Judge Mode)", expanded=False):
-        st.write("1. Extracted", len(candidate_skills), "skills from resume")
-        st.write("2. Found", len(gaps), "skill gaps from JD")
-        st.write("3. Matched gaps to course catalog using set-intersection algorithm")
-        st.write("4. Sorted courses: beginner → intermediate → advanced")
-        st.write("5. Deduplicated — each course appears once")
-        st.write("6. Estimated time saved:", hours_saved, "hours vs static onboarding")
-        st.divider()
-        steps = [
-            ("01","INPUT RECEIVED",         f"Candidate: **{from_role}** · {rd.get('experience_years','?')} yrs experience"),
-            ("02","RESUME SKILL EXTRACTION", f"Identified **{len(rd.get('skills',[]))} raw skills** → normalized to **{len(candidate_skills)}**: {', '.join(sorted(candidate_skills)) or 'none'}"),
-            ("03","JD SKILL EXTRACTION",     f"Identified **{len(jd.get('skills',[]))} raw skills** → normalized to **{len(jd_skills)}**: {', '.join(sorted(jd_skills)) or 'none'}"),
-            ("04","SKILL MATCHING",          f"Cross-referenced → **{len(matched)} matched**: {', '.join(sorted(matched)) or 'none'}"),
-            ("05","GAP IDENTIFICATION",      f"Set difference (JD − Candidate) → **{len(gaps)} gaps**: {', '.join(sorted(gaps)) or 'none'}"),
-            ("06","CATALOG SEARCH",          f"Searched 15-course catalog → **{len(pathway)} courses** cover identified gaps"),
-            ("07","DIFFICULTY SORTING",      "Ordered: beginner → intermediate → advanced for progressive skill building"),
-            ("08","DEDUPLICATION",           "Each course appears once even if it covers multiple gaps"),
-            ("09","PATHWAY ASSEMBLY",        " → ".join([c['title'] for c in pathway])),
-            ("10","TIME ESTIMATION",         f"Total: **{total_hours}h** · Static baseline: **{static_hours}h** · Saved: **{hours_saved}h ({efficiency}%)**"),
-            ("11","OPTIMIZATION CHECK",      f"All {len(gaps)} gaps covered · No redundant courses · Progressive order verified"),
-            ("12","OUTPUT READY",            f"Pathway for **{from_role}** → **{to_role}** ✅"),
-        ]
-        _tr_bg   = "#111111" if is_dark else "#f1f5f9"
-        _tr_acc  = "#ffffff" if is_dark else "#16a34a"
-        _tr_ttl  = "#e0e0e0" if is_dark else "#0f172a"
-        _tr_sub  = "#777777" if is_dark else "#475569"
-        for num, title, detail in steps:
+    # ── Reasoning Trace — Visual Pipeline (Upgrade 3) ────────────────────────
+    with st.expander("🔍 AI Reasoning Pipeline (Judge Mode)", expanded=False):
+        # ── Structured trace dict ─────────────────────────────────────────────
+        trace = {
+            "Step 1 · Input":             f"Candidate: {from_role} · {rd.get('experience_years','?')} yrs",
+            "Step 2 · Resume Parsing":    f"Extracted {len(rd.get('skills',[]))} raw skills → normalized to {len(candidate_skills)}: {', '.join(sorted(candidate_skills)) or 'none'}",
+            "Step 3 · JD Parsing":        f"Extracted {len(jd.get('skills',[]))} raw skills → normalized to {len(jd_skills)}: {', '.join(sorted(jd_skills)) or 'none'}",
+            "Step 4 · Semantic Matching": f"cosine similarity (threshold 0.70) → {len(matched)} matched: {', '.join(sorted(matched)) or 'none'}",
+            "Step 5 · Gap Detection":     f"JD − Candidate (semantic) → {len(gaps)} gaps: {', '.join(sorted(gaps)) or 'none'}",
+            "Step 6 · Graph Ordering":    f"Prerequisite DAG topological sort → dependency-aware gap order",
+            "Step 7 · Course Scoring":    f"score = gaps_covered / duration → ranked {len(pathway)} courses by efficiency",
+            "Step 8 · Path Assembly":     " → ".join([c['title'] for c in pathway]),
+            "Step 9 · Time Estimation":   f"Total {total_hours}h · Static {static_hours}h · Saved {hours_saved}h ({efficiency}%)",
+            "Step 10 · Output":           f"Pathway for {from_role} → {to_role} ✅",
+        }
+        _tr_bg  = "#111111" if is_dark else "#f1f5f9"
+        _tr_acc = "#00d4ff" if is_dark else "#0ea5e9"
+        _tr_ttl = "#e0e0e0" if is_dark else "#0f172a"
+        _tr_sub = "#777777" if is_dark else "#475569"
+        for step, detail in trace.items():
             st.markdown(
-                f"<div style='font-family:monospace;background:{_tr_bg};padding:10px 16px;"
-                f"border-left:3px solid {_tr_acc};margin-bottom:6px;border-radius:0 8px 8px 0;'>"
-                f"<span style='color:{_tr_acc};font-weight:700;'>STEP {num}</span> "
-                f"<span style='color:{_tr_ttl};font-weight:600;'>› {title}</span><br/>"
-                f"<span style='color:{_tr_sub};font-size:13px;'>{detail}</span></div>",
+                f"<div style='font-family:monospace;background:{_tr_bg};padding:9px 16px;"
+                f"border-left:3px solid {_tr_acc};margin-bottom:5px;border-radius:0 8px 8px 0;'>"
+                f"<span style='color:{_tr_acc};font-weight:700;'>{step}</span><br/>"
+                f"<span style='color:{_tr_sub};font-size:12.5px;'>{detail}</span></div>",
                 unsafe_allow_html=True
             )
+
+        st.markdown("")
+        # ── Visual skill-flow diagram ─────────────────────────────────────────
+        st.markdown(f"<div style='font-size:.85rem;color:{_tr_sub};margin-bottom:.4rem;'>📊 Skill Flow Diagram — gap → course mapping</div>", unsafe_allow_html=True)
+        G_trace = nx.DiGraph()
+        gap_nodes    = list(gaps)
+        course_nodes = [c["title"] for c in pathway]
+        for g in gap_nodes:    G_trace.add_node(g,  kind="gap")
+        for c in pathway:
+            G_trace.add_node(c["title"], kind="course")
+            for s in c["skills"]:
+                if s in gaps:
+                    G_trace.add_edge(s, c["title"])
+        pos_trace = nx.spring_layout(G_trace, seed=7, k=2.2)
+        ex_t, ey_t = [], []
+        for u, v in G_trace.edges():
+            x0,y0=pos_trace[u]; x1,y1=pos_trace[v]
+            ex_t+=[x0,x1,None]; ey_t+=[y0,y1,None]
+        node_colors = ["#ef4444" if G_trace.nodes[n]["kind"]=="gap" else "#3b82f6" for n in G_trace.nodes()]
+        fig_flow = go.Figure()
+        fig_flow.add_trace(go.Scatter(x=ex_t, y=ey_t, mode="lines",
+                                      line=dict(color="#444", width=1.5), hoverinfo="none"))
+        fig_flow.add_trace(go.Scatter(
+            x=[pos_trace[n][0] for n in G_trace.nodes()],
+            y=[pos_trace[n][1] for n in G_trace.nodes()],
+            mode="markers+text",
+            marker=dict(size=22, color=node_colors, line=dict(color="#fff", width=1.5)),
+            text=list(G_trace.nodes()), textposition="top center",
+            hoverinfo="text", textfont=dict(color=txt_color, size=10)
+        ))
+        fig_flow.update_layout(
+            showlegend=False, height=360,
+            plot_bgcolor=_pbg, paper_bgcolor=_pbg,
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            margin=dict(t=10, b=10, l=10, r=10)
+        )
+        st.plotly_chart(fig_flow, use_container_width=True)
+        st.markdown(f"<div style='font-size:.78rem;color:{_tr_sub};'><span style='color:#ef4444;'>●</span> Skill Gap &nbsp; <span style='color:#3b82f6;'>●</span> Course</div>", unsafe_allow_html=True)
 
     # ── Floating AI Chat Agent ────────────────────────────────────────────────
     import json as _json
@@ -1063,7 +1179,24 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.markdown(f"""
         <div id="chat-panel">
             <div id="chat-header">
-                <span style="font-size:22px;">🤖</span>
+                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+                  <!-- head -->
+                  <rect x="7" y="10" width="22" height="16" rx="4" fill="white" fill-opacity="0.95"/>
+                  <!-- eyes -->
+                  <circle cx="13" cy="17" r="2.5" fill="#6366f1"/>
+                  <circle cx="23" cy="17" r="2.5" fill="#6366f1"/>
+                  <!-- eye shine -->
+                  <circle cx="14" cy="16" r="0.8" fill="white"/>
+                  <circle cx="24" cy="16" r="0.8" fill="white"/>
+                  <!-- mouth -->
+                  <rect x="13" y="21" width="10" height="2" rx="1" fill="#0ea5e9"/>
+                  <!-- antenna -->
+                  <line x1="18" y1="10" x2="18" y2="6" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="18" cy="5" r="1.8" fill="#0ea5e9"/>
+                  <!-- ears -->
+                  <rect x="4" y="15" width="3" height="5" rx="1.5" fill="white" fill-opacity="0.7"/>
+                  <rect x="29" y="15" width="3" height="5" rx="1.5" fill="white" fill-opacity="0.7"/>
+                </svg>
                 <div>
                     <div style="font-weight:700;color:#fff;font-size:.95rem;">SkillBridge AI</div>
                     <div style="font-size:.75rem;color:rgba(255,255,255,.75);">Your onboarding assistant</div>
