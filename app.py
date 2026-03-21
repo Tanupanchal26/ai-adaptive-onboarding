@@ -29,45 +29,47 @@ DARK_CSS = """
 <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
     @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-    .stApp { background-color: #0f172a; color: #e2e8f0; animation: fadeIn .5s ease; }
-    .block-container { padding-top: 1rem; }
-    h1,h2,h3 { color: #00f0ff; }
+    .stApp { background-color: #0a0a0a; color: #e0e0e0; animation: fadeIn .5s ease; }
+    h1 { color:#ffffff; font-size:2.6rem; font-weight:600; letter-spacing:-0.5px; margin-bottom:0.6rem; }
+    h2 { color:#f5f5f5; font-size:1.85rem; font-weight:500; margin:2.4rem 0 1.1rem; }
+    h3 { color:#e0e0e0; font-size:1.45rem; font-weight:500; margin:1.8rem 0 0.9rem; }
     .stButton>button {
-        width:100%; height:3rem;
-        background:linear-gradient(90deg,#00f0ff,#00ff9d);
-        color:#000; font-weight:700; border-radius:12px; border:none; transition:all .2s;
+        background:#ffffff; color:#000000 !important;
+        border:none; border-radius:6px; padding:0.75rem 1.6rem;
+        font-weight:600; font-size:1rem; transition:all 0.18s ease;
     }
-    .stButton>button:hover { opacity:.85; transform:scale(1.02); }
+    .stButton>button:hover { background:#e0e0e0; transform:translateY(-1px); }
     .impact-banner {
-        background:linear-gradient(135deg,#0a3d0a,#0d5c0d);
-        border:2px solid #00ff9d; border-radius:16px;
-        padding:24px; text-align:center; margin:16px 0; animation:fadeIn .6s ease;
+        background:#111111; border:1px solid #333333; border-radius:10px;
+        padding:28px 32px; text-align:center; margin:20px 0;
     }
     .skill-pill {
-        display:inline-block; background:#1e293b;
-        border:1px solid #00f0ff44; border-radius:20px;
-        padding:4px 12px; margin:3px; font-size:13px; color:#00f0ff;
+        display:inline-block; background:#1a1a1a;
+        border:1px solid #333333; border-radius:4px;
+        padding:4px 12px; margin:3px; font-size:13px; color:#e0e0e0;
     }
     .gap-pill {
-        display:inline-block; background:#2d0a0a;
-        border:1px solid #ff4b4b44; border-radius:20px;
-        padding:4px 12px; margin:3px; font-size:13px; color:#ff4b4b;
+        display:inline-block; background:#1a1a1a;
+        border:1px solid #555555; border-radius:4px;
+        padding:4px 12px; margin:3px; font-size:13px; color:#aaaaaa;
     }
-    div[data-testid="stExpander"] { background:#1e293b; border-radius:12px; border:1px solid #334155; }
-    [data-testid="metric-container"] { background:#1e293b; border-radius:12px; padding:12px; border:1px solid #334155; animation:fadeIn .4s ease; }
-    .main .block-container { padding-top:2rem !important; padding-bottom:4rem !important; max-width:1100px; margin:0 auto; }
-    hr { margin:2.5rem 0; border-color:#334155; }
-    .pro-card { background:#1e293b; border:1px solid #334155; border-radius:10px; padding:1.4rem; margin:1.2rem 0; }
+    div[data-testid="stExpander"] { background:#111111; border-radius:8px; border:1px solid #222222; }
+    [data-testid="metric-container"] { background:#111111; border-radius:8px; padding:12px; border:1px solid #222222; animation:fadeIn .4s ease; }
+    .stMetric label { color:#aaaaaa !important; font-size:0.92rem !important; }
+    .main .block-container { padding-top:2.2rem !important; padding-bottom:5rem !important; max-width:1280px; margin:0 auto; }
+    hr { border:none; height:1px; background:linear-gradient(to right,transparent,#333333,transparent); margin:3rem 0; }
+    .pro-card { background:#111111; border:1px solid #222222; border-radius:10px; padding:1.6rem; margin:1.4rem 0; box-shadow:0 4px 20px rgba(0,0,0,.35); }
+    .premium-card { background:#111111; border:1px solid #222222; border-radius:10px; padding:1.6rem; margin:1.4rem 0; box-shadow:0 4px 20px rgba(0,0,0,.35); }
     @media (max-width:768px) {
-        .block-container { padding-left:1rem !important; padding-right:1rem !important; }
-        [data-testid="stHorizontalBlock"] > div { flex:1 1 100% !important; max-width:100% !important; margin-bottom:1rem !important; }
+        h1 { font-size:2.1rem !important; }
+        h2 { font-size:1.65rem !important; }
+        .block-container { padding-left:1.2rem !important; padding-right:1.2rem !important; }
+        .pro-card, .premium-card { padding:1.3rem; }
+        [data-testid="stHorizontalBlock"] > div { flex:1 1 100% !important; max-width:100% !important; margin-bottom:1.2rem !important; }
         .stPlotlyChart, .element-container iframe { width:100% !important; max-width:100% !important; }
-        h1 { font-size:1.8rem !important; }
-        h2 { font-size:1.5rem !important; }
         .stButton > button, .stFileUploader, .stTextInput > div > div > input { width:100% !important; }
     }
     @media (max-width:480px) {
-        .pro-card { padding:1rem; }
         .stMetric { font-size:1.1rem !important; }
     }
 </style>
@@ -194,18 +196,18 @@ with st.sidebar:
     st.caption("Powered by LLaMA 3.2 · SkillBridge")
 
 # ── Hero Section ─────────────────────────────────────────────────────────────
-_hero_bg  = "#0f172a" if theme == "Dark Pro" else "#f1f5f9"
-_hero_h1  = "#00f0ff" if theme == "Dark Pro" else "#0f172a"
-_hero_sub = "#94a3b8" if theme == "Dark Pro" else "#475569"
+_hero_bg  = "#0a0a0a" if theme == "Dark Pro" else "#f1f5f9"
+_hero_h1  = "#ffffff" if theme == "Dark Pro" else "#0f172a"
+_hero_sub = "#aaaaaa" if theme == "Dark Pro" else "#475569"
 st.markdown(f"""
-<div style="text-align:center;padding:2rem 0;background:{_hero_bg};
-            border-radius:16px;margin-bottom:1.5rem;
-            border:1px solid {'#1e293b' if theme=='Dark Pro' else '#e2e8f0'}">
-    <h1 style="color:{_hero_h1};margin:0;font-size:3rem;letter-spacing:-1px;">
-        🎯 AI-Powered Adaptive Onboarding
+<div style="text-align:center;padding:2.5rem 0;background:{_hero_bg};
+            border-radius:10px;margin-bottom:2rem;
+            border:1px solid {'#222222' if theme=='Dark Pro' else '#e2e8f0'}">
+    <h1 style="color:{_hero_h1};margin:0;font-size:2.6rem;font-weight:600;letter-spacing:-0.5px;">
+        Adaptive Onboarding Engine
     </h1>
-    <p style="color:{_hero_sub};font-size:1.2rem;margin-top:.8rem;">
-        Get role-ready 40–70% faster — personalized, gap-focused, zero waste
+    <p style="color:{_hero_sub};font-size:1.18rem;max-width:720px;margin:.8rem auto 0;">
+        Skill-gap driven &nbsp;·&nbsp; Personalized &nbsp;·&nbsp; Enterprise-grade learning paths
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -285,16 +287,18 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── Skill coverage bars ───────────────────────────────────────────────────
-    st.markdown("#### 📊 Skill Coverage")
+    _bar_track = "#1e1e1e" if is_dark else "#e2e8f0"
+    _skill_lbl = "#cccccc" if is_dark else "#1e293b"
+    st.markdown("#### Skill Coverage")
     for skill in sorted(jd_skills):
         have  = skill in candidate_skills
         pct   = 85 if have else (30 + (hash(skill) % 30))
-        color = "#00ff9d" if have else ("#ff4b4b" if pct < 40 else "#f39c12")
-        label = "✅ Have it" if have else "❌ Gap"
+        color = "#ffffff" if have else "#555555" if is_dark else ("#16a34a" if have else ("#dc2626" if pct < 40 else "#d97706"))
+        label = "✓ Have it" if have else "✗ Gap"
         st.markdown(
             f"<div style='display:flex;align-items:center;margin-bottom:6px;gap:10px;'>"
-            f"<span style='width:160px;color:#fff;font-size:13px;'>{skill}</span>"
-            f"<div style='flex:1;background:#1e2937;border-radius:8px;height:14px;'>"
+            f"<span style='width:160px;color:{_skill_lbl};font-size:13px;'>{skill}</span>"
+            f"<div style='flex:1;background:{_bar_track};border-radius:8px;height:14px;'>"
             f"<div style='width:{pct}%;background:{color};height:14px;border-radius:8px;'></div></div>"
             f"<span style='width:70px;color:{color};font-size:12px;'>{label}</span></div>",
             unsafe_allow_html=True
@@ -312,11 +316,14 @@ if st.session_state.resume_data and st.session_state.jd_data:
     efficiency   = t["efficiency"]
 
     # ── Impact banner ─────────────────────────────────────────────────────────
+    _ib_val  = "#ffffff" if is_dark else "#16a34a"
+    _ib_sub  = "#888888" if is_dark else "#475569"
+    _ib_bold = "#e0e0e0" if is_dark else "#0f172a"
     st.markdown(
         f"<div class='impact-banner'>"
-        f"<div style='font-size:38px;font-weight:800;color:#00ff9d;'>💚 You will save ~{hours_saved} hours</div>"
-        f"<div style='font-size:17px;color:#aaa;margin-top:6px;'>compared to standard onboarding ({static_hours}h) · "
-        f"AI-optimized path: <b style='color:#fff;'>{total_hours}h</b></div></div>",
+        f"<div style='font-size:38px;font-weight:800;color:{_ib_val};'>💚 You will save ~{hours_saved} hours</div>"
+        f"<div style='font-size:17px;color:{_ib_sub};margin-top:6px;'>compared to standard onboarding ({static_hours}h) · "
+        f"AI-optimized path: <b style='color:{_ib_bold};'>{total_hours}h</b></div></div>",
         unsafe_allow_html=True
     )
 
@@ -325,19 +332,17 @@ if st.session_state.resume_data and st.session_state.jd_data:
     gap_pct   = 100 - readiness
     post_path = min(100, readiness + efficiency)
     is_dark   = theme == "Dark Pro"
-    bg_card   = "#1e293b" if is_dark else "#ffffff"
-    txt_color = "#e2e8f0" if is_dark else "#1e293b"
-    accent    = "#00f0ff" if is_dark else "#0ea5e9"
+    bg_card   = "#111111" if is_dark else "#ffffff"
+    txt_color = "#e0e0e0" if is_dark else "#1e293b"
+    accent    = "#ffffff" if is_dark else "#0ea5e9"
 
     # Hero metrics row — card style
     hm1, hm2, hm3 = st.columns(3)
     cost_saved = round(hours_saved * 800)
-    _mc = "#60a5fa" if is_dark else "#0ea5e9"
-    _mg = "#4ade80"
-    _my = "#fbbf24"
-    _mbg = "#1e293b" if is_dark else "#ffffff"
-    _mbd = "#334155" if is_dark else "#e2e8f0"
-    _mst = "#94a3b8" if is_dark else "#64748b"
+    _mc  = "#ffffff" if is_dark else "#0ea5e9"
+    _mg  = "#bbbbbb" if is_dark else "#16a34a"
+    _my  = "#888888" if is_dark else "#d97706"
+    _mst = "#777777" if is_dark else "#64748b"
     for col, label, value, color in [
         (hm1, "Time to Competency",  f"{total_hours}h",       _mc),
         (hm2, "Time Saved",          f"{hours_saved}h",       _mg),
@@ -362,8 +367,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     with dash2:
         gap_list = sorted(gaps)
-        _pbg = "#0f172a" if is_dark else "#f8fafc"
-        _pfg = "#1e293b" if is_dark else "#f1f5f9"
+        _pbg = "#0a0a0a" if is_dark else "#f8fafc"
+        _pfg = "#111111" if is_dark else "#f1f5f9"
         if len(gap_list) >= 3:
             gap_sizes = [40 + (hash(s) % 50) for s in gap_list]
             fig_radar = px.line_polar(
@@ -437,8 +442,11 @@ if st.session_state.resume_data and st.session_state.jd_data:
         for u, v in G.edges():
             x0,y0=pos[u]; x1,y1=pos[v]
             ex+=[x0,x1,None]; ey+=[y0,y1,None]
+        _gbg   = "#0a0a0a" if is_dark else "#f8fafc"
+        _gtxt  = "#e0e0e0" if is_dark else "#1e293b"
+        _gline = "#333333" if is_dark else "#cbd5e1"
         fig_g = go.Figure()
-        fig_g.add_trace(go.Scatter(x=ex, y=ey, mode="lines", line=dict(color="#333", width=2), hoverinfo="none"))
+        fig_g.add_trace(go.Scatter(x=ex, y=ey, mode="lines", line=dict(color=_gline, width=2), hoverinfo="none"))
         fig_g.add_trace(go.Scatter(
             x=[pos[n][0] for n in G.nodes()], y=[pos[n][1] for n in G.nodes()],
             mode="markers+text",
@@ -447,10 +455,10 @@ if st.session_state.resume_data and st.session_state.jd_data:
             text=[G.nodes[n].get("label",n) for n in G.nodes()],
             textposition="top center",
             hovertext=[G.nodes[n].get("tooltip","") for n in G.nodes()],
-            hoverinfo="text", textfont=dict(color="#fff", size=11)
+            hoverinfo="text", textfont=dict(color=_gtxt, size=11)
         ))
         fig_g.update_layout(showlegend=False, height=430,
-            plot_bgcolor="#0e1117", paper_bgcolor="#0e1117",
+            plot_bgcolor=_gbg, paper_bgcolor=_gbg,
             xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
             yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
             margin=dict(t=10,b=10,l=10,r=10))
@@ -469,15 +477,18 @@ if st.session_state.resume_data and st.session_state.jd_data:
         # ── Skill Badges with Mastery Levels ─────────────────────────────────
         st.subheader("🛡️ Your Current Skills")
         badge_cols = st.columns(4)
+        _badge_grad = "linear-gradient(135deg,#1a1a1a,#222222)" if is_dark else "linear-gradient(90deg,#0ea5e9,#6366f1)"
+        _badge_txt  = "#e0e0e0" if is_dark else "#fff"
+        _badge_bdr  = "1px solid #333333" if is_dark else "none"
         for i, skill in enumerate(sorted(candidate_skills)):
             mastery = (i % 3) + 2
             stars = "⭐" * mastery
             with badge_cols[i % 4]:
                 st.markdown(
-                    f"<div style='background:linear-gradient(90deg,#00ff9d,#00bfff);padding:12px;"
-                    f"border-radius:12px;text-align:center;margin:5px;'>"
-                    f"<b style='color:#000;'>{skill}</b><br>"
-                    f"<small style='color:#000;'>Mastery: {mastery}/5 {stars}</small></div>",
+                    f"<div style='background:{_badge_grad};padding:12px;"
+                    f"border-radius:8px;text-align:center;margin:5px;border:{_badge_bdr};'>"
+                    f"<b style='color:{_badge_txt};'>{skill}</b><br>"
+                    f"<small style='color:{_badge_txt};opacity:.7;'>Mastery: {mastery}/5 {stars}</small></div>",
                     unsafe_allow_html=True
                 )
         st.markdown("")
@@ -498,12 +509,10 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.caption(f"Optimized sequence · Total: {total_hours}h · Prerequisite-aware")
 
         # ── Step cards ────────────────────────────────────────────────────────────
-        _card_bg  = "#1e293b" if is_dark else "#ffffff"
-        _card_bdr = "#60a5fa" if is_dark else "#0ea5e9"
-        _card_txt = "#e2e8f0" if is_dark else "#1e293b"
-        _card_sub = "#94a3b8" if is_dark else "#64748b"
-        _badge_bg = "#334155" if is_dark else "#f1f5f9"
-        _diff_colors = {"beginner": "#4ade80", "intermediate": "#60a5fa", "advanced": "#f87171"}
+        _card_bg  = "#111111" if is_dark else "#ffffff"
+        _card_txt = "#e0e0e0" if is_dark else "#1e293b"
+        _card_sub = "#777777" if is_dark else "#64748b"
+        _diff_colors = {"beginner": "#ffffff", "intermediate": "#aaaaaa", "advanced": "#666666"} if is_dark else {"beginner": "#16a34a", "intermediate": "#0ea5e9", "advanced": "#dc2626"}
 
         for i, course in enumerate(pathway, 1):
             gap_hits = [s for s in course["skills"] if s.lower() in [g.lower() for g in gaps]]
@@ -513,10 +522,10 @@ if st.session_state.resume_data and st.session_state.jd_data:
             <div style="background:{_card_bg};border-left:4px solid {diff_col};
                         padding:1.3rem 1.4rem;border-radius:8px;margin:.8rem 0;
                         box-shadow:0 2px 8px rgba(0,0,0,.2);position:relative;">
-                <div style="position:absolute;left:-13px;top:18px;background:{'#0f172a' if is_dark else '#f1f5f9'};
-                            color:#94a3b8;width:26px;height:26px;border-radius:50%;
+                <div style="position:absolute;left:-13px;top:18px;background:{'#0a0a0a' if is_dark else '#f1f5f9'};
+                            color:{'#555555' if is_dark else '#94a3b8'};width:26px;height:26px;border-radius:50%;
                             text-align:center;line-height:26px;font-size:.85rem;font-weight:700;
-                            border:2px solid {diff_col};">{i}</div>
+                            border:1px solid {'#333333' if is_dark else '#e2e8f0'};">{i}</div>
                 <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;">
                     <div>
                         <div style="font-weight:600;font-size:1.1rem;color:{_card_txt};margin-bottom:.3rem;">{course['title']}</div>
@@ -552,7 +561,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     with tab2:
         st.success(f"Standard onboarding: **{static_hours} hours** → Your AI path: **{total_hours} hours** (You save **{hours_saved} hours!**)")
-        _bbg = "#0f172a" if is_dark else "#f8fafc"
+        _bbg = "#0a0a0a" if is_dark else "#f8fafc"
         fig = go.Figure(go.Bar(
             x=["Static Onboarding", "AI-Adaptive Onboarding"],
             y=[static_hours, total_hours],
@@ -589,7 +598,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         )
         fig_gantt.update_yaxes(autorange="reversed")
         fig_gantt.update_layout(
-            paper_bgcolor=_bbg, plot_bgcolor="#1e293b" if is_dark else "#f1f5f9",
+            paper_bgcolor=_bbg, plot_bgcolor="#111111" if is_dark else "#f1f5f9",
             font_color=txt_color, height=450, margin=dict(t=40, b=20)
         )
         st.plotly_chart(fig_gantt, use_container_width=True)
@@ -611,13 +620,14 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── Export Panel ──────────────────────────────────────────────────────────
-    _card_bg  = "#1e293b" if is_dark else "#ffffff"
-    _card_h   = "#00f0ff" if is_dark else "#0f172a"
+    _card_bg  = "#111111" if is_dark else "#ffffff"
+    _card_h   = "#ffffff" if is_dark else "#0f172a"
+    _export_sub = "#777777" if is_dark else "#64748b"
     st.markdown(f"""
     <div style="background:{_card_bg};padding:1.5rem;border-radius:16px;
                 margin-top:1rem;border:1px solid {'#334155' if is_dark else '#e2e8f0'}">
         <h3 style="color:{_card_h};margin:0 0 .5rem 0;">📤 Export & Share Your Plan</h3>
-        <p style="color:#94a3b8;margin:0;">Download your personalized roadmap or share with your manager</p>
+        <p style="color:{_export_sub};margin:0;">Download your personalized roadmap or share with your manager</p>
     </div>
     """, unsafe_allow_html=True)
     st.markdown("")
@@ -712,23 +722,25 @@ if st.session_state.resume_data and st.session_state.jd_data:
             ("11","OPTIMIZATION CHECK",      f"All {len(gaps)} gaps covered · No redundant courses · Progressive order verified"),
             ("12","OUTPUT READY",            f"Pathway for **{from_role}** → **{to_role}** ✅"),
         ]
+        _tr_bg   = "#111111" if is_dark else "#f1f5f9"
+        _tr_acc  = "#ffffff" if is_dark else "#16a34a"
+        _tr_ttl  = "#e0e0e0" if is_dark else "#0f172a"
+        _tr_sub  = "#777777" if is_dark else "#475569"
         for num, title, detail in steps:
             st.markdown(
-                f"<div style='font-family:monospace;background:#0e1117;padding:10px 16px;"
-                f"border-left:3px solid #00ff9d;margin-bottom:6px;border-radius:0 8px 8px 0;'>"
-                f"<span style='color:#00ff9d;font-weight:700;'>STEP {num}</span> "
-                f"<span style='color:#fff;font-weight:600;'>› {title}</span><br/>"
-                f"<span style='color:#aaa;font-size:13px;'>{detail}</span></div>",
+                f"<div style='font-family:monospace;background:{_tr_bg};padding:10px 16px;"
+                f"border-left:3px solid {_tr_acc};margin-bottom:6px;border-radius:0 8px 8px 0;'>"
+                f"<span style='color:{_tr_acc};font-weight:700;'>STEP {num}</span> "
+                f"<span style='color:{_tr_ttl};font-weight:600;'>› {title}</span><br/>"
+                f"<span style='color:{_tr_sub};font-size:13px;'>{detail}</span></div>",
                 unsafe_allow_html=True
             )
 
     # ── Footer ────────────────────────────────────────────────────────────────
     st.markdown("---")
     st.markdown(
-        "<p style='text-align:center;color:#64748b;font-size:13px;'>"
-        "<i class='fas fa-heart' style='color:#ff4b4b;'></i> Built with ❤️ in Ahmedabad for smarter onboarding &nbsp;·&nbsp; "
-        "<i class='fas fa-rocket' style='color:#00f0ff;'></i> Hackathon 2026 &nbsp;·&nbsp; "
-        "<i class='fas fa-brain' style='color:#a78bfa;'></i> Powered by LLaMA 3.2"
+        "<p style='text-align:center;color:#555555;font-size:13px;letter-spacing:.3px;'>"
+        "Built in Ahmedabad &nbsp;·&nbsp; Hackathon 2026 &nbsp;·&nbsp; Powered by LLaMA 3.2"
         "</p>",
         unsafe_allow_html=True
     )
