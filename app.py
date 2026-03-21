@@ -1124,17 +1124,16 @@ if st.session_state.resume_data and st.session_state.jd_data:
                         align="center"
                     ))
 
-                # Arrow to next node
+                # Arrow to next node (scatter line — avoids axref issues in Plotly 6)
                 if i < _n - 1:
                     next_x0 = (i + 1) * (_W + _GAP)
-                    _annots.append(dict(
-                        x=next_x0, y=_CY,
-                        ax=x1, ay=_CY,
-                        xref="paper", yref="paper",
-                        axref="paper", ayref="paper",
-                        showarrow=True, arrowhead=2,
-                        arrowsize=1.2, arrowwidth=2,
-                        arrowcolor=_arrow_col, text=""
+                    fig_g.add_trace(go.Scatter(
+                        x=[x1, next_x0], y=[_CY, _CY],
+                        mode="lines+markers",
+                        line=dict(color=_arrow_col, width=2),
+                        marker=dict(symbol="arrow-right", size=10,
+                                    color=_arrow_col, angleref="previous"),
+                        hoverinfo="none", showlegend=False
                     ))
 
                 # Invisible scatter for hover tooltip
