@@ -708,37 +708,43 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.caption(f"Optimized sequence · Total: {total_hours}h · Prerequisite-aware")
 
         # ── Step cards ────────────────────────────────────────────────────────────
-        _card_bg  = "#111111" if is_dark else "#ffffff"
-        _card_txt = "#e0e0e0" if is_dark else "#1e293b"
-        _card_sub = "#777777" if is_dark else "#64748b"
-        _diff_colors = {"beginner": "#ffffff", "intermediate": "#aaaaaa", "advanced": "#666666"} if is_dark else {"beginner": "#16a34a", "intermediate": "#0ea5e9", "advanced": "#dc2626"}
+        _diff_colors = {"beginner": "#00ff9d", "intermediate": "#00bfff", "advanced": "#ff4b4b"}
+        _diff_bg     = {"beginner": "#00ff9d18", "intermediate": "#00bfff18", "advanced": "#ff4b4b18"}
 
         for i, course in enumerate(pathway, 1):
-            gap_hits = [s for s in course["skills"] if s.lower() in [g.lower() for g in gaps]]
-            reason   = ", ".join(gap_hits) if gap_hits else "core role foundations"
-            diff_col = _diff_colors.get(course["difficulty"], "#94a3b8")
-            st.markdown(f"""
-            <div style="background:{_card_bg};border-left:4px solid {diff_col};
-                        padding:1.3rem 1.4rem;border-radius:8px;margin:.8rem 0;
-                        box-shadow:0 2px 8px rgba(0,0,0,.2);position:relative;">
-                <div style="position:absolute;left:-13px;top:18px;background:{'#0a0a0a' if is_dark else '#f1f5f9'};
-                            color:{'#555555' if is_dark else '#94a3b8'};width:26px;height:26px;border-radius:50%;
-                            text-align:center;line-height:26px;font-size:.85rem;font-weight:700;
-                            border:1px solid {'#333333' if is_dark else '#e2e8f0'};">{i}</div>
-                <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;">
-                    <div>
-                        <div style="font-weight:600;font-size:1.1rem;color:{_card_txt};margin-bottom:.3rem;">{course['title']}</div>
-                        <div style="color:{_card_sub};font-size:.92rem;margin-bottom:.5rem;">{', '.join(course['skills'])}</div>
-                        <div style="color:{_card_txt};font-size:.95rem;">{course['why']}</div>
-                        <div style="color:{_card_sub};font-size:.88rem;margin-top:.4rem;">Closes gaps in: <em>{reason}</em> &nbsp;·&nbsp; ⚡ Efficiency score: <b>{course.get('score', 0):.2f}</b> gaps/hr</div>
-                    </div>
-                    <div style="text-align:right;min-width:90px;">
-                        <div style="font-weight:700;color:{diff_col};font-size:1.1rem;">{course['duration']}h</div>
-                        <div style="font-size:.8rem;color:#64748b;margin-top:.2rem;">{course['difficulty'].title()}</div>
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            diff      = course["difficulty"].lower()
+            diff_col  = _diff_colors.get(diff, "#94a3b8")
+            gap_hits  = [s for s in course["skills"] if s.lower() in {g.lower() for g in gaps}]
+            reason    = ", ".join(gap_hits) if gap_hits else "core role foundations"
+            score     = course.get("score", 0)
+
+            with st.container():
+                st.markdown(
+                    f"<div style='border-left:4px solid {diff_col};padding:.1rem .1rem .1rem 1rem;"
+                    f"border-radius:0 8px 8px 0;background:{_diff_bg.get(diff,'#ffffff08')};"
+                    f"margin-bottom:.25rem;'>"
+                    f"<span style='font-size:.75rem;font-weight:700;letter-spacing:1px;"
+                    f"text-transform:uppercase;color:{diff_col};'>Step {i} · {diff.title()}</span>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+                col_main, col_meta = st.columns([3, 1])
+
+                with col_main:
+                    st.markdown(f"**{course['title']}**")
+                    st.caption(f"🎯 Closes gaps in: {reason}")
+                    st.markdown(f"> {course['why']}")
+                    skill_tags = "  ".join(
+                        f"`{'✅' if s in matched else '🔧'} {s}`"
+                        for s in course["skills"]
+                    )
+                    st.markdown(skill_tags)
+
+                with col_meta:
+                    st.metric("Duration", f"{course['duration']}h")
+                    st.metric("Efficiency", f"{score:.2f}", "gaps/hr")
+
+                st.divider()
 
         # ── Bonus Courses ─────────────────────────────────────────────────────────
         exp_yrs = rd.get("experience_years") or 0
