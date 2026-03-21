@@ -2,72 +2,95 @@ import networkx as nx
 from gap_logic import load_catalog
 from semantic_engine import optimize_courses
 
-# Prerequisite graph: edge A → B means "learn A before B"
+# Weighted prerequisite DAG
+# Each edge is (prerequisite, skill, weight) where weight encodes dependency strength:
+#   1.0 = hard dependency  — you literally cannot do the target without the source
+#   0.6 = medium dependency — strongly recommended but not strictly required
+#   0.3 = soft suggestion   — helpful context, not a blocker
+#
+# Weight is used in two ways:
+#   1. Topo sort tiebreaker: higher total incoming weight = placed earlier
+#   2. Future: threshold filtering (weight < 0.3 edges can be ignored for fast paths)
 _PREREQ_EDGES = [
-    # Technical
-    ("Python",           "Machine Learning"),
-    ("Python",           "Data Analysis"),
-    ("SQL",              "Data Analysis"),
-    ("Statistics",       "Machine Learning"),
-    ("JavaScript",       "React"),
-    ("JavaScript",       "Node.js"),
-    ("HTML",             "JavaScript"),
-    ("CSS",              "JavaScript"),
-    ("Docker",           "Kubernetes"),
-    ("Git",              "Agile"),
-    ("Data Analysis",    "Tableau"),
-    ("Data Analysis",    "Power BI"),
-    ("Python",           "Deep Learning"),
-    ("Machine Learning", "Deep Learning"),
-    ("AWS",              "Kubernetes"),
-    # Non-technical
-    ("Communication",    "Public Speaking"),
-    ("Communication",    "Leadership"),
-    ("Sales",            "Negotiation"),
-    ("Sales",            "CRM"),
-    ("Marketing",        "SEO"),
-    ("Marketing",        "Content Marketing"),
-    ("Marketing",        "Brand Management"),
-    ("Excel",            "Financial Analysis"),
-    ("Leadership",       "Strategy"),
-    ("Leadership",       "Coaching"),
-    ("Project Management", "Strategy"),
+    # Technical — hard dependencies
+    ("Python",           "Machine Learning",  1.0),
+    ("Python",           "Data Analysis",     1.0),
+    ("JavaScript",       "React",             1.0),
+    ("HTML",             "JavaScript",        1.0),
+    ("CSS",              "JavaScript",        0.6),
+    ("Docker",           "Kubernetes",        1.0),
+    ("Machine Learning", "Deep Learning",     1.0),
+    ("Python",           "Deep Learning",     1.0),
+    # Technical — medium dependencies
+    ("SQL",              "Data Analysis",     0.6),
+    ("Data Analysis",    "Tableau",           0.6),
+    ("Data Analysis",    "Power BI",          0.6),
+    ("AWS",              "Kubernetes",        0.6),
+    ("JavaScript",       "Node.js",           0.6),
+    ("Statistics",       "Machine Learning",  0.6),
+    # Technical — soft suggestions
+    ("Git",              "Agile",             0.3),
+    # Non-technical — medium dependencies
+    ("Communication",    "Leadership",        0.6),
+    ("Communication",    "Public Speaking",   0.6),
+    ("Leadership",       "Strategy",          0.6),
+    ("Leadership",       "Coaching",          0.6),
+    ("Sales",            "Negotiation",       0.6),
+    ("Sales",            "CRM",               0.6),
+    ("Marketing",        "SEO",               0.6),
+    ("Marketing",        "Content Marketing", 0.6),
+    ("Marketing",        "Brand Management",  0.6),
+    ("Excel",            "Financial Analysis",0.6),
+    ("Project Management", "Strategy",        0.3),
 ]
 
 
 def _build_prereq_graph() -> nx.DiGraph:
     G = nx.DiGraph()
-    G.add_edges_from(_PREREQ_EDGES)
+    for src, dst, weight in _PREREQ_EDGES:
+        G.add_edge(src, dst, weight=weight)
     return G
 
 
 def _order_by_prerequisites(gaps: set) -> list:
-    """Return gaps sorted by prerequisite dependencies via topological sort."""
+    """Return gaps sorted by prerequisite dependencies via topological sort.
+
+    Tiebreaker: skills with higher total incoming hard-edge weight are placed
+    earlier — they are more foundational and more depended-upon by other gaps.
+    """
     G = _build_prereq_graph()
-    # Keep only nodes relevant to the current gaps
     subgraph_nodes = set(gaps)
     for skill in gaps:
         if skill in G:
             subgraph_nodes.update(nx.ancestors(G, skill))
     sub = G.subgraph(subgraph_nodes)
     topo = list(nx.topological_sort(sub))
-    # Return only the actual gaps in topo order; append any not in graph at end
-    ordered = [s for s in topo if s in gaps]
+
+    def _sort_key(skill):
+        rank = topo.index(skill) if skill in topo else len(topo)
+        # Sum of incoming edge weights — higher = more foundational
+        hard_weight = sum(
+            d.get("weight", 0)
+            for _, _, d in G.in_edges(skill, data=True)
+        )
+        return (rank, -hard_weight)
+
+    ordered = sorted([s for s in topo if s in gaps], key=_sort_key)
     ordered += [s for s in gaps if s not in ordered]
     return ordered
 
 
-def build_learning_path(gaps: set) -> list:
+def build_learning_path(gaps: set, experience_years: int = 0) -> list:
     """
-    Dependency-aware, efficiency-ranked learning pathway.
+    Dependency-aware, efficiency-ranked, difficulty-adjusted learning pathway.
 
     Pipeline
     --------
-    1. optimize_courses() runs greedy set-cover — returns the minimal
-       non-redundant course set, each covering only *new* gaps.
-    2. Topo-sort the selected courses so prerequisites come first:
-       the course whose earliest-prerequisite gap has the lowest topo rank
-       is placed first.
+    1. optimize_courses() runs greedy set-cover with difficulty-aware scoring:
+       efficiency = gaps_covered / (duration * difficulty_penalty)
+       where difficulty_penalty = 1 + |course_level - candidate_level| * 0.4
+    2. Topo-sort selected courses so prerequisites come first, using weighted
+       DAG edges to break ties (hard dependencies ranked before soft ones).
     3. Attach full catalog metadata and build the final pathway list.
     """
     if not gaps:
@@ -80,8 +103,8 @@ def build_learning_path(gaps: set) -> list:
     catalog  = df.to_dict("records")
     id_map   = {row["title"]: row for _, row in df.iterrows()}
 
-    # Greedy set-cover — already minimal and scored
-    selected = optimize_courses(catalog, list(gaps))
+    # Greedy set-cover with difficulty-aware scoring
+    selected = optimize_courses(catalog, list(gaps), experience_years=experience_years)
 
     # Apply topo ordering: sort by the earliest prereq rank among covered gaps
     selected.sort(key=lambda x: (

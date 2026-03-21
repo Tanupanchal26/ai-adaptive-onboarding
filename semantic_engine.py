@@ -213,10 +213,32 @@ def normalize_to_taxonomy(
 
 
 # ── Public: efficiency-ranked course optimisation ────────────────────────────
+# ── Difficulty-aware optimization ────────────────────────────────────────────
+# Difficulty weight penalizes courses that are too easy or too hard relative
+# to the candidate's experience level, preventing a 10-year engineer from
+# being assigned "Python for Beginners" just because it covers a gap.
+#
+# Formula:
+#   adjusted_efficiency = gaps_covered / (duration * difficulty_penalty)
+#
+# difficulty_penalty = 1 + |course_level - candidate_level| * 0.4
+#   course_level  : 0=beginner, 1=intermediate, 2=advanced  (from catalog)
+#   candidate_level: clamp(experience_years / 3, 0, 2)       (from caller)
+#
+# Examples:
+#   Junior (level 0) + beginner course (level 0)  → penalty = 1.0  (perfect fit)
+#   Junior (level 0) + advanced course (level 2)  → penalty = 1.8  (too hard)
+#   Senior (level 2) + beginner course (level 0)  → penalty = 1.8  (too easy)
+#   Senior (level 2) + intermediate course (level 1) → penalty = 1.4
+
+_DIFFICULTY_RANK = {"beginner": 0, "intermediate": 1, "advanced": 2}
+
+
 def optimize_courses(
-    course_catalog: list[dict],
-    gaps:           list[str],
-    threshold:      float = 0.60,
+    course_catalog:   list[dict],
+    gaps:             list[str],
+    threshold:        float = 0.60,
+    experience_years: int   = 0,
 ) -> list[dict]:
     """
     Greedy set-cover optimizer: select the minimum set of courses that closes
@@ -281,7 +303,15 @@ def optimize_courses(
             continue
 
         duration = max(course.get("duration", 1), 1)
-        score    = round(len(covered_idx) / duration, 4)
+
+        # Difficulty-aware penalty: mismatched level reduces efficiency score
+        candidate_level = min(experience_years / 3, 2)
+        course_level    = _DIFFICULTY_RANK.get(
+            course.get("difficulty", "intermediate"), 1
+        )
+        difficulty_penalty = 1.0 + abs(course_level - candidate_level) * 0.4
+        score = round(len(covered_idx) / (duration * difficulty_penalty), 4)
+
         candidates.append({
             "course":      course,
             "covered_idx": covered_idx,
@@ -297,10 +327,16 @@ def optimize_courses(
 
     while open_gaps and candidates:
         # Re-score each candidate against *only* the still-open gaps
+        # Re-apply difficulty penalty at each marginal step
         for c in candidates:
             new_covered = c["covered_idx"] & open_gaps
             duration    = max(c["course"].get("duration", 1), 1)
-            c["marginal_score"] = round(len(new_covered) / duration, 4)
+            candidate_level = min(experience_years / 3, 2)
+            course_level    = _DIFFICULTY_RANK.get(
+                c["course"].get("difficulty", "intermediate"), 1
+            )
+            diff_penalty = 1.0 + abs(course_level - candidate_level) * 0.4
+            c["marginal_score"]  = round(len(new_covered) / (duration * diff_penalty), 4)
             c["marginal_covers"] = new_covered
 
         # Remove candidates that no longer cover anything new

@@ -1,0 +1,204 @@
+{
+  "total_pairs": 70,
+  "keyword": {
+    "precision": 0.8476,
+    "recall": 0.8571,
+    "f1": 0.8514
+  },
+  "semantic": {
+    "precision": 0.8762,
+    "recall": 0.8738,
+    "f1": 0.8724
+  },
+  "errors": [
+    {
+      "id": "DS-02",
+      "domain": "Data Science",
+      "note": "",
+      "keyword_fp": [],
+      "keyword_fn": [],
+      "semantic_fp": [],
+      "semantic_fn": [
+        "Deep Learning"
+      ]
+    },
+    {
+      "id": "DS-05",
+      "domain": "Data Science",
+      "note": "",
+      "keyword_fp": [],
+      "keyword_fn": [],
+      "semantic_fp": [],
+      "semantic_fn": [
+        "Deep Learning"
+      ]
+    },
+    {
+      "id": "DS-10",
+      "domain": "Data Science",
+      "note": "",
+      "keyword_fp": [
+        "Communication"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [
+        "Communication"
+      ],
+      "semantic_fn": []
+    },
+    {
+      "id": "MK-02",
+      "domain": "Marketing",
+      "note": "",
+      "keyword_fp": [
+        "Social Media"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [
+        "Social Media"
+      ],
+      "semantic_fn": []
+    },
+    {
+      "id": "SY-01",
+      "domain": "Synonym Resolution",
+      "note": "scikit-learn \u2194 Machine Learning",
+      "keyword_fp": [
+        "Data Analysis",
+        "Machine Learning"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [
+        "Data Analysis",
+        "Machine Learning"
+      ],
+      "semantic_fn": []
+    },
+    {
+      "id": "SY-02",
+      "domain": "Synonym Resolution",
+      "note": "JS \u2194 JavaScript, ReactJS \u2194 React",
+      "keyword_fp": [
+        "JavaScript",
+        "React"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [],
+      "semantic_fn": []
+    },
+    {
+      "id": "SY-03",
+      "domain": "Synonym Resolution",
+      "note": "People Management \u2194 Leadership",
+      "keyword_fp": [
+        "Coaching",
+        "Leadership"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [
+        "Coaching",
+        "Leadership"
+      ],
+      "semantic_fn": []
+    },
+    {
+      "id": "SY-04",
+      "domain": "Synonym Resolution",
+      "note": "AWS services \u2194 AWS",
+      "keyword_fp": [
+        "AWS",
+        "Cloud"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [
+        "Cloud"
+      ],
+      "semantic_fn": []
+    },
+    {
+      "id": "SY-05",
+      "domain": "Synonym Resolution",
+      "note": "TensorFlow \u2194 Deep Learning",
+      "keyword_fp": [
+        "Deep Learning",
+        "Machine Learning"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [
+        "Deep Learning",
+        "Machine Learning"
+      ],
+      "semantic_fn": []
+    },
+    {
+      "id": "SY-06",
+      "domain": "Synonym Resolution",
+      "note": "Postgres/MySQL \u2194 SQL",
+      "keyword_fp": [
+        "Database",
+        "SQL"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [],
+      "semantic_fn": []
+    },
+    {
+      "id": "SY-07",
+      "domain": "Synonym Resolution",
+      "note": "Scrum \u2194 Agile",
+      "keyword_fp": [
+        "Agile",
+        "Project Management"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [
+        "Project Management"
+      ],
+      "semantic_fn": []
+    },
+    {
+      "id": "SY-08",
+      "domain": "Synonym Resolution",
+      "note": "HubSpot \u2194 CRM",
+      "keyword_fp": [
+        "CRM",
+        "Marketing"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [
+        "CRM",
+        "Marketing"
+      ],
+      "semantic_fn": []
+    },
+    {
+      "id": "SY-09",
+      "domain": "Synonym Resolution",
+      "note": "Talent Acquisition \u2194 Recruitment",
+      "keyword_fp": [
+        "HR",
+        "Recruitment"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [
+        "HR"
+      ],
+      "semantic_fn": []
+    },
+    {
+      "id": "SY-10",
+      "domain": "Synonym Resolution",
+      "note": "Stock Control \u2194 Inventory Management",
+      "keyword_fp": [
+        "Inventory Management",
+        "Operations"
+      ],
+      "keyword_fn": [],
+      "semantic_fp": [
+        "Inventory Management",
+        "Operations"
+      ],
+      "semantic_fn": []
+    }
+  ]
+}

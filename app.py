@@ -466,7 +466,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     """, unsafe_allow_html=True)
 
     # ── Pre-compute pathway + metrics for Executive Summary ──────────────────
-    _pathway_preview  = build_learning_path(gaps)
+    _pathway_preview  = build_learning_path(gaps, experience_years=rd.get("experience_years", 0))
     _t_preview        = estimate_time(_pathway_preview) if _pathway_preview else {"total": 0, "saved": 0, "efficiency": 0}
     _skill_cov        = round(len(matched) / max(len(jd_skills), 1) * 100)
     _missing_count    = len(gaps)
@@ -785,7 +785,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         """, unsafe_allow_html=True)
     st.divider()
 
-    pathway      = build_learning_path(gaps)
+    pathway      = build_learning_path(gaps, experience_years=rd.get("experience_years", 0))
     if not pathway: st.warning("No courses found for these gaps."); st.stop()
 
     t            = estimate_time(pathway)
