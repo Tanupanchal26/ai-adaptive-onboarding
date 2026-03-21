@@ -6,3 +6,4 @@ networkx>=3.2.0
 sentence-transformers>=2.6.0
 yfiles_graphs_for_streamlit>=1.0.0
 reportlab>=4.0.0
+openai>=1.30.0
