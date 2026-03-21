@@ -1608,8 +1608,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
         </div>
         """, unsafe_allow_html=True)
 
-    # ── Plain-English Explanation (for HR teams) ──────────────────────────
-    with st.expander("📖 Plain-English Explanation (for HR teams)", expanded=False):
+    # ── Plain-English Explanation (for HR & Managers) ───────────────────────
+    with st.expander("📖 Plain-English Explanation (for HR & Managers)", expanded=False):
         st.text(generate_plain_english_trace(sorted(matched), sorted(gaps), pathway))
 
     # ── Floating AI Chat Agent ────────────────────────────────────────────────
