@@ -5,7 +5,7 @@ description = "AI Adaptive Onboarding Engine"
 requires-python = ">=3.11"
 
 [project.scripts]
-app = "streamlit run app.py"
+app = "streamlit:main"
 
-[tool.streamlit]
-app = "app.py"
+[tool.poetry.scripts]
+start = "streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true"
