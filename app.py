@@ -633,7 +633,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    with st.expander("Skill Relationship Graph", expanded=False):
+    st.markdown(f'<div style="text-align:center;margin:2rem 0 0.4rem 0;"><h2 style="font-size:1.5rem;font-weight:700;color:{"#ffffff" if is_dark else "#0f172a"};">Skill Relationship Graph</h2></div>', unsafe_allow_html=True)
+    with st.expander("", expanded=False):
         G_skill = nx.Graph()
         center  = "You"
         G_skill.add_node(center, kind="center")
@@ -754,7 +755,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _le4.metric("Efficiency Gain",      f"{efficiency}%",            "vs 35h static baseline")
     st.divider()
 
-    with st.expander("Impact Analysis - AI Path vs Static Onboarding", expanded=False):
+    st.markdown(f'<div style="text-align:center;margin:2rem 0 0.4rem 0;"><h2 style="font-size:1.5rem;font-weight:700;color:{"#ffffff" if is_dark else "#0f172a"};">Impact Analysis — AI Path vs Static Onboarding</h2></div>', unsafe_allow_html=True)
+    with st.expander("", expanded=False):
         if impact_saved > 0:
             st.success(
                 f"Your AI-optimized path takes **{total_hours}h** vs the **{BASELINE_HOURS}h** "
@@ -893,7 +895,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _rmap_bdr = "#334155" if is_dark else "#cbd5e1"
     _rmap_h2  = "#f3f4f6" if is_dark else "#0f172a"
     _rmap_sub = "#9ca3af" if is_dark else "#475569"
-    with st.expander("Your Personalized Learning Roadmap", expanded=True):
+    st.markdown(f'<div style="text-align:center;margin:2rem 0 0.4rem 0;"><h2 style="font-size:1.5rem;font-weight:700;color:{"#ffffff" if is_dark else "#0f172a"};">Your Personalized Learning Roadmap</h2></div>', unsafe_allow_html=True)
+    with st.expander("", expanded=True):
         st.caption("Step-by-step path from your current level to full role competency")
 
         nodes = [{
