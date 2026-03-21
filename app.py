@@ -107,6 +107,19 @@ LIGHT_CSS = """
     .main .block-container { padding-top:2rem !important; padding-bottom:4rem !important; max-width:1100px; margin:0 auto; }
     hr { margin:2.5rem 0; border-color:#e2e8f0; }
     .pro-card { background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:1.4rem; margin:1.2rem 0; }
+    [data-testid="stFileUploader"] {
+        background:#ffffff; border:2px dashed #cbd5e1; border-radius:12px;
+    }
+    [data-testid="stFileUploader"]:hover { border-color:#0ea5e9; }
+    [data-testid="stFileUploaderDropzone"] {
+        background:#f8fafc !important; color:#475569 !important;
+    }
+    [data-testid="stFileUploaderDropzoneInstructions"] > div > span {
+        color:#0f172a !important; font-weight:600;
+    }
+    [data-testid="stFileUploaderDropzoneInstructions"] > div > small {
+        color:#64748b !important;
+    }
     @media (max-width:768px) {
         .block-container { padding-left:1rem !important; padding-right:1rem !important; }
         [data-testid="stHorizontalBlock"] > div { flex:1 1 100% !important; max-width:100% !important; margin-bottom:1rem !important; }
@@ -152,28 +165,38 @@ else:
 
 with st.sidebar:
     # ── How It Works ─────────────────────────────────────────────────────────
-    st.markdown("""
+    _sb_bg   = "#1a1a1a" if theme == "Dark Pro" else "#f1f5f9"
+    _sb_bdr  = "#333"    if theme == "Dark Pro" else "#cbd5e1"
+    _sb_num  = "#1a1a1a" if theme == "Dark Pro" else "#e2e8f0"
+    _sb_nbdr = "#333"    if theme == "Dark Pro" else "#94a3b8"
+    _sb_ntxt = "#aaa"    if theme == "Dark Pro" else "#475569"
+    _sb_txt  = "#ccc"    if theme == "Dark Pro" else "#334155"
+    _sb_lbl  = "#666"    if theme == "Dark Pro" else "#94a3b8"
+    st.markdown(f"""
     <div style="padding:.4rem 0 .8rem 0;">
         <div style="font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;
-                    color:#666;margin-bottom:.7rem;">HOW IT WORKS</div>
+                    color:{_sb_lbl};margin-bottom:.7rem;">HOW IT WORKS</div>
         <div style="display:flex;flex-direction:column;gap:.5rem;">
             <div style="display:flex;align-items:center;gap:.6rem;font-size:.88rem;">
-                <span style="background:#1a1a1a;border:1px solid #333;border-radius:50%;
+                <span style="background:{_sb_num};border:1px solid {_sb_nbdr};border-radius:50%;
                              width:26px;height:26px;display:flex;align-items:center;
-                             justify-content:center;font-size:.75rem;flex-shrink:0;">1</span>
-                <span style="color:#ccc;">Upload resume &amp; job description</span>
+                             justify-content:center;font-size:.75rem;flex-shrink:0;
+                             color:{_sb_ntxt};">1</span>
+                <span style="color:{_sb_txt};">Upload resume &amp; job description</span>
             </div>
             <div style="display:flex;align-items:center;gap:.6rem;font-size:.88rem;">
-                <span style="background:#1a1a1a;border:1px solid #333;border-radius:50%;
+                <span style="background:{_sb_num};border:1px solid {_sb_nbdr};border-radius:50%;
                              width:26px;height:26px;display:flex;align-items:center;
-                             justify-content:center;font-size:.75rem;flex-shrink:0;">2</span>
-                <span style="color:#ccc;">AI extracts skills &amp; gaps</span>
+                             justify-content:center;font-size:.75rem;flex-shrink:0;
+                             color:{_sb_ntxt};">2</span>
+                <span style="color:{_sb_txt};">AI extracts skills &amp; gaps</span>
             </div>
             <div style="display:flex;align-items:center;gap:.6rem;font-size:.88rem;">
-                <span style="background:#1a1a1a;border:1px solid #333;border-radius:50%;
+                <span style="background:{_sb_num};border:1px solid {_sb_nbdr};border-radius:50%;
                              width:26px;height:26px;display:flex;align-items:center;
-                             justify-content:center;font-size:.75rem;flex-shrink:0;">3</span>
-                <span style="color:#ccc;">Get a personalized roadmap</span>
+                             justify-content:center;font-size:.75rem;flex-shrink:0;
+                             color:{_sb_ntxt};">3</span>
+                <span style="color:{_sb_txt};">Get a personalized roadmap</span>
             </div>
         </div>
     </div>
@@ -183,14 +206,17 @@ with st.sidebar:
     if st.session_state.resume_data:
         cs = normalize_skills(st.session_state.resume_data.get("skills", []))
         cs_sorted = sorted(cs)
-        st.markdown("""
+        st.markdown(f"""
         <div style="font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;
-                    color:#666;margin-bottom:.6rem;">YOUR SKILLS</div>
+                    color:{_sb_lbl};margin-bottom:.6rem;">YOUR SKILLS</div>
         """, unsafe_allow_html=True)
+        _chip_bg  = "#1a1a1a" if theme == "Dark Pro" else "#ffffff"
+        _chip_bdr = "#2a2a2a" if theme == "Dark Pro" else "#e2e8f0"
+        _chip_txt = "#d0d0d0" if theme == "Dark Pro" else "#1e293b"
         chips = "".join(
             f"<span style='display:inline-flex;align-items:center;gap:4px;"
-            f"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;"
-            f"padding:3px 8px;margin:2px;font-size:.78rem;color:#d0d0d0;'>"
+            f"background:{_chip_bg};border:1px solid {_chip_bdr};border-radius:4px;"
+            f"padding:3px 8px;margin:2px;font-size:.78rem;color:{_chip_txt};'>"
             f"<span style='width:6px;height:6px;border-radius:50%;background:#22c55e;"
             f"display:inline-block;flex-shrink:0;'></span>{s}</span>"
             for s in cs_sorted
@@ -200,35 +226,36 @@ with st.sidebar:
 
     if st.session_state.jd_data:
         js = normalize_skills(st.session_state.jd_data.get("skills", []))
-        # compute overlap if both available
         cs_set = normalize_skills(st.session_state.resume_data.get("skills", [])) \
                  if st.session_state.resume_data else set()
-        st.markdown("""
+        st.markdown(f"""
         <div style="font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;
-                    color:#666;margin-bottom:.6rem;">ROLE REQUIREMENTS</div>
+                    color:{_sb_lbl};margin-bottom:.6rem;">ROLE REQUIREMENTS</div>
         """, unsafe_allow_html=True)
+        _chip_bg  = "#1a1a1a" if theme == "Dark Pro" else "#ffffff"
+        _chip_bdr = "#2a2a2a" if theme == "Dark Pro" else "#e2e8f0"
         req_chips = "".join(
             f"<span style='display:inline-flex;align-items:center;gap:4px;"
-            f"background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;"
+            f"background:{_chip_bg};border:1px solid {_chip_bdr};border-radius:4px;"
             f"padding:3px 8px;margin:2px;font-size:.78rem;"
-            f"color:{'#d0d0d0' if s in cs_set else '#888'};'>"
+            f"color:{'#d0d0d0' if (theme == 'Dark Pro' and s in cs_set) else '#1e293b' if (theme != 'Dark Pro' and s in cs_set) else '#888' if theme == 'Dark Pro' else '#94a3b8'};'>"
             f"<span style='width:6px;height:6px;border-radius:50%;"
             f"background:{'#22c55e' if s in cs_set else '#ef4444'};"
             f"display:inline-block;flex-shrink:0;'></span>{s}</span>"
             for s in sorted(js)
         )
         st.markdown(f"<div style='line-height:1.8;'>{req_chips}</div>", unsafe_allow_html=True)
-        # mini legend
-        st.markdown("""
-        <div style="display:flex;gap:1rem;margin-top:.6rem;font-size:.75rem;color:#666;">
+        st.markdown(f"""
+        <div style="display:flex;gap:1rem;margin-top:.6rem;font-size:.75rem;color:{_sb_lbl};">
             <span><span style="color:#22c55e;">●</span> Have it</span>
             <span><span style="color:#ef4444;">●</span> Gap</span>
         </div>
         """, unsafe_allow_html=True)
         st.divider()
 
-    st.markdown("""
-    <div style="font-size:.72rem;color:#444;text-align:center;padding:.4rem 0;">
+    _ft_col = "#444" if theme == "Dark Pro" else "#94a3b8"
+    st.markdown(f"""
+    <div style="font-size:.72rem;color:{_ft_col};text-align:center;padding:.4rem 0;">
         Powered by LLaMA 3.2 &nbsp;·&nbsp; SkillBridge
     </div>
     """, unsafe_allow_html=True)
