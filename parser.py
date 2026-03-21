@@ -119,18 +119,76 @@ def _call_ollama(text: str) -> dict:
                     if s == -1 or e <= s:
                         raise ValueError("No JSON in response")
                     result = json.loads(raw[s:e])
-                    # Validate required fields
                     if "skills" not in result or "main_role" not in result:
                         raise ValueError("Missing required fields")
                     result["_model_used"] = model
                     return result
             except urllib.error.URLError:
-                return {"error": "Ollama not running — start with: ollama serve"}
+                return _regex_fallback(text)   # Ollama not running → regex parse
             except (json.JSONDecodeError, ValueError):
-                continue   # retry
-            except Exception as ex:
-                return {"error": str(ex)}
-    return {"error": f"Both {PRIMARY_MODEL} and {FALLBACK_MODEL} returned invalid JSON"}
+                continue
+            except Exception:
+                return _regex_fallback(text)
+    return _regex_fallback(text)
+
+
+# ── Regex fallback — works with zero LLM, zero internet ──────────────────────
+_KNOWN_SKILLS = [
+    "Python", "SQL", "JavaScript", "Java", "React", "AWS", "Docker", "Git",
+    "Agile", "Machine Learning", "Data Analysis", "Tableau", "Power BI",
+    "Leadership", "Communication", "Excel", "Marketing", "Sales", "CRM",
+    "Public Speaking", "Project Management", "HTML", "CSS", "Node.js",
+    "TypeScript", "Kubernetes", "Azure", "GCP", "Terraform", "Linux",
+    "MongoDB", "PostgreSQL", "Redis", "Spark", "Hadoop", "Tableau",
+    "SEO", "Content Marketing", "Brand Management", "Negotiation",
+    "Recruitment", "Training", "Coaching", "Strategy", "HR",
+    "Safety Compliance", "Quality Control", "Supply Chain",
+    "Documentation", "Time Management", "Troubleshooting",
+    "Equipment Maintenance", "Inventory Management", "Forklift Operation",
+    "Scrum", "Kanban", "JIRA", "Confluence", "Figma", "Photoshop",
+    "Deep Learning", "NLP", "Computer Vision", "PyTorch", "TensorFlow",
+    "scikit-learn", "Pandas", "NumPy", "R", "MATLAB", "C++", "C#", "Go",
+    "Ruby", "PHP", "Swift", "Kotlin", "Flutter", "Django", "FastAPI",
+    "Flask", "Spring Boot", "Microservices", "REST API", "GraphQL",
+    "System Design", "DevOps", "CI/CD", "Jenkins", "GitHub Actions",
+]
+
+_ROLE_PATTERNS = [
+    r"(?:current(?:ly)?\s+(?:working\s+as|role[:\s]+)|position[:\s]+|title[:\s]+|job\s+title[:\s]+)([\w\s]+)",
+    r"(?:senior|junior|lead|principal|staff)?\s*(?:software|data|ml|ai|product|project|sales|marketing|hr|field|warehouse)\s*(?:engineer|developer|manager|analyst|scientist|executive|associate|technician|lead|specialist)",
+]
+
+def _regex_fallback(text: str) -> dict:
+    """Extract skills and role from raw text using keyword matching — no LLM needed."""
+    import re
+    text_lower = text.lower()
+
+    # Skill extraction — case-insensitive keyword scan
+    found_skills = [
+        skill for skill in _KNOWN_SKILLS
+        if re.search(r'\b' + re.escape(skill.lower()) + r'\b', text_lower)
+    ]
+
+    # Role extraction
+    main_role = "Professional"
+    for pattern in _ROLE_PATTERNS:
+        m = re.search(pattern, text_lower)
+        if m:
+            main_role = m.group(0).strip().title()
+            break
+
+    # Experience years
+    exp_match = re.search(r'(\d+)\+?\s*years?\s*(?:of\s*)?(?:experience|exp)', text_lower)
+    experience_years = int(exp_match.group(1)) if exp_match else 0
+
+    return {
+        "skills":           found_skills if found_skills else ["Communication"],
+        "experience_years": experience_years,
+        "main_role":        main_role,
+        "education_level":  "",
+        "certifications":   [],
+        "_model_used":      "regex-fallback"
+    }
 
 # ── Fuzzy skill matching ──────────────────────────────────────────────────────
 # Thin shim — delegates to semantic_engine (single shared model instance).
@@ -167,8 +225,7 @@ def parse_file(file_bytes: bytes, filename: str) -> dict:
             # API error → fall through to Ollama
             pass
 
-    # Ollama fallback
+    # Ollama fallback → regex fallback if Ollama unavailable
     result = _call_ollama(text)
-    if "error" not in result:
-        result["_raw_text"] = text[:500]
+    result["_raw_text"] = text[:500]
     return result
