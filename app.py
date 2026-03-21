@@ -91,6 +91,32 @@ with st.sidebar:
         for s in sorted(js):
             st.markdown(f"📌 {s}")
         st.divider()
+
+    # ── Ask AI Chat ───────────────────────────────────────────────────────────
+    with st.expander("💬 Ask AI About Your Path", expanded=False):
+        question = st.text_input("e.g. Why Python first?", key="ai_q")
+        if st.button("Ask", key="ai_ask"):
+            if question.strip():
+                with st.spinner("Thinking..."):
+                    import json, urllib.request
+                    payload = json.dumps({
+                        "model": "llama3.2",
+                        "prompt": f"Answer in 2 sentences max: {question}",
+                        "stream": False
+                    }).encode()
+                    try:
+                        req = urllib.request.Request(
+                            "http://localhost:11434/api/generate",
+                            data=payload, headers={"Content-Type": "application/json"}
+                        )
+                        with urllib.request.urlopen(req, timeout=30) as r:
+                            ans = json.loads(r.read()).get("response", "No response")
+                        st.write(ans)
+                    except Exception as e:
+                        st.error(f"Ollama not running: {e}")
+            else:
+                st.warning("Type a question first.")
+
     st.caption("Powered by LLaMA 3.2 · SkillBridge")
 
 # ── Header ────────────────────────────────────────────────────────────────────
@@ -324,22 +350,30 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── FEATURE 5: Tabs ───────────────────────────────────────────────────────
-    tab1, tab2 = st.tabs(["📋 Personalized Path", "⚖️ Before vs After"])
+    tab1, tab2, tab3 = st.tabs(["📋 Personalized Path", "⚖️ Before vs After", "📅 Timeline View"])
 
     with tab1:
         st.markdown("### 📚 Your Learning Pathway")
-        st.markdown("**Your Strengths**")
-        st.markdown(
-            " ".join([f"<span style='background:#00ff9d;color:#000;padding:6px 12px;"
-                       f"border-radius:8px;margin:3px;display:inline-block;font-weight:600;'>{s}</span>"
-                       for s in sorted(candidate_skills)]),
-            unsafe_allow_html=True
-        )
+
+        # ── Skill Badges with Mastery Levels ─────────────────────────────────
+        st.subheader("🛡️ Your Current Skills")
+        badge_cols = st.columns(4)
+        for i, skill in enumerate(sorted(candidate_skills)):
+            mastery = (i % 3) + 2
+            stars = "⭐" * mastery
+            with badge_cols[i % 4]:
+                st.markdown(
+                    f"<div style='background:linear-gradient(90deg,#00ff9d,#00bfff);padding:12px;"
+                    f"border-radius:12px;text-align:center;margin:5px;'>"
+                    f"<b style='color:#000;'>{skill}</b><br>"
+                    f"<small style='color:#000;'>Mastery: {mastery}/5 {stars}</small></div>",
+                    unsafe_allow_html=True
+                )
         st.markdown("")
+
         for i, course in enumerate(pathway, 1):
             de = "🟢" if course["difficulty"]=="beginner" else "🔵" if course["difficulty"]=="intermediate" else "🔴"
-            with st.expander(f"{i}. {course['title']}  {de}  ⏱ {course['duration']}h",
-                             help=f"Covers: {', '.join(course['skills'])}"):
+            with st.expander(f"{i}. {course['title']}  {de}  ⏱ {course['duration']}h · Covers: {', '.join(course['skills'])}"):
                 st.markdown(f"**Difficulty:** `{course['difficulty']}`")
                 st.markdown(f"**Skills Covered:** {', '.join(course['skills'])}")
                 if course.get("prereq"):
@@ -363,6 +397,32 @@ if st.session_state.resume_data and st.session_state.jd_data:
             text=f"🎯 {efficiency}% more efficient",
             showarrow=False, font=dict(color="#00ff9d", size=14))
         st.plotly_chart(fig, use_container_width=True)
+
+    with tab3:
+        import datetime
+        base = datetime.date(2025, 1, 1)
+        rows = []
+        day = 0
+        for c in pathway:
+            rows.append({
+                "Course": c["title"],
+                "Start": str(base + datetime.timedelta(days=day)),
+                "Finish": str(base + datetime.timedelta(days=day + c["duration"])),
+                "Difficulty": c["difficulty"]
+            })
+            day += c["duration"] + 1
+        df_gantt = pd.DataFrame(rows)
+        fig_gantt = px.timeline(
+            df_gantt, x_start="Start", x_end="Finish", y="Course",
+            color="Difficulty",
+            color_discrete_map={"beginner": "#00ff9d", "intermediate": "#00bfff", "advanced": "#ff4b4b"},
+            title="📅 Your Learning Timeline"
+        )
+        fig_gantt.update_layout(
+            paper_bgcolor="#0e1117", plot_bgcolor="#1e2937",
+            font_color="#fff", height=400, margin=dict(t=40, b=20)
+        )
+        st.plotly_chart(fig_gantt, use_container_width=True)
 
     st.divider()
 
