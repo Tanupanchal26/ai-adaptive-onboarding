@@ -1019,41 +1019,76 @@ if st.session_state.resume_data and st.session_state.jd_data:
     </style>
     """, unsafe_allow_html=True)
 
-    # ── FAB toggle button ─────────────────────────────────────────────────────
-    _fab_label = "✕ Close" if st.session_state.chat_open else "🤖 Ask AI"
-    # Inject CSS to make this specific button fixed bottom-right
-    st.markdown("""
+    # ── FAB toggle button — hidden Streamlit button + CSS-positioned SVG overlay ──
+    _fab_icon = """
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="7" width="16" height="11" rx="3" fill="white"/>
+      <line x1="12" y1="2" x2="12" y2="7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="2" r="1.5" fill="white"/>
+      <circle cx="9" cy="12" r="2" fill="#6366f1"/>
+      <circle cx="15" cy="12" r="2" fill="#6366f1"/>
+      <rect x="9" y="15" width="6" height="1.5" rx="0.75" fill="#6366f1"/>
+      <rect x="1.5" y="10" width="2.5" height="4" rx="1" fill="white" opacity="0.8"/>
+      <rect x="20" y="10" width="2.5" height="4" rx="1" fill="white" opacity="0.8"/>
+    </svg>"""
+    _close_icon = "<span style='font-size:24px;line-height:1;font-weight:300;color:#fff;'>✕</span>"
+    _fab_display = _close_icon if st.session_state.chat_open else _fab_icon
+
+    st.markdown(f"""
     <style>
-    div[data-testid="stButton"][id="fab-wrapper"] > button,
-    button[kind="primary"][data-testid="baseButton-primary"]:last-of-type {
-        /* fallback — real fix below */
-    }
-    #fab-fixed-wrapper {
+    /* Hide the real Streamlit button visually but keep it clickable */
+    div[data-testid="stButton"]:has(button[data-testid="baseButton-secondary"]#fab_toggle_btn) {{
         position: fixed !important;
-        bottom: 28px !important;
-        right: 28px !important;
-        z-index: 10000 !important;
-    }
-    #fab-fixed-wrapper button {
-        width: 58px !important;
-        height: 58px !important;
+        bottom: 24px !important;
+        right: 24px !important;
+        z-index: 10001 !important;
+        width: 62px !important;
+        height: 62px !important;
+    }}
+    /* Style the actual button */
+    button[kind="secondary"]#fab_toggle_btn,
+    #fab-real-btn button {{
+        position: fixed !important;
+        bottom: 24px !important;
+        right: 24px !important;
+        z-index: 10001 !important;
+        width: 62px !important;
+        height: 62px !important;
+        min-height: 62px !important;
         border-radius: 50% !important;
         background: linear-gradient(135deg,#6366f1,#0ea5e9) !important;
         border: none !important;
-        font-size: 22px !important;
         padding: 0 !important;
-        box-shadow: 0 4px 20px rgba(99,102,241,.6) !important;
-        color: #fff !important;
-        font-weight: 700 !important;
-    }
-    #fab-fixed-wrapper button:hover {
+        box-shadow: 0 4px 24px rgba(99,102,241,.7) !important;
+        color: transparent !important;
+        font-size: 0 !important;
+        cursor: pointer !important;
+        transition: transform .2s ease, box-shadow .2s ease !important;
+    }}
+    #fab-real-btn button:hover {{
         transform: scale(1.1) !important;
-        box-shadow: 0 6px 28px rgba(99,102,241,.8) !important;
-    }
+        box-shadow: 0 6px 32px rgba(99,102,241,.9) !important;
+    }}
+    /* SVG overlay on top of the invisible button */
+    #fab-svg-overlay {{
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 10002;
+        width: 62px;
+        height: 62px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;  /* clicks pass through to the button below */
+    }}
     </style>
-    <div id="fab-fixed-wrapper">
+    <!-- SVG icon overlay (non-interactive, sits on top of button) -->
+    <div id="fab-svg-overlay">{_fab_display}</div>
+    <div id="fab-real-btn">
     """, unsafe_allow_html=True)
-    if st.button(_fab_label, key="fab_toggle", help="Ask AI about your learning path"):
+    if st.button(" ", key="fab_toggle", help="Ask AI about your learning path"):
         st.session_state.chat_open = not st.session_state.chat_open
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
@@ -1063,10 +1098,29 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.markdown(f"""
         <div id="chat-panel">
             <div id="chat-header">
-                <span style="font-size:22px;">🤖</span>
-                <div>
-                    <div style="font-weight:700;color:#fff;font-size:.95rem;">SkillBridge AI</div>
-                    <div style="font-size:.75rem;color:rgba(255,255,255,.75);">Your onboarding assistant</div>
+                <div style="width:44px;height:44px;border-radius:50%;
+                            background:rgba(255,255,255,.18);
+                            display:flex;align-items:center;justify-content:center;
+                            flex-shrink:0;border:2px solid rgba(255,255,255,.4);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="4" y="7" width="16" height="11" rx="3" fill="white"/>
+                      <line x1="12" y1="2" x2="12" y2="7" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="12" cy="2" r="1.5" fill="white"/>
+                      <circle cx="9" cy="12" r="2" fill="#6366f1"/>
+                      <circle cx="15" cy="12" r="2" fill="#6366f1"/>
+                      <rect x="9" y="15" width="6" height="1.5" rx="0.75" fill="#6366f1"/>
+                      <rect x="1.5" y="10" width="2.5" height="4" rx="1" fill="white" opacity="0.8"/>
+                      <rect x="20" y="10" width="2.5" height="4" rx="1" fill="white" opacity="0.8"/>
+                    </svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:700;color:#fff;font-size:.97rem;letter-spacing:.2px;">SkillBridge AI</div>
+                    <div style="font-size:.72rem;color:rgba(255,255,255,.8);
+                                display:flex;align-items:center;gap:5px;margin-top:2px;">
+                        <span style="width:7px;height:7px;border-radius:50%;background:#4ade80;
+                                     display:inline-block;box-shadow:0 0 6px #4ade80;flex-shrink:0;"></span>
+                        Online &nbsp;&middot;&nbsp; Your onboarding assistant
+                    </div>
                 </div>
             </div>
             <div id="chat-messages">
