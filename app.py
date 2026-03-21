@@ -684,12 +684,9 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     st.divider()
 
-    # ── Skill Graph ───────────────────────────────────────────────────────────
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-
-    st.markdown(f'<div style="text-align:center;margin:2rem 0 0.4rem 0;"><h2 style="font-size:1.5rem;font-weight:700;color:{"#ffffff" if is_dark else "#0f172a"};">Skill Relationship Graph</h2></div>', unsafe_allow_html=True)
+    # ── Skill Graph (Plotly interactive) ─────────────────────────────────────
+    _sg_h = "#ffffff" if is_dark else "#0f172a"
+    st.markdown(f'<div style="text-align:center;margin:2rem 0 0.4rem 0;"><h2 style="font-size:1.5rem;font-weight:700;color:{_sg_h};">Skill Relationship Graph</h2></div>', unsafe_allow_html=True)
     with st.expander("", expanded=False):
         G_skill = nx.Graph()
         center  = "You"
@@ -701,29 +698,66 @@ if st.session_state.resume_data and st.session_state.jd_data:
             G_skill.add_node(s, kind="gap")
             G_skill.add_edge(center, s)
 
-        pos_skill = nx.spring_layout(G_skill, seed=7, k=1.8)
-        node_colors = []
-        for n in G_skill.nodes():
-            kind = G_skill.nodes[n]["kind"]
-            node_colors.append("#f59e0b" if kind == "center" else "#22c55e" if kind == "matched" else "#ef4444")
+        pos_skill = nx.spring_layout(G_skill, seed=7, k=2.2)
 
-        _fig_bg = "#0f0f0f" if is_dark else "#f8fafc"
-        _lbl_c  = "#e0e0e0" if is_dark else "#1e293b"
-        fig_sk, ax = plt.subplots(figsize=(8, 4.5))
-        fig_sk.patch.set_facecolor(_fig_bg)
-        ax.set_facecolor(_fig_bg)
-        nx.draw_networkx_edges(G_skill, pos_skill, ax=ax,
-                               edge_color="#444" if is_dark else "#cbd5e1", width=1.2, alpha=0.7)
-        nx.draw_networkx_nodes(G_skill, pos_skill, ax=ax,
-                               node_color=node_colors, node_size=900, alpha=0.95)
-        nx.draw_networkx_labels(G_skill, pos_skill, ax=ax,
-                                font_size=8, font_color=_lbl_c, font_weight="bold")
-        ax.axis("off")
-        plt.tight_layout(pad=0.3)
+        # Build edge traces
+        _ex, _ey = [], []
+        for u, v in G_skill.edges():
+            x0, y0 = pos_skill[u]; x1, y1 = pos_skill[v]
+            _ex += [x0, x1, None]; _ey += [y0, y1, None]
 
-        st.pyplot(fig_sk, use_container_width=True)
-        plt.close(fig_sk)
-        st.caption("You (center)  ·  Skills you have  ·  Gaps to close  ·  Edges = relationships")
+        _edge_trace = go.Scatter(
+            x=_ex, y=_ey, mode="lines",
+            line=dict(width=1.5, color="#334155" if is_dark else "#cbd5e1"),
+            hoverinfo="none"
+        )
+
+        # Build node traces per category for legend
+        _node_groups = {
+            "You":     {"nodes": [center], "color": "#f59e0b", "size": 28, "symbol": "star"},
+            "Have ✓":  {"nodes": list(matched), "color": "#22c55e", "size": 20, "symbol": "circle"},
+            "Gap ✗":   {"nodes": list(gaps),    "color": "#ef4444", "size": 20, "symbol": "circle"},
+        }
+        _node_traces = []
+        for grp_name, grp in _node_groups.items():
+            if not grp["nodes"]: continue
+            _nx = [pos_skill[n][0] for n in grp["nodes"]]
+            _ny = [pos_skill[n][1] for n in grp["nodes"]]
+            _hover = [
+                f"<b>{n}</b><br>{'✓ You have this' if n in matched else '✗ Gap to close' if n in gaps else '👤 You'}"
+                + (f"<br>Similarity: {sim_scores.get(n, 1.0):.2f}" if n != center else "")
+                for n in grp["nodes"]
+            ]
+            _node_traces.append(go.Scatter(
+                x=_nx, y=_ny, mode="markers+text",
+                name=grp_name,
+                marker=dict(size=grp["size"], color=grp["color"],
+                            symbol=grp["symbol"],
+                            line=dict(width=2, color="#ffffff" if is_dark else "#0f172a")),
+                text=grp["nodes"],
+                textposition="top center",
+                textfont=dict(size=11, color="#e2e8f0" if is_dark else "#1e293b"),
+                hovertext=_hover, hoverinfo="text"
+            ))
+
+        _sg_bg = "#0a0a0a" if is_dark else "#f8fafc"
+        fig_sg = go.Figure(data=[_edge_trace] + _node_traces)
+        fig_sg.update_layout(
+            height=460,
+            paper_bgcolor=_sg_bg, plot_bgcolor=_sg_bg,
+            showlegend=True,
+            legend=dict(
+                orientation="h", x=0.5, xanchor="center", y=-0.05,
+                font=dict(color="#94a3b8" if is_dark else "#475569", size=12),
+                bgcolor="rgba(0,0,0,0)"
+            ),
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            margin=dict(t=20, b=40, l=10, r=10),
+            hovermode="closest"
+        )
+        st.plotly_chart(fig_sg, use_container_width=True)
+        st.caption("Hover over any node for details  ·  ⭐ You (center)  ·  🟢 Skills you have  ·  🔴 Gaps to close")
 
     st.divider()
 
@@ -1000,35 +1034,75 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 fit_content=True
             )
         else:
-            G = nx.DiGraph()
-            for n in nodes: G.add_node(n["id"], **n)
-            for e in edges: G.add_edge(e["start"], e["end"])
-            pos = nx.spring_layout(G, seed=42, k=2.5)
-            ex, ey = [], []
-            for u, v in G.edges():
-                x0,y0=pos[u]; x1,y1=pos[v]
-                ex+=[x0,x1,None]; ey+=[y0,y1,None]
+            # ── Clean horizontal hierarchical roadmap ─────────────────────────
+            import numpy as np
+            _all_nodes = ["START"] + [c["id"] for c in pathway] + ["END"]
+            _n = len(_all_nodes)
+            # Evenly spaced left→right
+            _xs = {nid: i / max(_n - 1, 1) for i, nid in enumerate(_all_nodes)}
+            _ys = {nid: 0.5 for nid in _all_nodes}
+
             _gbg   = "#0a0a0a" if is_dark else "#f8fafc"
-            _gtxt  = "#e0e0e0" if is_dark else "#1e293b"
-            _gline = "#333333" if is_dark else "#cbd5e1"
+            _gtxt  = "#e2e8f0" if is_dark else "#1e293b"
+            _gline = "#334155" if is_dark else "#cbd5e1"
+
             fig_g = go.Figure()
-            fig_g.add_trace(go.Scatter(x=ex, y=ey, mode="lines", line=dict(color=_gline, width=2), hoverinfo="none"))
-            fig_g.add_trace(go.Scatter(
-                x=[pos[n][0] for n in G.nodes()], y=[pos[n][1] for n in G.nodes()],
-                mode="markers+text",
-                marker=dict(size=30,
-                            color=[n["properties"]["background"] for n in nodes],
-                            line=dict(color="#fff", width=2)),
-                text=[n["label"] for n in nodes],
-                textposition="top center",
-                hovertext=[n["properties"].get("tooltip","") for n in nodes],
-                hoverinfo="text", textfont=dict(color=_gtxt, size=11)
-            ))
-            fig_g.update_layout(showlegend=False, height=430,
-                plot_bgcolor=_gbg, paper_bgcolor=_gbg,
-                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                margin=dict(t=10,b=10,l=10,r=10))
+
+            # Draw curved edges with arrows
+            for e in edges:
+                x0, y0 = _xs[e["start"]], _ys[e["start"]]
+                x1, y1 = _xs[e["end"]],   _ys[e["end"]]
+                fig_g.add_annotation(
+                    x=x1, y=y1, ax=x0, ay=y0,
+                    xref="x", yref="y", axref="x", ayref="y",
+                    showarrow=True, arrowhead=3, arrowsize=1.4,
+                    arrowwidth=2, arrowcolor=_gline
+                )
+
+            # Draw nodes
+            for nd in nodes:
+                nid   = nd["id"]
+                color = nd["properties"]["background"]
+                lbl   = nd["label"]
+                tip   = nd["properties"].get("tooltip", "")
+                is_end_node = nid in ("START", "END")
+                fig_g.add_trace(go.Scatter(
+                    x=[_xs[nid]], y=[_ys[nid]],
+                    mode="markers+text",
+                    marker=dict(
+                        size=52 if is_end_node else 44,
+                        color=color,
+                        symbol="circle" if is_end_node else "square",
+                        line=dict(width=3, color="#ffffff" if is_dark else "#0f172a")
+                    ),
+                    text=lbl,
+                    textposition="middle center",
+                    textfont=dict(size=9, color="#ffffff", family="Arial Black"),
+                    hovertext=tip, hoverinfo="text",
+                    showlegend=False
+                ))
+
+            # Step number labels below each course node
+            for i, c in enumerate(pathway, 1):
+                fig_g.add_annotation(
+                    x=_xs[c["id"]], y=0.18,
+                    text=f"<b>Step {i}</b><br>{c['duration']}h · {c['difficulty'].title()}",
+                    showarrow=False,
+                    font=dict(size=10, color="#94a3b8" if is_dark else "#475569"),
+                    xref="x", yref="y"
+                )
+
+            fig_g.update_layout(
+                height=320,
+                paper_bgcolor=_gbg, plot_bgcolor=_gbg,
+                showlegend=False,
+                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False,
+                           range=[-0.08, 1.08]),
+                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False,
+                           range=[0.0, 1.0]),
+                margin=dict(t=20, b=60, l=20, r=20),
+                hovermode="closest"
+            )
             st.plotly_chart(fig_g, use_container_width=True)
 
         st.markdown("""
