@@ -244,7 +244,7 @@ STEP 4 · OPTIMIZE COURSES
 
 ## 🖥️ Demo Personas
 
-Six built-in personas let evaluators test the engine **instantly without uploading any files**:
+Eight built-in personas let evaluators test the engine **instantly without uploading any files**:
 
 | Button | From → To | Gaps Demonstrated | Time Saved |
 |---|---|---|---|
@@ -253,6 +253,8 @@ Six built-in personas let evaluators test the engine **instantly without uploadi
 | 💼 Sales Role | Sales Manager → Sales Lead | CRM, Leadership, Marketing | ~40% |
 | 📣 Marketing Role | Marketing Executive → Marketing Manager | Tableau, Content Marketing, Strategy | ~42% |
 | 👥 HR Role | HR Executive → HR Manager | Training, Coaching, Strategy | ~38% |
+| 🏭 Warehouse | Warehouse Associate → Supervisor | Safety Compliance, Leadership, Training | ~41% |
+| 🔧 Field Tech | Field Technician → Senior Field Tech | Documentation, Time Management, Quality Control | ~38% |
 | 🔀 Cross-Domain | Sales Rep → Marketing Manager | Tableau, Data Analysis, Brand Management | ~45% |
 
 ---
