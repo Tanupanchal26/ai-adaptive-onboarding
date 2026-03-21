@@ -1,0 +1,14 @@
+Job Title: Software Engineer (Full Stack)
+
+Responsibilities:
+- Build REST APIs with Python (FastAPI)
+- Develop React frontend interfaces
+- Write SQL queries and manage PostgreSQL databases
+- Deploy on AWS using Docker and CI/CD pipelines
+- Work in Agile/Scrum teams
+- Collaborate and communicate with cross-functional teams
+
+Required Skills:
+- Python, JavaScript, React, SQL
+- AWS, Docker, Git, Agile
+- Strong communication and leadership

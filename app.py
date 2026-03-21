@@ -2,7 +2,8 @@ import streamlit as st
 import plotly.graph_objects as go
 import networkx as nx
 from parser import parse_file
-from catalog import normalize_skills, build_learning_path
+from gap_logic import normalize_skills, compute_gaps
+from path_generator import build_learning_path, estimate_time
 
 try:
     from yfiles_jupyter_graphs_for_streamlit import GraphWidget
@@ -163,8 +164,9 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     candidate_skills = normalize_skills(rd.get("skills", []))
     jd_skills        = normalize_skills(jd.get("skills", []))
-    gaps             = jd_skills - candidate_skills
-    matched          = jd_skills & candidate_skills
+    gap_result       = compute_gaps(candidate_skills, jd_skills)
+    gaps             = gap_result["gaps"]
+    matched          = gap_result["matched"]
 
     st.success(f"✅ Analysis complete: **{rd.get('role','Candidate')}** → **{jd.get('role','Target Role')}**")
 
@@ -211,10 +213,11 @@ if st.session_state.resume_data and st.session_state.jd_data:
     if not pathway:
         st.warning("No courses found for these gaps."); st.stop()
 
-    total_hours  = sum(c["duration"] for c in pathway)
-    static_hours = round(total_hours * 1.67)   # industry avg 40% longer
-    hours_saved  = static_hours - total_hours
-    efficiency   = round((hours_saved / static_hours) * 100)
+    time         = estimate_time(pathway)
+    total_hours  = time["total"]
+    static_hours = time["static"]
+    hours_saved  = time["saved"]
+    efficiency   = time["efficiency"]
 
     # ── Impact Banner ─────────────────────────────────────────────────────────
     st.markdown(
