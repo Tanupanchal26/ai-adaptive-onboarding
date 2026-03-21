@@ -27,19 +27,21 @@ st.set_page_config(
 # ── Theme CSS (applied before sidebar radio so it's always ready) ─────────────
 DARK_CSS = """
 <style>
-    .stApp { background-color: #0f172a; color: #e2e8f0; }
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .stApp { background-color: #0f172a; color: #e2e8f0; animation: fadeIn .5s ease; }
     .block-container { padding-top: 1rem; }
     h1,h2,h3 { color: #00f0ff; }
     .stButton>button {
         width:100%; height:3rem;
         background:linear-gradient(90deg,#00f0ff,#00ff9d);
-        color:#000; font-weight:700; border-radius:12px; border:none;
+        color:#000; font-weight:700; border-radius:12px; border:none; transition:all .2s;
     }
-    .stButton>button:hover { opacity:.85; transform:scale(1.02); transition:.2s; }
+    .stButton>button:hover { opacity:.85; transform:scale(1.02); }
     .impact-banner {
         background:linear-gradient(135deg,#0a3d0a,#0d5c0d);
         border:2px solid #00ff9d; border-radius:16px;
-        padding:24px; text-align:center; margin:16px 0;
+        padding:24px; text-align:center; margin:16px 0; animation:fadeIn .6s ease;
     }
     .skill-pill {
         display:inline-block; background:#1e293b;
@@ -52,24 +54,26 @@ DARK_CSS = """
         padding:4px 12px; margin:3px; font-size:13px; color:#ff4b4b;
     }
     div[data-testid="stExpander"] { background:#1e293b; border-radius:12px; border:1px solid #334155; }
-    [data-testid="metric-container"] { background:#1e293b; border-radius:12px; padding:12px; border:1px solid #334155; }
+    [data-testid="metric-container"] { background:#1e293b; border-radius:12px; padding:12px; border:1px solid #334155; animation:fadeIn .4s ease; }
 </style>
 """
 LIGHT_CSS = """
 <style>
-    .stApp { background-color: #f8fafc; color: #1e293b; }
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .stApp { background-color: #f8fafc; color: #1e293b; animation: fadeIn .5s ease; }
     .block-container { padding-top: 1rem; }
     h1,h2,h3 { color: #0f172a; }
     .stButton>button {
         width:100%; height:3rem;
         background:linear-gradient(90deg,#0ea5e9,#6366f1);
-        color:#fff; font-weight:700; border-radius:12px; border:none;
+        color:#fff; font-weight:700; border-radius:12px; border:none; transition:all .2s;
     }
-    .stButton>button:hover { opacity:.85; transform:scale(1.02); transition:.2s; }
+    .stButton>button:hover { opacity:.85; transform:scale(1.02); }
     .impact-banner {
         background:linear-gradient(135deg,#dcfce7,#d1fae5);
         border:2px solid #16a34a; border-radius:16px;
-        padding:24px; text-align:center; margin:16px 0;
+        padding:24px; text-align:center; margin:16px 0; animation:fadeIn .6s ease;
     }
     .skill-pill {
         display:inline-block; background:#e0f2fe;
@@ -82,7 +86,7 @@ LIGHT_CSS = """
         padding:4px 12px; margin:3px; font-size:13px; color:#b91c1c;
     }
     div[data-testid="stExpander"] { background:#fff; border-radius:12px; border:1px solid #e2e8f0; }
-    [data-testid="metric-container"] { background:#fff; border-radius:12px; padding:12px; border:1px solid #e2e8f0; box-shadow:0 1px 4px #0001; }
+    [data-testid="metric-container"] { background:#fff; border-radius:12px; padding:12px; border:1px solid #e2e8f0; box-shadow:0 1px 4px #0001; animation:fadeIn .4s ease; }
 </style>
 """
 
@@ -618,9 +622,12 @@ if st.session_state.resume_data and st.session_state.jd_data:
             )
 
     # ── Footer ────────────────────────────────────────────────────────────────
+    st.markdown("---")
     st.markdown(
-        "<div style='text-align:center;color:#555;font-size:12px;padding:20px 0;'>"
-        "Built in 18 hours for Hackathon · 100% local & grounded · Powered by LLaMA 3.2"
-        "</div>",
+        "<p style='text-align:center;color:#64748b;font-size:13px;'>"
+        "<i class='fas fa-heart' style='color:#ff4b4b;'></i> Built with ❤️ in Ahmedabad for smarter onboarding &nbsp;·&nbsp; "
+        "<i class='fas fa-rocket' style='color:#00f0ff;'></i> Hackathon 2026 &nbsp;·&nbsp; "
+        "<i class='fas fa-brain' style='color:#a78bfa;'></i> Powered by LLaMA 3.2"
+        "</p>",
         unsafe_allow_html=True
     )
