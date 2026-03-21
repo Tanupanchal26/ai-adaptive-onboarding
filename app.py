@@ -144,6 +144,7 @@ SAMPLES = {
     "crossdomain": {"skills": ["Communication", "Sales", "Public Speaking"],                                   "experience_years": 3, "role": "Sales Representative"},
     "hr":          {"skills": ["Communication", "HR", "Recruitment", "Excel"],                                 "experience_years": 2, "role": "HR Executive"},
     "warehouse":   {"skills": ["Inventory Management", "Forklift Operation", "Communication"],               "experience_years": 2, "role": "Warehouse Associate"},
+    "fieldtech":   {"skills": ["Equipment Maintenance", "Troubleshooting", "Communication"],                  "experience_years": 2, "role": "Field Technician"},
 }
 JD_SAMPLES = {
     "junior":      {"skills": ["Python", "SQL", "Git", "JavaScript", "Agile"],                                                    "experience_years": 2, "role": "Software Engineer"},
@@ -153,6 +154,7 @@ JD_SAMPLES = {
     "crossdomain": {"skills": ["Marketing", "Tableau", "Data Analysis", "Leadership", "Communication", "Excel"],                 "experience_years": 3, "role": "Marketing Manager"},
     "hr":          {"skills": ["HR", "Recruitment", "Leadership", "Communication", "Training", "Excel", "Strategy"],             "experience_years": 3, "role": "HR Manager"},
     "warehouse":   {"skills": ["Safety Compliance", "Leadership", "Quality Control", "Supply Chain", "Training"], "experience_years": 3, "role": "Warehouse Supervisor"},
+    "fieldtech":   {"skills": ["Safety Compliance", "Documentation", "Time Management", "Leadership", "Quality Control"], "experience_years": 3, "role": "Senior Field Technician"},
 }
 DIFF_COLOR = {"beginner": "#00ff9d", "intermediate": "#00bfff", "advanced": "#ff4b4b"}
 
@@ -290,7 +292,7 @@ with st.container():
     st.divider()
 
     st.markdown("#### ⚡ Instant Demo — Try a Sample Profile")
-    b1, b2, b3, b4, b5, b6, b7 = st.columns(7)
+    b1, b2, b3, b4, b5, b6, b7, b8 = st.columns(8)
     if b1.button("🧑💻 Junior Dev",      use_container_width=True):
         st.session_state.resume_data = SAMPLES["junior"];      st.session_state.jd_data = JD_SAMPLES["junior"]
     if b2.button("👨💼 Senior Engineer", use_container_width=True):
@@ -305,6 +307,8 @@ with st.container():
         st.session_state.resume_data = SAMPLES["hr"];          st.session_state.jd_data = JD_SAMPLES["hr"]
     if b7.button("🏭 Warehouse",         use_container_width=True):
         st.session_state.resume_data = SAMPLES["warehouse"];   st.session_state.jd_data = JD_SAMPLES["warehouse"]
+    if b8.button("🔧 Field Tech",        use_container_width=True):
+        st.session_state.resume_data = SAMPLES["fieldtech"];   st.session_state.jd_data = JD_SAMPLES["fieldtech"]
 
     st.divider()
 

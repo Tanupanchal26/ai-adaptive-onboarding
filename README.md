@@ -183,6 +183,8 @@ The engine is domain-agnostic and validated across both role families:
 | 💼 Sales | Sales Manager → Sales Lead | CRM, Negotiation, Leadership, Marketing |
 | 📣 Marketing | Marketing Executive → Marketing Manager | SEO, Tableau, Content Marketing, Strategy |
 | 👥 HR | HR Executive → HR Manager | Recruitment, Training, Coaching, Strategy |
+| 🏭 Warehouse | Warehouse Associate → Supervisor | Safety Compliance, Leadership, Training |
+| 🔧 Field Ops | Field Technician → Senior Tech | Documentation, Time Management, Quality Control |
 | 🔀 Cross-Domain | Sales Rep → Marketing Manager | Tableau, Data Analysis, Brand Management |
 
 ---
