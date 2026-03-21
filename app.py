@@ -633,8 +633,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    with st.container():
-        st.markdown("#### Skill Relationship Graph")
+    with st.expander("Skill Relationship Graph", expanded=False):
         G_skill = nx.Graph()
         center  = "You"
         G_skill.add_node(center, kind="center")
@@ -755,8 +754,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _le4.metric("Efficiency Gain",      f"{efficiency}%",            "vs 35h static baseline")
     st.divider()
 
-    with st.container():
-        st.subheader("Impact Analysis — AI Path vs Static Onboarding")
+    with st.expander("Impact Analysis - AI Path vs Static Onboarding", expanded=False):
         if impact_saved > 0:
             st.success(
                 f"Your AI-optimized path takes **{total_hours}h** vs the **{BASELINE_HOURS}h** "
@@ -895,101 +893,92 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _rmap_bdr = "#334155" if is_dark else "#cbd5e1"
     _rmap_h2  = "#f3f4f6" if is_dark else "#0f172a"
     _rmap_sub = "#9ca3af" if is_dark else "#475569"
-    st.markdown(f"""
-    <div style="background:linear-gradient(to bottom,{_rmap_bg},{_rmap_bg});padding:1.5rem;
-                border-radius:12px;margin:1.5rem 0;border:1px solid {_rmap_bdr};
-                box-shadow:0 10px 25px rgba(0,0,0,0.4);">
-        <h2 style="color:{_rmap_h2};text-align:center;margin:0 0 .5rem 0;font-weight:600;">
-            Your Personalized Learning Roadmap
-        </h2>
-        <p style="color:{_rmap_sub};text-align:center;font-size:1.05rem;margin:0 0 1rem 0;">
-            Step-by-step path from your current level to full role competency
-        </p>
-    """, unsafe_allow_html=True)
+    with st.expander("Your Personalized Learning Roadmap", expanded=True):
+        st.caption("Step-by-step path from your current level to full role competency")
 
-    nodes = [{
-        "id": "START",
-        "label": "Start",
-        "properties": {"background": "#2ecc71", "textColor": "#ffffff",
-                       "shape": "ellipse", "size": [220, 80],
-                       "tooltip": f"Role: {from_role}"}
-    }]
-    for idx, c in enumerate(pathway):
-        diff  = c.get("difficulty", "intermediate").lower()
-        color = {"beginner": "#10b981", "intermediate": "#3b82f6", "advanced": "#ef4444"}.get(diff, "#6b7280")
-        lbl   = c["title"][:22] + "..." if len(c["title"]) > 25 else c["title"]
+        nodes = [{
+            "id": "START",
+            "label": "Start",
+            "properties": {"background": "#2ecc71", "textColor": "#ffffff",
+                           "shape": "ellipse", "size": [220, 80],
+                           "tooltip": f"Role: {from_role}"}
+        }]
+        for idx, c in enumerate(pathway):
+            diff  = c.get("difficulty", "intermediate").lower()
+            color = {"beginner": "#10b981", "intermediate": "#3b82f6", "advanced": "#ef4444"}.get(diff, "#6b7280")
+            lbl   = c["title"][:22] + "..." if len(c["title"]) > 25 else c["title"]
+            nodes.append({
+                "id": c["id"],
+                "label": lbl,
+                "properties": {
+                    "background": color, "textColor": "#ffffff",
+                    "shape": "roundrectangle", "size": [180, 70],
+                    "tooltip": f"Duration: {c['duration']}h\nDifficulty: {diff.title()}\nCovers: {', '.join(c['skills'])}"
+                }
+            })
         nodes.append({
-            "id": c["id"],
-            "label": lbl,
-            "properties": {
-                "background": color, "textColor": "#ffffff",
-                "shape": "roundrectangle", "size": [180, 70],
-                "tooltip": f"Duration: {c['duration']}h\nDifficulty: {diff.title()}\nCovers: {', '.join(c['skills'])}"
-            }
+            "id": "END",
+            "label": "Job Ready",
+            "properties": {"background": "#9b59b6", "textColor": "#ffffff",
+                           "shape": "ellipse", "size": [220, 80],
+                           "tooltip": f"Role: {to_role}"}
         })
-    nodes.append({
-        "id": "END",
-        "label": "Job Ready",
-        "properties": {"background": "#9b59b6", "textColor": "#ffffff",
-                       "shape": "ellipse", "size": [220, 80],
-                       "tooltip": f"Role: {to_role}"}
-    })
 
-    edges = [{"start": "START", "end": pathway[0]["id"]}] if pathway else []
-    for i in range(len(pathway) - 1):
-        edges.append({"start": pathway[i]["id"], "end": pathway[i+1]["id"],
-                      "properties": {"stroke": "#4b5563", "thickness": 3, "directed": True}})
-    if pathway:
-        edges.append({"start": pathway[-1]["id"], "end": "END",
-                      "properties": {"stroke": "#4b5563", "thickness": 3, "directed": True}})
+        edges = [{"start": "START", "end": pathway[0]["id"]}] if pathway else []
+        for i in range(len(pathway) - 1):
+            edges.append({"start": pathway[i]["id"], "end": pathway[i+1]["id"],
+                          "properties": {"stroke": "#4b5563", "thickness": 3, "directed": True}})
+        if pathway:
+            edges.append({"start": pathway[-1]["id"], "end": "END",
+                          "properties": {"stroke": "#4b5563", "thickness": 3, "directed": True}})
 
-    if YFILES:
-        yfiles_graph(
-            nodes=nodes, edges=edges,
-            layout="hierarchic", height=550,
-            zoom=True, drag_nodes=True,
-            show_search=True, show_overview=True,
-            fit_content=True
-        )
-    else:
-        G = nx.DiGraph()
-        for n in nodes: G.add_node(n["id"], **n)
-        for e in edges: G.add_edge(e["start"], e["end"])
-        pos = nx.spring_layout(G, seed=42, k=2.5)
-        ex, ey = [], []
-        for u, v in G.edges():
-            x0,y0=pos[u]; x1,y1=pos[v]
-            ex+=[x0,x1,None]; ey+=[y0,y1,None]
-        _gbg   = "#0a0a0a" if is_dark else "#f8fafc"
-        _gtxt  = "#e0e0e0" if is_dark else "#1e293b"
-        _gline = "#333333" if is_dark else "#cbd5e1"
-        fig_g = go.Figure()
-        fig_g.add_trace(go.Scatter(x=ex, y=ey, mode="lines", line=dict(color=_gline, width=2), hoverinfo="none"))
-        fig_g.add_trace(go.Scatter(
-            x=[pos[n][0] for n in G.nodes()], y=[pos[n][1] for n in G.nodes()],
-            mode="markers+text",
-            marker=dict(size=30,
-                        color=[n["properties"]["background"] for n in nodes],
-                        line=dict(color="#fff", width=2)),
-            text=[n["label"] for n in nodes],
-            textposition="top center",
-            hovertext=[n["properties"].get("tooltip","") for n in nodes],
-            hoverinfo="text", textfont=dict(color=_gtxt, size=11)
-        ))
-        fig_g.update_layout(showlegend=False, height=430,
-            plot_bgcolor=_gbg, paper_bgcolor=_gbg,
-            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            margin=dict(t=10,b=10,l=10,r=10))
-        st.plotly_chart(fig_g, use_container_width=True)
+        if YFILES:
+            yfiles_graph(
+                nodes=nodes, edges=edges,
+                layout="hierarchic", height=550,
+                zoom=True, drag_nodes=True,
+                show_search=True, show_overview=True,
+                fit_content=True
+            )
+        else:
+            G = nx.DiGraph()
+            for n in nodes: G.add_node(n["id"], **n)
+            for e in edges: G.add_edge(e["start"], e["end"])
+            pos = nx.spring_layout(G, seed=42, k=2.5)
+            ex, ey = [], []
+            for u, v in G.edges():
+                x0,y0=pos[u]; x1,y1=pos[v]
+                ex+=[x0,x1,None]; ey+=[y0,y1,None]
+            _gbg   = "#0a0a0a" if is_dark else "#f8fafc"
+            _gtxt  = "#e0e0e0" if is_dark else "#1e293b"
+            _gline = "#333333" if is_dark else "#cbd5e1"
+            fig_g = go.Figure()
+            fig_g.add_trace(go.Scatter(x=ex, y=ey, mode="lines", line=dict(color=_gline, width=2), hoverinfo="none"))
+            fig_g.add_trace(go.Scatter(
+                x=[pos[n][0] for n in G.nodes()], y=[pos[n][1] for n in G.nodes()],
+                mode="markers+text",
+                marker=dict(size=30,
+                            color=[n["properties"]["background"] for n in nodes],
+                            line=dict(color="#fff", width=2)),
+                text=[n["label"] for n in nodes],
+                textposition="top center",
+                hovertext=[n["properties"].get("tooltip","") for n in nodes],
+                hoverinfo="text", textfont=dict(color=_gtxt, size=11)
+            ))
+            fig_g.update_layout(showlegend=False, height=430,
+                plot_bgcolor=_gbg, paper_bgcolor=_gbg,
+                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                margin=dict(t=10,b=10,l=10,r=10))
+            st.plotly_chart(fig_g, use_container_width=True)
 
-    st.markdown("""
-    <div style="display:flex;justify-content:center;gap:1.5rem;margin:1rem 0;color:#9ca3af;font-size:.95rem;">
-        <div><span style="color:#10b981;font-size:1.4rem;">●</span> Beginner</div>
-        <div><span style="color:#3b82f6;font-size:1.4rem;">●</span> Intermediate</div>
-        <div><span style="color:#ef4444;font-size:1.4rem;">●</span> Advanced</div>
-    </div></div>
-    """, unsafe_allow_html=True)
+        st.markdown("""
+        <div style="display:flex;justify-content:center;gap:1.5rem;margin:1rem 0;color:#9ca3af;font-size:.95rem;">
+            <div><span style="color:#10b981;font-size:1.4rem;">●</span> Beginner</div>
+            <div><span style="color:#3b82f6;font-size:1.4rem;">●</span> Intermediate</div>
+            <div><span style="color:#ef4444;font-size:1.4rem;">●</span> Advanced</div>
+        </div></div>
+        """, unsafe_allow_html=True)
     st.divider()
 
     # ── FEATURE 5: Tabs ───────────────────────────────────────────────────────
