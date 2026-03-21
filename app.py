@@ -492,22 +492,32 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── Simulate Onboarding ───────────────────────────────────────────────────
-    if st.button("▶️ Simulate My 30-Day Onboarding Journey", use_container_width=True):
-        st.balloons()
-        bar = st.progress(0)
-        for i in range(100):
-            bar.progress(i + 1)
+    if st.button("🚀 Simulate Completing My Path", help="See how fast you become role-ready", use_container_width=True):
+        bar    = st.progress(0)
+        status = st.empty()
+        for pct in range(101):
+            bar.progress(pct)
+            status.markdown(f"💪 **Progress: {pct}%** — {'Getting started...' if pct < 30 else 'Building momentum...' if pct < 70 else 'Almost role-ready!' if pct < 100 else '✅ Done!'}")
             time.sleep(0.03)
+        st.balloons()
         salary_boost = f"₹{2 + len(gaps) * 0.4:.1f} LPA"
-        st.success(f"🎉 You are now role-ready! Estimated salary boost: +{salary_boost}")
+        st.success(f"🌟 Simulation Complete! You’re now fully onboarded & confident. Estimated salary boost: +{salary_boost}")
 
     st.divider()
 
     # ── Export Panel ──────────────────────────────────────────────────────────
-    st.markdown("#### 📤 Export Your Roadmap")
-    ex1, ex2, ex3 = st.columns(3)
+    _card_bg  = "#1e293b" if is_dark else "#ffffff"
+    _card_h   = "#00f0ff" if is_dark else "#0f172a"
+    st.markdown(f"""
+    <div style="background:{_card_bg};padding:1.5rem;border-radius:16px;
+                margin-top:1rem;border:1px solid {'#334155' if is_dark else '#e2e8f0'}">
+        <h3 style="color:{_card_h};margin:0 0 .5rem 0;">📤 Export & Share Your Plan</h3>
+        <p style="color:#94a3b8;margin:0;">Download your personalized roadmap or share with your manager</p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown("")
 
-    # build PDF bytes once for both buttons
+    # build PDF + CSV once
     pdf_buffer = io.BytesIO()
     _c = rl_canvas.Canvas(pdf_buffer, pagesize=letter)
     _c.setFont("Helvetica-Bold", 20)
@@ -532,17 +542,30 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _c.save()
     pdf_buffer.seek(0)
 
+    import datetime as _dt
+    _base, _day = _dt.date(2025, 1, 1), 0
+    _csv_rows = []
+    for _course in pathway:
+        _csv_rows.append({
+            "Course": _course["title"],
+            "Difficulty": _course["difficulty"],
+            "Duration (hrs)": _course["duration"],
+            "Start Date": str(_base + _dt.timedelta(days=_day)),
+            "End Date":   str(_base + _dt.timedelta(days=_day + _course["duration"])),
+            "Why": _course["why"]
+        })
+        _day += _course["duration"] + 1
+    csv_data = pd.DataFrame(_csv_rows).to_csv(index=False)
     txt_content = f"AI Onboarding Plan: {from_role} → {to_role}\nTotal: {total_hours}h | Saved: {hours_saved}h\n\n" + \
                   "\n".join([f"{i}. {c['title']} ({c['duration']}h) — {c['why']}" for i, c in enumerate(pathway, 1)])
 
+    ex1, ex2, ex3 = st.columns(3)
     with ex1:
-        st.download_button("📄 Download PDF", pdf_buffer, "Onboarding_Roadmap.pdf", "application/pdf", use_container_width=True)
+        st.download_button("📄 Download PDF",    pdf_buffer,  "Onboarding_Roadmap.pdf",      "application/pdf", use_container_width=True)
     with ex2:
-        st.download_button("📧 Email to HR", txt_content, "onboarding_plan.txt", "text/plain", use_container_width=True)
+        st.download_button("📊 Export CSV",      csv_data,    "onboarding_timeline.csv",     "text/csv",        use_container_width=True)
     with ex3:
-        st.button("🔗 Shareable Link", use_container_width=True, help="Share with your manager")
-
-    st.divider()
+        st.download_button("📧 Email to HR",    txt_content, "onboarding_plan.txt",         "text/plain",      use_container_width=True)
 
     # ── Impact Scorecard ──────────────────────────────────────────────────────
     st.markdown("### 🚀 Your Onboarding Impact Score")
@@ -555,9 +578,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         confidence = min(99, 70 + len(matched) * 3)
         st.metric("💪 Confidence Score", f"{confidence}%", "Ready for Day 1")
 
-    st.divider()
-
-    # ── FEATURE 4: PDF Download (legacy button kept) ──────────────────────────
+    # ── FEATURE 4: PDF Download (legacy — kept for compatibility) ────────────────────
     if st.button("📄 Download My Roadmap as PDF", help="Download your personalized learning roadmap as a PDF"):
         st.download_button("✅ Download PDF Now", pdf_buffer, "My_Personalized_Onboarding_Roadmap.pdf", "application/pdf")
 
