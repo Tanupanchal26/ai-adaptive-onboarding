@@ -8,7 +8,7 @@ import time
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas as rl_canvas
 from parser import parse_file
-from gap_logic import normalize_skills, compute_gaps
+from gap_logic import normalize_skills, compute_gaps, _adaptive_confidence
 from path_generator import build_learning_path, build_bonus_courses, estimate_time, generate_ai_insight
 
 try:
@@ -375,7 +375,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _af_txt = "#8b949e" if is_dark else "#64748b"
     _af_acc = "#58a6ff" if is_dark else "#0ea5e9"
     _af_arr = "#444"    if is_dark else "#94a3b8"
-    _steps  = ["Resume", "LLM Parse", "Skills", "Embeddings", "Gap Analysis", "Optimizer", "Pathway"]
+    _steps  = ["Resume", "LLM Parse", "Skills", "Embeddings", "Gap Analysis", "Optimizer", "Pathway", "Feedback Loop"]
     _step_html = "".join(
         f"<span style='color:{_af_acc};font-weight:600;font-size:.8rem;'>{s}</span>"
         + (f"<span style='color:{_af_arr};margin:0 .4rem;'>→</span>" if i < len(_steps)-1 else "")
@@ -585,6 +585,9 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _have_col   = "#ffffff" if is_dark else "#16a34a"
     _gap_hi_col = "#555555" if is_dark else "#dc2626"
     _gap_lo_col = "#555555" if is_dark else "#d97706"
+    # [Improvement] st.progress coverage bar — instant visual of readiness
+    _cov_ratio = len(matched) / max(len(jd_skills), 1)
+    st.progress(_cov_ratio, text=f"Skill coverage: {round(_cov_ratio * 100)}% of role requirements matched")
     st.markdown("#### 📊 Skill Coverage vs Role Requirements")
     for skill in sorted(jd_skills):
         have  = skill in matched
@@ -972,7 +975,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
     tab1, tab2, tab3, tab4 = st.tabs(["📋 Personalized Path", "⚖️ Before vs After", "📅 Timeline View", "🔮 What-If Simulation"])
 
     with tab1:
-        st.markdown("### 📚 Your Personalized Learning Pathway")
+        # [Improvement] renamed output — Dynamically Optimized Learning Path
+        st.markdown("### 🚀 Dynamically Optimized Learning Path")
         st.caption("Powered by SkillBridge Adaptive Engine v2.0 · Semantic matching · Prerequisite-aware ordering")
 
         # ── Skill Badges with Mastery Levels ─────────────────────────────────
@@ -1214,48 +1218,83 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     st.divider()
 
-    # [Improvement] Continuous Feedback Loop — simulates adaptive system behavior
-    with st.expander("🔁 Adaptive Feedback Loop — How the System Learns From You", expanded=False):
+    # [Improvement] Continuous Learning Loop — interactive slider drives live recalculation
+    with st.expander("🔁 Continuous Learning Loop — Simulate Adaptive Progress", expanded=False):
+        st.markdown("### 🔁 Continuous Learning Loop")
+        st.write("System refines recommendations based on user progress and feedback")
+        st.caption("This system uses semantic similarity, adaptive confidence scoring, and greedy optimization with a feedback loop to continuously generate optimal learning paths.")
+
         _fb_bg  = "#0d1117" if is_dark else "#f0f9ff"
         _fb_bdr = "#21262d" if is_dark else "#bae6fd"
         _fb_sub = "#8b949e" if is_dark else "#475569"
         _fb_acc = "#58a6ff" if is_dark else "#0ea5e9"
         _fb_grn = "#3fb950" if is_dark else "#16a34a"
+
+        # [Improvement] progress slider — simulates user completing courses, drives live recalc
+        progress = st.slider(
+            "Simulate learning progress (% of path completed)",
+            min_value=0, max_value=100, value=30, step=10,
+            help="Drag to simulate completing courses — watch gaps reduce in real time"
+        )
+
+        _n_done        = round(progress / 100 * len(pathway)) if progress > 0 else 0
+        _courses_done  = pathway[:_n_done]
+        _sim_closed    = {s for c in _courses_done for s in c.get("covers", []) if s in gaps}
+        _sim_remaining = gaps - _sim_closed
+        _before_cov    = round(len(matched) / max(len(jd_skills), 1) * 100)
+        _after_cov     = round(len(matched | _sim_closed) / max(len(jd_skills), 1) * 100)
+        _new_conf      = _adaptive_confidence(
+            matched | _sim_closed,
+            {**sim_scores, **{s: 1.0 for s in _sim_closed}},
+            _after_cov
+        )
+
+        _fl1, _fl2, _fl3, _fl4 = st.columns(4)
+        _fl1.metric("Courses Completed", f"{_n_done} / {len(pathway)}",  f"{progress}% done")
+        _fl2.metric("Gaps Remaining",    str(len(_sim_remaining)),        f"-{len(_sim_closed)} closed")
+        _fl3.metric("Coverage",          f"{_after_cov}%",                f"+{_after_cov - _before_cov}% improved" if _after_cov > _before_cov else "No change yet")
+        _fl4.metric("Confidence",        f"{round(_new_conf * 100)}%",    "adaptive score")
+
+        # [Improvement] live coverage progress bar — shows before → after
+        st.progress(_after_cov / 100, text=f"Coverage: {_before_cov}% → {_after_cov}%")
+
+        if _sim_closed:
+            st.success(f"✅ Skills acquired: {', '.join(sorted(_sim_closed))}")
+        if not _sim_remaining and progress > 0:
+            st.balloons()
+            st.success("🎉 All gaps closed — fully role-ready!")
+        elif progress > 0:
+            st.info(f"📌 Still to learn: {', '.join(sorted(_sim_remaining))}")
+
         st.markdown(f"""
-        <div style="background:{_fb_bg};border:1px solid {_fb_bdr};border-radius:10px;padding:1.2rem 1.6rem;">
+        <div style="background:{_fb_bg};border:1px solid {_fb_bdr};border-radius:10px;padding:1.2rem 1.6rem;margin-top:.8rem;">
             <div style="font-size:.68rem;letter-spacing:2px;text-transform:uppercase;
                         color:{_fb_sub};margin-bottom:.8rem;">ADAPTIVE LEARNING SIGNAL</div>
-            <div style="font-size:.9rem;color:{_fb_sub};margin-bottom:1rem;">
-                The system continuously refines recommendations based on your progress signals.
-                Each interaction updates gap weights and re-ranks course priorities.
-            </div>
             <div style="display:flex;flex-direction:column;gap:.6rem;">
                 <div style="display:flex;align-items:center;gap:.8rem;">
-                    <span style="color:{_fb_grn};font-size:1rem;">✓</span>
+                    <span style="color:{_fb_grn};">&#10003;</span>
                     <span style="font-size:.88rem;color:{_fb_sub};">
                         <b style="color:{_fb_acc};">Gap re-ranking:</b>
-                        Gaps with lowest cosine similarity ({', '.join(critical_gaps) or 'none'}) are flagged as highest priority
+                        Gaps with lowest cosine similarity ({', '.join(critical_gaps) or 'none'}) flagged as highest priority
                     </span>
                 </div>
                 <div style="display:flex;align-items:center;gap:.8rem;">
-                    <span style="color:{_fb_grn};font-size:1rem;">✓</span>
+                    <span style="color:{_fb_grn};">&#10003;</span>
                     <span style="font-size:.88rem;color:{_fb_sub};">
                         <b style="color:{_fb_acc};">Confidence adaptation:</b>
-                        Current match confidence {round(match_confidence * 100)}% — 
-                        {'high certainty, path is stable' if match_confidence > 0.75 else 'moderate certainty, path adapts as more skills are added'}
+                        {round(_new_conf * 100)}% — {'high certainty, path is stable' if _new_conf > 0.75 else 'path adapts as more skills are added'}
                     </span>
                 </div>
                 <div style="display:flex;align-items:center;gap:.8rem;">
-                    <span style="color:{_fb_grn};font-size:1rem;">✓</span>
+                    <span style="color:{_fb_grn};">&#10003;</span>
                     <span style="font-size:.88rem;color:{_fb_sub};">
                         <b style="color:{_fb_acc};">Efficiency signal:</b>
-                        {_eff_score:.3f} gaps/hr — 
-                        {'above average efficiency' if _eff_score > 0.15 else 'focused deep-skill path'}
-                        · path rebalances if new skills are detected
+                        {_eff_score:.3f} gaps/hr · {'above average' if _eff_score > 0.15 else 'focused deep-skill path'}
+                        · path rebalances if new skills detected
                     </span>
                 </div>
                 <div style="display:flex;align-items:center;gap:.8rem;">
-                    <span style="color:{_fb_grn};font-size:1rem;">✓</span>
+                    <span style="color:{_fb_grn};">&#10003;</span>
                     <span style="font-size:.88rem;color:{_fb_sub};">
                         <b style="color:{_fb_acc};">Prerequisite enforcement:</b>
                         DAG ensures {pathway[0]['title'] if pathway else 'foundational course'} always precedes advanced modules
