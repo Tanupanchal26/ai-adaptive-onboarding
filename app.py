@@ -432,36 +432,70 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── FEATURE 2: yFiles hierarchic graph ───────────────────────────────────
-    st.subheader("📍 Your Interactive Learning Roadmap")
+    _rmap_bg  = "#0f172a" if is_dark else "#f1f5f9"
+    _rmap_bdr = "#334155" if is_dark else "#cbd5e1"
+    _rmap_h2  = "#f3f4f6" if is_dark else "#0f172a"
+    _rmap_sub = "#9ca3af" if is_dark else "#475569"
+    st.markdown(f"""
+    <div style="background:linear-gradient(to bottom,{_rmap_bg},{_rmap_bg});padding:1.5rem;
+                border-radius:12px;margin:1.5rem 0;border:1px solid {_rmap_bdr};
+                box-shadow:0 10px 25px rgba(0,0,0,0.4);">
+        <h2 style="color:{_rmap_h2};text-align:center;margin:0 0 .5rem 0;font-weight:600;">
+            Your Personalized Learning Roadmap
+        </h2>
+        <p style="color:{_rmap_sub};text-align:center;font-size:1.05rem;margin:0 0 1rem 0;">
+            Step-by-step path from your current level to full role competency
+        </p>
+    """, unsafe_allow_html=True)
 
-    nodes = [{"id": "START", "label": "🚀 Start",     "color": "#2ecc71"}]
-    for c in pathway:
+    nodes = [{
+        "id": "START",
+        "label": "Start",
+        "properties": {"background": "#2ecc71", "textColor": "#ffffff",
+                       "shape": "ellipse", "size": [220, 80],
+                       "tooltip": f"Role: {from_role}"}
+    }]
+    for idx, c in enumerate(pathway):
+        diff  = c.get("difficulty", "intermediate").lower()
+        color = {"beginner": "#10b981", "intermediate": "#3b82f6", "advanced": "#ef4444"}.get(diff, "#6b7280")
+        lbl   = c["title"][:22] + "..." if len(c["title"]) > 25 else c["title"]
         nodes.append({
-            "id":    c["id"],
-            "label": c["title"],
-            "color": DIFF_COLOR.get(c["difficulty"], "#aaa"),
-            "tooltip": f"⏱ {c['duration']}h · {c['why']} · Skills: {', '.join(c['skills'])}"
+            "id": c["id"],
+            "label": lbl,
+            "properties": {
+                "background": color, "textColor": "#ffffff",
+                "shape": "roundrectangle", "size": [180, 70],
+                "tooltip": f"Duration: {c['duration']}h\nDifficulty: {diff.title()}\nCovers: {', '.join(c['skills'])}"
+            }
         })
-    nodes.append({"id": "END", "label": "🏆 Job Ready", "color": "#9b59b6"})
+    nodes.append({
+        "id": "END",
+        "label": "Job Ready",
+        "properties": {"background": "#9b59b6", "textColor": "#ffffff",
+                       "shape": "ellipse", "size": [220, 80],
+                       "tooltip": f"Role: {to_role}"}
+    })
 
-    edges = [{"source": "START", "target": pathway[0]["id"]}] if pathway else []
+    edges = [{"start": "START", "end": pathway[0]["id"]}] if pathway else []
     for i in range(len(pathway) - 1):
-        edges.append({"source": pathway[i]["id"], "target": pathway[i+1]["id"]})
+        edges.append({"start": pathway[i]["id"], "end": pathway[i+1]["id"],
+                      "properties": {"stroke": "#4b5563", "thickness": 3, "directed": True}})
     if pathway:
-        edges.append({"source": pathway[-1]["id"], "target": "END"})
+        edges.append({"start": pathway[-1]["id"], "end": "END",
+                      "properties": {"stroke": "#4b5563", "thickness": 3, "directed": True}})
 
     if YFILES:
         yfiles_graph(
             nodes=nodes, edges=edges,
-            layout="hierarchic", height=600,
+            layout="hierarchic", height=550,
             zoom=True, drag_nodes=True,
-            show_search=True, show_overview=True
+            show_search=True, show_overview=True,
+            fit_content=True
         )
     else:
-        # Plotly fallback
         G = nx.DiGraph()
         for n in nodes: G.add_node(n["id"], **n)
-        for e in edges: G.add_edge(e["source"], e["target"])
+        for e in edges: G.add_edge(e["start"], e["end"])
         pos = nx.spring_layout(G, seed=42, k=2.5)
         ex, ey = [], []
         for u, v in G.edges():
@@ -475,11 +509,12 @@ if st.session_state.resume_data and st.session_state.jd_data:
         fig_g.add_trace(go.Scatter(
             x=[pos[n][0] for n in G.nodes()], y=[pos[n][1] for n in G.nodes()],
             mode="markers+text",
-            marker=dict(size=30, color=[G.nodes[n].get("color","#aaa") for n in G.nodes()],
+            marker=dict(size=30,
+                        color=[n["properties"]["background"] for n in nodes],
                         line=dict(color="#fff", width=2)),
-            text=[G.nodes[n].get("label",n) for n in G.nodes()],
+            text=[n["label"] for n in nodes],
             textposition="top center",
-            hovertext=[G.nodes[n].get("tooltip","") for n in G.nodes()],
+            hovertext=[n["properties"].get("tooltip","") for n in nodes],
             hoverinfo="text", textfont=dict(color=_gtxt, size=11)
         ))
         fig_g.update_layout(showlegend=False, height=430,
@@ -489,8 +524,13 @@ if st.session_state.resume_data and st.session_state.jd_data:
             margin=dict(t=10,b=10,l=10,r=10))
         st.plotly_chart(fig_g, use_container_width=True)
 
-    l1,l2,l3 = st.columns(3)
-    l1.markdown("🟢 Beginner"); l2.markdown("🔵 Intermediate"); l3.markdown("🔴 Advanced")
+    st.markdown("""
+    <div style="display:flex;justify-content:center;gap:1.5rem;margin:1rem 0;color:#9ca3af;font-size:.95rem;">
+        <div><span style="color:#10b981;font-size:1.4rem;">●</span> Beginner</div>
+        <div><span style="color:#3b82f6;font-size:1.4rem;">●</span> Intermediate</div>
+        <div><span style="color:#ef4444;font-size:1.4rem;">●</span> Advanced</div>
+    </div></div>
+    """, unsafe_allow_html=True)
     st.divider()
 
     # ── FEATURE 5: Tabs ───────────────────────────────────────────────────────
