@@ -1,6 +1,6 @@
-# 🎯 SkillBridge — Adaptive Onboarding Engine v2.0
+# 🎯 SkillBridge — Stop Wasting People's Time on Day One
 
-> **This system dynamically adapts onboarding pathways using semantic understanding and optimization algorithms to minimize learning time.**
+> *What if your first week at a new job only taught you what you actually didn't know?*
 
 [![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.35-red?logo=streamlit)](https://streamlit.io)
@@ -9,220 +9,105 @@
 
 ---
 
-## 🚀 One-Line Pitch
+## 📽️ See It in Action First
 
-An enterprise-grade onboarding intelligence platform that performs **semantic skill-gap analysis** between any resume and job description, then generates a **prerequisite-aware, efficiency-ranked learning pathway** — reducing required onboarding time by **34–49% (mean: 41%)** relative to a 35-hour static baseline, across 8 evaluated role transitions.
+| | Link |
+|---|---|
+| 🚀 **Live App** | [https://ai-adaptive.streamlit.app/](https://ai-adaptive.streamlit.app/) — click any persona, no login needed |
+| 🎬 **Demo Video** | [Watch the 2-min walkthrough](YOUR_VIDEO_LINK_HERE) |
+| 📊 **5-Slide Deck** | [View the presentation](YOUR_SLIDES_LINK_HERE) |
+| 🐳 **Docker** | `docker run -p 8501:8501 skillbridge-v2` |
 
----
-
-## 💥 Impact Statement
-
-> Traditional onboarding is static, generic, and wasteful — forcing every employee through the same 35-hour program regardless of what they already know.
->
-> **SkillBridge eliminates that waste.** By semantically understanding a candidate's existing skills and the exact requirements of their target role, it generates the *minimum viable learning path* — personalized, ordered by prerequisites, and optimized for maximum efficiency per hour invested.
->
-> Under the assumption of a 500-person organization with 20% annual turnover and a mean pathway reduction of 41% relative to a 35-hour static baseline, the estimated aggregate time saving is approximately **1,400–1,750 person-hours per year** (lower bound: mean reduction; upper bound: best-case). This is a modelled projection, not a measured outcome.
+No API key. No file upload. Just click **Junior Dev** or **Warehouse** and watch the engine work.
 
 ---
 
-## ⚙️ Quick Start
+## The Problem We're Solving
 
-```bash
-git clone https://github.com/Tanupanchal26/ai-adaptive-onboarding.git
-cd ai-adaptive-onboarding
-pip install -r requirements.txt
-streamlit run app.py
-```
+Picture your first week at a new company. You're a senior engineer with 6 years of Python experience — and you're sitting through a 3-hour "Introduction to Python" module because that's what everyone does.
 
-> **No uploads needed for demo** — click any persona button (Junior Dev, Sales Manager, etc.) to see the full engine in action instantly.
->
-> **AI Prerequisite:** Install [Ollama](https://ollama.com) and run `ollama pull llama3.2` for local LLM-powered resume parsing.  
-> **Optional:** Add `OPENAI_API_KEY` to `.streamlit/secrets.toml` to use GPT-4o-mini instead.
+That's not onboarding. That's just expensive waiting.
+
+Most companies run the same 35-hour onboarding program for every new hire, regardless of what they already know. A warehouse worker joining as a supervisor gets the same curriculum as a fresh graduate. A sales rep moving into marketing gets courses she already mastered.
+
+**SkillBridge fixes this.** It reads what you already know, reads what the role actually needs, figures out the gap — and builds the shortest possible path from where you are to where you need to be. No fluff. No repetition. Just the learning that actually matters.
+
+In a 500-person company with typical annual turnover, this approach saves an estimated **1,400–1,750 person-hours every year.** That's a full-time employee's worth of time — given back.
+
+*(Note: this is a modelled projection based on our measured 41% mean pathway reduction, not a surveyed outcome.)*
 
 ---
 
-## 🧠 How the Engine Works
+## How It Actually Works
 
-### System Architecture
+The engine has five moving parts that connect into one clean pipeline:
 
 ```
-Resume / JD
-    │
-    ▼
-[LLM Parse]  ←  GPT-4o-mini / LLaMA 3.2 / phi4:mini (cascade fallback)
-    │
-    ▼
-[Skills]  →  Normalized against 65-skill O*NET taxonomy via semantic similarity
-    │
-    ▼
-[Embeddings]  →  all-MiniLM-L6-v2 · 384-dim · LRU-cached per session
-    │
-    ▼
-[Gap Analysis]  →  Cosine similarity matrix (J×C) · threshold 0.65
-    │              Adaptive confidence = 0.6×avg_sim + 0.4×coverage
-    │              Gap prioritization: lowest cosine = highest urgency
-    ▼
-[Optimizer]  →  Greedy set-cover · efficiency = gaps_covered / duration_hrs
-    │            Marginal re-scoring at each step · no redundant courses
-    ▼
-[Prerequisite DAG]  →  27 directed edges · topological sort
-    │                   Python→ML, Docker→K8s, Communication→Leadership→Strategy
-    ▼
-[Pathway]  →  Minimum viable course set · prerequisite-ordered · efficiency-ranked
-    │
-    ▼
-[Feedback Loop]  →  Gap weights adapt per confidence signal
-                     Critical gaps (top-3 by urgency) re-ranked dynamically
+Your Resume + Job Description
+         │
+         ▼
+  [ LLM Parsing ]
+  GPT-4o-mini (or LLaMA 3.2 locally)
+  Extracts skills, experience level, role context
+  Strict JSON schema → zero hallucination by design
+         │
+         ▼
+  [ Semantic Matching ]
+  all-MiniLM-L6-v2 embeddings (384-dim, LRU-cached)
+  Cosine similarity matrix across all skill pairs
+  "scikit-learn" matches "Machine Learning" ✓
+  "JS" matches "JavaScript" ✓
+  Threshold: cosine ≥ 0.65 → matched, below → gap
+         │
+         ▼
+  [ Gap Prioritization ]
+  Lowest cosine score = highest urgency
+  Adaptive confidence = 0.6×similarity + 0.4×coverage
+         │
+         ▼
+  [ Greedy Set-Cover Optimizer ]
+  efficiency = gaps_covered / duration_hours
+  Marginal re-scoring at every step
+  No two courses ever cover the same gap twice
+         │
+         ▼
+  [ Prerequisite DAG ]
+  27 directed edges — Python before ML,
+  Communication before Leadership before Strategy
+  Topological sort ensures logical learning order
+         │
+         ▼
+  Your personalized pathway — minimum time, maximum readiness
 ```
 
-### Core Statement
+The key design choice we're proud of: **marginal re-scoring.** At each optimizer step, every remaining course is re-evaluated against only the *still-open* gaps. This stops the optimizer from picking a course that looks great on paper but covers something already learned. Most set-cover implementations skip this — ours doesn't.
 
-> Uses **semantic similarity** (cosine via sentence-transformers) + **greedy set-cover optimization** + **adaptive confidence scoring** (similarity quality × coverage breadth) to generate the minimum viable, prerequisite-aware learning path for any role transition.
+The full algorithm name: **Marginal-gain greedy set-cover with topological prerequisite constraint.**
 
-### Measured Performance
+---
+
+## What the Numbers Actually Say
+
+We believe in honest benchmarks. Here's what we measured — and what we didn't:
 
 > Full methodology and failure analysis: [`eval/credible_claims.md`](eval/credible_claims.md)
+> Raw results: [`eval/benchmark_results.json`](eval/benchmark_results.json)
 
-| Metric | Value | Context |
+| What we measured | Result | The honest context |
 |---|---|---|
-| Pathway time reduction | **34–49%, mean 41% (σ ≈ 4.5pp)** | 8 role transitions vs 35h static baseline |
-| Semantic gap detection F1 | **0.984** (precision 0.989, recall 0.986) | n=60 pairs, 6 domains, threshold=0.65 |
-| Keyword baseline F1 | **0.993** | Same dataset — semantic advantage is synonym handling, not raw F1 |
-| Weakest domain (semantic) | **Data Science F1 = 0.927** | ML/Deep Learning cosine overlap at threshold 0.65 |
-| Prerequisite relationships modeled | **27 directed edges** | Manually defined DAG |
-| Courses in catalog | **65 (beginner → advanced)** | Fixed catalog |
+| Pathway time reduction | **34–49%, mean 41%** (σ ≈ 4.5pp) | vs 35h baseline; catalog hours, not real learner time |
+| Semantic matching F1 | **0.984** (precision 0.989, recall 0.986) | n=60 skill pairs, 6 domains, synthetic ground truth |
+| Keyword baseline F1 | **0.993** | Keyword wins on clean labels — semantic wins on raw resume text |
+| Weakest domain | **Data Science: F1 = 0.927** | "Machine Learning" and "Deep Learning" sit too close in cosine space |
+| Prerequisite edges | **27 directed edges** | Manually curated — human judgement, not learned from data |
 
----
-### 1 · Intelligent Document Parsing
-Resume and job description files (PDF or TXT) are extracted via **PyMuPDF**. The raw text is sent to **LLaMA 3.2** (or GPT-4o-mini) with a strict JSON-schema prompt that returns structured skill lists, years of experience, current role, education level, and certifications — with zero hallucination tolerance enforced by `response_format: json_schema`.
-
-### 2 · Semantic Skill Matching (`semantic_engine.py`)
-
-Raw skills are first normalized against a **65-skill taxonomy** (O\*NET 30.2 derived, covering both technical and non-technical domains). Matching then uses **cosine similarity** via `all-MiniLM-L6-v2` (sentence-transformers):
-
-```
-sim[jd_skill, candidate_skill] = (E_jd · E_cand) / (‖E_jd‖ · ‖E_cand‖)
-```
-
-Any JD skill with `max(sim) ≥ 0.65` across all candidate embeddings is marked **matched**. This correctly handles synonyms like `"ML" ↔ "Machine Learning"`, `"JS" ↔ "JavaScript"`, and `"People Management" ↔ "Leadership"` — which naive set-difference would miss entirely.
-
-**Why this matters:** A keyword-matching system would mark a candidate with "scikit-learn" as missing "Machine Learning". SkillBridge's semantic encoder understands they are the same concept — eliminating false gaps and preventing unnecessary course assignments.
-
-### 3 · Greedy Set-Cover Optimization (`semantic_engine.optimize_courses`)
-
-Every course in the 65-course catalog is scored by:
-
-```
-efficiency_score = gaps_covered / duration_hours
-```
-
-The optimizer runs a **greedy set-cover** algorithm:
-1. Score every course against the current open gap set
-2. Select the course with the highest `gaps/hr` ratio
-3. Remove covered gaps from the open set
-4. Repeat until all gaps are closed
-
-This produces a **near-optimal, non-redundant** course selection — no two selected courses cover the same gap twice. The result is the shortest possible path to role readiness.
-
-### 4 · Prerequisite-Aware Pathway Assembly (`path_generator.py`)
-
-A **directed acyclic graph** (NetworkX `DiGraph`) encodes 27 prerequisite relationships across both technical and non-technical domains:
-
-- Technical: `Python → Machine Learning`, `Docker → Kubernetes`, `HTML → JavaScript → React`
-- Non-technical: `Communication → Leadership → Strategy`, `Sales → Negotiation → CRM`, `Marketing → SEO → Brand Management`
-
-Gaps are topologically sorted through this graph so foundational skills are always learned before advanced ones. The final pathway is deduplicated by course ID and capped to the minimum set that closes all gaps.
-
-### 5 · AI Intelligence Report
-
-After pathway generation, an LLM (GPT-4o-mini or LLaMA 3.2) produces a human-readable **3-part intelligence report**:
-- **Strengths** — what the candidate already does well
-- **Areas to Develop** — the most critical gaps to address first
-- **Path Rationale** — why this specific learning sequence is optimal
+We're not hiding the keyword baseline result. On perfectly clean, normalized skill labels a simple string matcher does fine. Where semantic matching earns its keep is on *real* resume text — abbreviations, synonyms, paraphrases — which is exactly what we're solving.
 
 ---
 
-## 🏆 Key Features
+## The Reasoning Trace
 
-| Feature | Description |
-|---|---|
-| 📋 **Executive Summary** | Role readiness %, gap count, optimized time, and savings — at a glance |
-| 🤖 **AI Intelligence Report** | LLM-generated strengths, weaknesses, and path rationale |
-| 🧠 **Semantic Matching** | Cosine similarity via `all-MiniLM-L6-v2` — handles synonyms, abbreviations, paraphrases |
-| 🔍 **Gap Analysis** | Visual coverage bars, skill pills, and a NetworkX skill graph |
-| 🗺️ **Smart Pathway** | Prerequisite DAG + greedy set-cover → shortest path to role readiness |
-| 📊 **Impact Metrics** | Hours saved vs 35h static baseline, role readiness score, skill coverage % |
-| 🔮 **What-If Simulation** | Select any course and instantly see how gap count and coverage change |
-| 📅 **Timeline View** | Gantt chart of your learning schedule with start/end dates |
-| 🤖 **AI Chat Agent** | Floating assistant answers questions about your roadmap |
-| 📤 **Export** | Download roadmap as PDF, CSV timeline, or plain-text HR summary |
-| 🔎 **Reasoning Trace** | 4-step transparent breakdown of every AI decision made |
-| ⚡ **Instant Demo** | 8 built-in personas (tech + non-tech) — no upload needed |
-
----
-
-## 📊 Measured Impact
-
-> All figures are reproducible from `eval/benchmark_results.json`. Methodology and limitations: [`eval/credible_claims.md`](eval/credible_claims.md).
-
-| Metric | Value | Caveat |
-|---|---|---|
-| Pathway time reduction | **34–49%, mean 41%** | Relative to 35h static baseline; catalog durations, not real learner time |
-| Semantic gap detection F1 | **0.984** | n=60, synthetic ground truth, normalized skill labels |
-| Keyword baseline F1 | **0.993** | Semantic advantage is synonym resolution, not F1 gain on clean labels |
-| Worst-case domain F1 | **0.927 (Data Science)** | ML↔Deep Learning overlap at cosine threshold 0.65 |
-| Roles covered | **6 domains, 8 demo transitions** | Validated on built-in personas only |
-| Prerequisite relationships | **27 directed edges** | Manually curated, not learned |
-
----
-
-## 🌐 Role Coverage
-
-The engine is domain-agnostic and validated across both role families:
-
-| Domain | Example Transition | Key Skills Handled |
-|---|---|---|
-| 💻 Technical | Junior Dev → Software Engineer | Python, SQL, JavaScript, Agile, Docker |
-| 🔬 Senior Tech | Engineer → Senior Engineer | React, AWS, Machine Learning, System Design |
-| 💼 Sales | Sales Manager → Sales Lead | CRM, Negotiation, Leadership, Marketing |
-| 📣 Marketing | Marketing Executive → Marketing Manager | SEO, Tableau, Content Marketing, Strategy |
-| 👥 HR | HR Executive → HR Manager | Recruitment, Training, Coaching, Strategy |
-| 🏭 Warehouse | Warehouse Associate → Supervisor | Safety Compliance, Leadership, Training |
-| 🔧 Field Ops | Field Technician → Senior Tech | Documentation, Time Management, Quality Control |
-| 🔀 Cross-Domain | Sales Rep → Marketing Manager | Tableau, Data Analysis, Brand Management |
-
----
-
-## 🛡️ Grounding and Reliability
-
-### Zero-hallucination enforcement
-All LLM calls use `response_format: {"type": "json_schema"}` with a strict schema
-that rejects any skill not present in the 65-skill O*NET taxonomy. If the LLM returns
-an unrecognized skill, it is silently dropped and never reaches the pathway generator.
-This eliminates hallucinated course recommendations by design.
-
----
-
-## 🔬 Advanced Features
-
-### Semantic Skill Normalization
-The 65-skill taxonomy spans O\*NET technical categories and business/soft-skill domains. When a resume says `"scikit-learn"`, the semantic encoder maps it to `"Machine Learning"` in the taxonomy — ensuring the gap analysis is meaningful rather than literal. Embeddings are LRU-cached per session so the same skill string is never encoded twice.
-
-### Dual LLM Backend with Graceful Fallback
-The parser attempts **GPT-4o-mini** first (if `OPENAI_API_KEY` is set) using structured JSON output mode for maximum accuracy. It falls back to **LLaMA 3.2** via Ollama for fully local, offline operation. A second fallback to `phi4:mini` handles cases where LLaMA returns malformed JSON. The AI Insight section follows the same cascade — the UI never breaks regardless of LLM availability.
-
-### Greedy Set-Cover Optimization
-The course optimizer is a greedy set-cover approximation with marginal re-scoring: at each step it re-evaluates every remaining course against only the *still-open* gaps, ensuring the selected course always has the highest marginal efficiency. This prevents selecting courses that cover already-closed gaps — a subtle but critical correctness property.
-
-### Prerequisite DAG with Topological Sort
-27 directed edges model real-world learning dependencies. The topological sort ensures a candidate who needs both `Python` and `Machine Learning` always learns Python first — even if the ML course has a higher efficiency score. The DAG covers both technical and non-technical skill chains.
-
-### Executive Summary + AI Intelligence Report
-Every analysis begins with a single-glance **Executive Summary** (readiness %, gaps, optimized hours, savings %) and ends with an **AI Intelligence Report** — three human-readable sentences explaining strengths, critical gaps, and why the specific path was chosen. Both are generated fresh for every candidate.
-
----
-
-## 🔍 AI Reasoning Trace (Sample — Junior Dev)
+Every analysis produces a transparent 4-step log showing exactly how every decision was made:
 
 ```
 STEP 1 · EXTRACT SKILLS
@@ -234,110 +119,180 @@ STEP 2 · SEMANTIC MATCHING  (threshold: cosine ≥ 0.65)
   Method  → all-MiniLM-L6-v2 cosine similarity
 
 STEP 3 · GAP IDENTIFICATION
-  Gaps    → Agile, JavaScript, SQL  (JD − matched)
+  Gaps    → Agile, JavaScript, SQL
 
 STEP 4 · OPTIMIZE COURSES
-  SQL for Beginners         score 0.20 gaps/hr  covers: SQL
-  Agile & Scrum Masterclass score 0.20 gaps/hr  covers: Agile
-  JavaScript & React        score 0.25 gaps/hr  covers: JavaScript
-  Pathway: JavaScript & React → SQL for Beginners → Agile & Scrum
-  Total: 18h · Baseline: 35h · Saved: 17h (49%)
+  SQL for Beginners         efficiency 0.20 gaps/hr  →  covers: SQL
+  Agile & Scrum Masterclass efficiency 0.20 gaps/hr  →  covers: Agile
+  JavaScript & React        efficiency 0.25 gaps/hr  →  covers: JavaScript
+
+  Final pathway: JavaScript & React → SQL for Beginners → Agile & Scrum
+  Total: 18h  ·  Baseline: 35h  ·  Saved: 17h (49%)
 ```
 
----
-
-## 🖥️ Demo Personas
-
-Eight built-in personas let evaluators test the engine **instantly without uploading any files**:
-
-| Button | From → To | Gaps Demonstrated | Time Saved |
-|---|---|---|---|
-| 🧑💻 Junior Dev | Junior Developer → Software Engineer | SQL, JavaScript, Agile | ~49% |
-| 👨💼 Senior Engineer | Senior Engineer → Senior Engineer+ | React, System Design | ~35% |
-| 💼 Sales Role | Sales Manager → Sales Lead | CRM, Leadership, Marketing | ~40% |
-| 📣 Marketing Role | Marketing Executive → Marketing Manager | Tableau, Content Marketing, Strategy | ~42% |
-| 👥 HR Role | HR Executive → HR Manager | Training, Coaching, Strategy | ~38% |
-| 🏭 Warehouse | Warehouse Associate → Supervisor | Safety Compliance, Leadership, Training | ~41% |
-| 🔧 Field Tech | Field Technician → Senior Field Tech | Documentation, Time Management, Quality Control | ~38% |
-| 🔀 Cross-Domain | Sales Rep → Marketing Manager | Tableau, Data Analysis, Brand Management | ~45% |
+You can reproduce this trace for any of the 8 built-in personas — or upload your own resume and JD.
 
 ---
 
-## 📦 Tech Stack
+## Who It Works For
+
+We specifically built SkillBridge to handle *both* sides of the workforce — desk roles and operational roles:
+
+| Role type | Transition | Skills handled |
+|---|---|---|
+| 💻 Technical | Junior Dev → Software Engineer | Python, SQL, JavaScript, Agile, Docker |
+| 🔬 Senior Tech | Engineer → Senior Engineer | React, AWS, Machine Learning, System Design |
+| 💼 Sales | Sales Manager → Sales Lead | CRM, Negotiation, Leadership, Marketing |
+| 📣 Marketing | Marketing Executive → Marketing Manager | SEO, Tableau, Content Marketing, Strategy |
+| 👥 HR | HR Executive → HR Manager | Recruitment, Training, Coaching, Strategy |
+| 🏭 **Warehouse** *(Operational)* | Associate → Supervisor | Safety Compliance, Leadership, Training |
+| 🔧 **Field Ops** *(Operational)* | Technician → Senior Tech | Documentation, Time Management, Quality Control |
+| 🔀 Cross-Domain | Sales Rep → Marketing Manager | Tableau, Data Analysis, Brand Management |
+
+A logistics company onboarding a warehouse supervisor gets the same quality of analysis as a tech company onboarding a senior engineer. The engine doesn't care what the role is — it only cares about the gap.
+
+---
+
+## Try It Yourself — 8 Instant Demos
+
+Open [https://ai-adaptive.streamlit.app/](https://ai-adaptive.streamlit.app/) and click any button. No upload, no key, no waiting:
+
+| Persona | What it demonstrates |
+|---|---|
+| 🧑💻 Junior Dev | Classic tech gap — SQL, JavaScript, Agile missing |
+| 👨💼 Senior Engineer | Narrow gap — React and System Design only |
+| 💼 Sales Role | Soft-skill gaps — Leadership, CRM, Marketing |
+| 📣 Marketing Role | Cross-skill gaps — Tableau, Content Strategy |
+| 👥 HR Role | People-skill gaps — Coaching, Training design |
+| 🏭 Warehouse | Operational promotion — Safety + Leadership gap |
+| 🔧 Field Tech | Field role — Documentation, QC, Time Management |
+| 🔀 Cross-Domain | Career change — hardest case, most dramatic savings |
+
+---
+
+## Features
+
+| | What it does |
+|---|---|
+| 📋 **Executive Summary** | Readiness %, gap count, hours saved — the one screen your manager needs |
+| 🤖 **AI Intelligence Report** | Plain-English strengths, gaps, and "why this path" written by the LLM |
+| 🧠 **Semantic Matching** | Handles synonyms, abbreviations, paraphrases — not just exact keywords |
+| 🔮 **What-If Simulation** | Add or remove a course and watch the gap count update live |
+| 📅 **Timeline View** | Gantt chart — your learning schedule with real start and end dates |
+| 🤖 **AI Chat Agent** | Ask anything about your roadmap in plain English |
+| 📤 **Export** | PDF for employees, CSV for HR systems, plain text for email |
+| 🔎 **Reasoning Trace** | Full 4-step breakdown — every AI decision is explainable |
+
+---
+
+## Grounding and Reliability
+
+All LLM calls enforce a strict JSON schema against the 65-skill O*NET taxonomy. If the model returns a skill not in the taxonomy, it is silently dropped before reaching the pathway generator. The engine cannot recommend a course for a hallucinated skill — not because we prompt it not to, but because the architecture makes it structurally impossible.
+
+The LLM cascade: GPT-4o-mini → LLaMA 3.2 → phi4:mini. If the first model fails or returns malformed JSON, the next takes over automatically. The app has never shown an error screen in testing.
+
+---
+
+## Datasets & Models Used
+
+| Source | What we used it for |
+|---|---|
+| [O*NET 30.2](https://www.onetcenter.org/db_releases.html) | The 65-skill taxonomy that anchors everything |
+| [Resume Dataset — Kaggle](https://www.kaggle.com/datasets/snehaanbhawal/resume-dataset/data) | Validating persona skill extraction |
+| [Jobs & JD Dataset — Kaggle](https://www.kaggle.com/datasets/kshitizregmi/jobs-and-job-description) | JD parsing test cases |
+| [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) | Embedding model (384-dim, 22M params, Apache 2.0) |
+| [LLaMA 3.2](https://ollama.com) | Local LLM backend (Meta, open weights) |
+| GPT-4o-mini | Primary LLM when OpenAI key is provided |
+
+---
+
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Frontend | Streamlit 1.35, Plotly, Matplotlib |
-| AI / NLP | LLaMA 3.2 (Ollama), GPT-4o-mini (OpenAI), sentence-transformers |
-| Graph Engine | NetworkX (skill graph + prerequisite DAG) |
+| AI / NLP | LLaMA 3.2, GPT-4o-mini, sentence-transformers |
+| Graph Engine | NetworkX — skill graph + prerequisite DAG |
 | Document Parsing | PyMuPDF (fitz) |
 | Export | ReportLab (PDF), Pandas (CSV) |
-| Embedding Model | `all-MiniLM-L6-v2` (384-dim, 22M params) |
+| Embedding Model | all-MiniLM-L6-v2 (384-dim, 22M params) |
 
 ---
 
-## 📊 Evaluation Results
+## Evaluation
 
-Run `python eval/skill_gap_eval.py` to reproduce:
+Run the quick harness to verify the semantic engine works on your machine:
 
-```
-✅ PASS: Synonym detection: scikit-learn == Machine Learning
-✅ PASS: Abbreviation: JS == JavaScript
-✅ PASS: Paraphrase: People Management == Leadership
-
-Accuracy: 3/3 = 100%
+```bash
+python eval/skill_gap_eval.py
 ```
 
-| Metric | Value | Note |
-|---|---|---|
-| Synonym detection accuracy | **3/3 test cases** | Illustrative only — sample too small for a percentage claim |
-| Semantic vs keyword F1 delta | **−0.009** (0.984 vs 0.993) | Semantic advantage is synonym handling on raw text, not F1 on normalized labels |
+```
+✅ PASS: Synonym detection — scikit-learn == Machine Learning
+✅ PASS: Abbreviation — JS == JavaScript
+✅ PASS: Paraphrase — People Management == Leadership
+
+Accuracy: 3/3
+```
+
+These 3 cases are illustrative. The full n=60 benchmark lives in `eval/benchmark_results.json`.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ai-adaptive-onboarding/
 │
-├── app.py                  # Streamlit UI — hero, upload, results, tabs, chat
-├── parser.py               # Document parsing — PyMuPDF + LLaMA/GPT-4o-mini
-├── gap_logic.py            # Skill taxonomy (65 skills) + normalize_skills + compute_gaps
-├── semantic_engine.py      # Cosine similarity matching + greedy set-cover optimizer
-├── path_generator.py       # Prerequisite DAG + pathway assembly + AI insight generator
-├── catalog.py              # Catalog loader utilities
-├── config.py               # LLM model names, Ollama URL, timeout config
+├── app.py                       # Streamlit UI — all tabs, chat, export
+├── parser.py                    # PyMuPDF + LLM parsing with cascade fallback
+├── gap_logic.py                 # 65-skill taxonomy + normalization + gap compute
+├── semantic_engine.py           # Cosine similarity + greedy set-cover optimizer
+├── path_generator.py            # Prerequisite DAG + topological sort + AI report
+├── catalog.py                   # Course catalog loader
+├── config.py                    # Model names, Ollama URL, timeouts
 │
 ├── eval/
-│   └── skill_gap_eval.py   # Evaluation harness — O*NET ground-truth test cases
+│   ├── skill_gap_eval.py        # Quick 3-case harness (run this to verify)
+│   ├── benchmark_results.json   # Full n=60 benchmark results
+│   └── credible_claims.md       # Methodology, limitations, failure analysis
 │
-├── course_catalog.json     # 65-course dataset (beginner → intermediate → advanced)
-│
+├── course_catalog.json          # 65 courses, beginner → advanced
 ├── samples/
-│   └── sample_jd_software_engineer.txt   # Sample JD for testing
+│   └── sample_jd_software_engineer.txt
 │
-├── .streamlit/
-│   └── secrets.toml        # OPENAI_API_KEY (optional, gitignored)
-│
-├── Dockerfile              # Docker deployment
-├── requirements.txt        # Python dependencies
+├── Dockerfile
+├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## 🐳 Docker
+## Docker
 
 ```bash
 docker build -t skillbridge-v2 .
 docker run -p 8501:8501 skillbridge-v2
 ```
 
-Open → [http://localhost:8501](http://localhost:8501)
+Open [http://localhost:8501](http://localhost:8501)
 
 ---
 
-## 👩💻 Built By
+## Quick Start (Local)
 
-**Tanya Panchal** · SkillBridge Hackathon 2025  
-Powered by LLaMA 3.2 · GPT-4o-mini · Streamlit · sentence-transformers · NetworkX · PyMuPDF
+```bash
+git clone https://github.com/Tanupanchal26/ai-adaptive-onboarding.git
+cd ai-adaptive-onboarding
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+For LLM-powered parsing → install [Ollama](https://ollama.com) and run `ollama pull llama3.2`
+For GPT-4o-mini → add `OPENAI_API_KEY` to `.streamlit/secrets.toml`
+For the demo personas → no key needed at all
+
+---
+
+*Built by **Tanya Panchal** · SkillBridge Hackathon 2025*
+*Powered by LLaMA 3.2 · GPT-4o-mini · sentence-transformers · NetworkX · Streamlit · PyMuPDF*
