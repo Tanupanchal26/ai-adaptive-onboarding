@@ -1,0 +1,3667 @@
+{
+  "meta": {
+    "version": "1.0",
+    "total_pairs": 60,
+    "domains": [
+      "Software Engineering",
+      "Data Science",
+      "Sales",
+      "Marketing",
+      "HR",
+      "Operations"
+    ],
+    "pairs_per_domain": 10,
+    "semantic_threshold": 0.65
+  },
+  "overall": {
+    "keyword": {
+      "avg_precision": 0.9889,
+      "avg_recall": 1.0,
+      "avg_f1": 0.9933
+    },
+    "semantic": {
+      "avg_precision": 0.9889,
+      "avg_recall": 0.9861,
+      "avg_f1": 0.9844
+    }
+  },
+  "by_domain": {
+    "keyword": {
+      "Software Engineering": {
+        "avg_precision": 1.0,
+        "avg_recall": 1.0,
+        "avg_f1": 1.0
+      },
+      "Data Science": {
+        "avg_precision": 0.9667,
+        "avg_recall": 1.0,
+        "avg_f1": 0.98
+      },
+      "Sales": {
+        "avg_precision": 1.0,
+        "avg_recall": 1.0,
+        "avg_f1": 1.0
+      },
+      "Marketing": {
+        "avg_precision": 0.9667,
+        "avg_recall": 1.0,
+        "avg_f1": 0.98
+      },
+      "HR": {
+        "avg_precision": 1.0,
+        "avg_recall": 1.0,
+        "avg_f1": 1.0
+      },
+      "Operations": {
+        "avg_precision": 1.0,
+        "avg_recall": 1.0,
+        "avg_f1": 1.0
+      }
+    },
+    "semantic": {
+      "Software Engineering": {
+        "avg_precision": 1.0,
+        "avg_recall": 1.0,
+        "avg_f1": 1.0
+      },
+      "Data Science": {
+        "avg_precision": 0.9667,
+        "avg_recall": 0.9167,
+        "avg_f1": 0.9267
+      },
+      "Sales": {
+        "avg_precision": 1.0,
+        "avg_recall": 1.0,
+        "avg_f1": 1.0
+      },
+      "Marketing": {
+        "avg_precision": 0.9667,
+        "avg_recall": 1.0,
+        "avg_f1": 0.98
+      },
+      "HR": {
+        "avg_precision": 1.0,
+        "avg_recall": 1.0,
+        "avg_f1": 1.0
+      },
+      "Operations": {
+        "avg_precision": 1.0,
+        "avg_recall": 1.0,
+        "avg_f1": 1.0
+      }
+    }
+  },
+  "pairs": [
+    {
+      "id": "SE-01",
+      "domain": "Software Engineering",
+      "candidate_skills": [
+        "Python",
+        "HTML",
+        "CSS",
+        "Git"
+      ],
+      "jd_skills": [
+        "Python",
+        "SQL",
+        "JavaScript",
+        "Agile",
+        "Git"
+      ],
+      "ground_truth_gaps": [
+        "Agile",
+        "JavaScript",
+        "SQL"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Agile",
+          "JavaScript",
+          "SQL"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Agile",
+            "JavaScript",
+            "SQL"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Agile",
+          "JavaScript",
+          "SQL"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Agile",
+            "JavaScript",
+            "SQL"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SE-02",
+      "domain": "Software Engineering",
+      "candidate_skills": [
+        "Java",
+        "REST API",
+        "SQL",
+        "Git",
+        "Linux"
+      ],
+      "jd_skills": [
+        "Java",
+        "Docker",
+        "Kubernetes",
+        "AWS",
+        "SQL",
+        "System Design"
+      ],
+      "ground_truth_gaps": [
+        "AWS",
+        "Docker",
+        "Kubernetes",
+        "System Design"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "AWS",
+          "Docker",
+          "Kubernetes",
+          "System Design"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "Docker",
+            "Kubernetes",
+            "System Design"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "AWS",
+          "Docker",
+          "Kubernetes",
+          "System Design"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "Docker",
+            "Kubernetes",
+            "System Design"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SE-03",
+      "domain": "Software Engineering",
+      "candidate_skills": [
+        "JavaScript",
+        "React",
+        "HTML",
+        "CSS",
+        "Git"
+      ],
+      "jd_skills": [
+        "JavaScript",
+        "React",
+        "Node.js",
+        "SQL",
+        "Docker"
+      ],
+      "ground_truth_gaps": [
+        "Docker",
+        "Node.js",
+        "SQL"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Docker",
+          "Node.js",
+          "SQL"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Docker",
+            "Node.js",
+            "SQL"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Docker",
+          "Node.js",
+          "SQL"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Docker",
+            "Node.js",
+            "SQL"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SE-04",
+      "domain": "Software Engineering",
+      "candidate_skills": [
+        "Docker",
+        "Kubernetes",
+        "AWS",
+        "Linux",
+        "Git"
+      ],
+      "jd_skills": [
+        "Docker",
+        "Kubernetes",
+        "AWS",
+        "Terraform",
+        "Security",
+        "Monitoring"
+      ],
+      "ground_truth_gaps": [
+        "Monitoring",
+        "Security",
+        "Terraform"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Monitoring",
+          "Security",
+          "Terraform"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Monitoring",
+            "Security",
+            "Terraform"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Monitoring",
+          "Security",
+          "Terraform"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Monitoring",
+            "Security",
+            "Terraform"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SE-05",
+      "domain": "Software Engineering",
+      "candidate_skills": [
+        "JavaScript",
+        "React",
+        "TypeScript",
+        "Git"
+      ],
+      "jd_skills": [
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "REST API",
+        "Testing"
+      ],
+      "ground_truth_gaps": [
+        "REST API",
+        "Testing"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "REST API",
+          "Testing"
+        ],
+        "metrics": {
+          "true_positives": [
+            "REST API",
+            "Testing"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "REST API",
+          "Testing"
+        ],
+        "metrics": {
+          "true_positives": [
+            "REST API",
+            "Testing"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SE-06",
+      "domain": "Software Engineering",
+      "candidate_skills": [
+        "Testing",
+        "Documentation",
+        "SQL",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Testing",
+        "Jest",
+        "Cypress",
+        "Python",
+        "CI/CD"
+      ],
+      "ground_truth_gaps": [
+        "CI/CD",
+        "Cypress",
+        "Jest",
+        "Python"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "CI/CD",
+          "Cypress",
+          "Jest",
+          "Python"
+        ],
+        "metrics": {
+          "true_positives": [
+            "CI/CD",
+            "Cypress",
+            "Jest",
+            "Python"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "CI/CD",
+          "Cypress",
+          "Jest",
+          "Python"
+        ],
+        "metrics": {
+          "true_positives": [
+            "CI/CD",
+            "Cypress",
+            "Jest",
+            "Python"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SE-07",
+      "domain": "Software Engineering",
+      "candidate_skills": [
+        "Python",
+        "SQL",
+        "MongoDB",
+        "Git",
+        "Linux"
+      ],
+      "jd_skills": [
+        "Python",
+        "SQL",
+        "Docker",
+        "AWS",
+        "System Design",
+        "Agile"
+      ],
+      "ground_truth_gaps": [
+        "AWS",
+        "Agile",
+        "Docker",
+        "System Design"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "AWS",
+          "Agile",
+          "Docker",
+          "System Design"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "Agile",
+            "Docker",
+            "System Design"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "AWS",
+          "Agile",
+          "Docker",
+          "System Design"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "Agile",
+            "Docker",
+            "System Design"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SE-08",
+      "domain": "Software Engineering",
+      "candidate_skills": [
+        "Security",
+        "Networking",
+        "Linux",
+        "Python",
+        "Documentation"
+      ],
+      "jd_skills": [
+        "Security",
+        "Python",
+        "Networking",
+        "Docker",
+        "AWS"
+      ],
+      "ground_truth_gaps": [
+        "AWS",
+        "Docker"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "AWS",
+          "Docker"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "Docker"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "AWS",
+          "Docker"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "Docker"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SE-09",
+      "domain": "Software Engineering",
+      "candidate_skills": [
+        "Python",
+        "DSA",
+        "Problem Solving",
+        "Git"
+      ],
+      "jd_skills": [
+        "Python",
+        "SQL",
+        "DSA",
+        "Agile",
+        "Communication"
+      ],
+      "ground_truth_gaps": [
+        "Agile",
+        "Communication",
+        "SQL"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Agile",
+          "Communication",
+          "SQL"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Agile",
+            "Communication",
+            "SQL"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Agile",
+          "Communication",
+          "SQL"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Agile",
+            "Communication",
+            "SQL"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SE-10",
+      "domain": "Software Engineering",
+      "candidate_skills": [
+        "System Design",
+        "Architecture",
+        "Python",
+        "SQL",
+        "AWS",
+        "Docker"
+      ],
+      "jd_skills": [
+        "System Design",
+        "Architecture",
+        "Leadership",
+        "Strategy",
+        "AWS"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "DS-01",
+      "domain": "Data Science",
+      "candidate_skills": [
+        "Excel",
+        "Statistics",
+        "SQL",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Python",
+        "SQL",
+        "Statistics",
+        "Machine Learning",
+        "Data Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Data Analysis",
+        "Machine Learning",
+        "Python"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Data Analysis",
+          "Machine Learning",
+          "Python"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Data Analysis",
+            "Machine Learning",
+            "Python"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Data Analysis",
+          "Machine Learning",
+          "Python"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Data Analysis",
+            "Machine Learning",
+            "Python"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "DS-02",
+      "domain": "Data Science",
+      "candidate_skills": [
+        "Python",
+        "Machine Learning",
+        "SQL",
+        "Statistics",
+        "Data Analysis"
+      ],
+      "jd_skills": [
+        "Python",
+        "Deep Learning",
+        "Machine Learning",
+        "AWS",
+        "Docker",
+        "Statistics"
+      ],
+      "ground_truth_gaps": [
+        "AWS",
+        "Deep Learning",
+        "Docker"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "AWS",
+          "Deep Learning",
+          "Docker"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "Deep Learning",
+            "Docker"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "AWS",
+          "Docker"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "Docker"
+          ],
+          "false_positives": [],
+          "false_negatives": [
+            "Deep Learning"
+          ],
+          "precision": 1.0,
+          "recall": 0.6667,
+          "f1": 0.8
+        }
+      }
+    },
+    {
+      "id": "DS-03",
+      "domain": "Data Science",
+      "candidate_skills": [
+        "Tableau",
+        "Power BI",
+        "SQL",
+        "Excel",
+        "Data Analysis"
+      ],
+      "jd_skills": [
+        "SQL",
+        "Python",
+        "Tableau",
+        "Data Analysis",
+        "Statistics"
+      ],
+      "ground_truth_gaps": [
+        "Python",
+        "Statistics"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Python",
+          "Statistics"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Python",
+            "Statistics"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Python",
+          "Statistics"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Python",
+            "Statistics"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "DS-04",
+      "domain": "Data Science",
+      "candidate_skills": [
+        "Python",
+        "Deep Learning",
+        "Machine Learning",
+        "Docker",
+        "Git"
+      ],
+      "jd_skills": [
+        "Python",
+        "Machine Learning",
+        "Deep Learning",
+        "AWS",
+        "Kubernetes",
+        "System Design"
+      ],
+      "ground_truth_gaps": [
+        "AWS",
+        "Kubernetes",
+        "System Design"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "AWS",
+          "Kubernetes",
+          "System Design"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "Kubernetes",
+            "System Design"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "AWS",
+          "Kubernetes",
+          "System Design"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "Kubernetes",
+            "System Design"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "DS-05",
+      "domain": "Data Science",
+      "candidate_skills": [
+        "Python",
+        "Statistics",
+        "Machine Learning",
+        "Documentation"
+      ],
+      "jd_skills": [
+        "Python",
+        "Machine Learning",
+        "Deep Learning",
+        "Statistics",
+        "Communication"
+      ],
+      "ground_truth_gaps": [
+        "Communication",
+        "Deep Learning"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Communication",
+          "Deep Learning"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Communication",
+            "Deep Learning"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Communication"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Communication"
+          ],
+          "false_positives": [],
+          "false_negatives": [
+            "Deep Learning"
+          ],
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6667
+        }
+      }
+    },
+    {
+      "id": "DS-06",
+      "domain": "Data Science",
+      "candidate_skills": [
+        "Python",
+        "SQL",
+        "MongoDB",
+        "AWS",
+        "Docker"
+      ],
+      "jd_skills": [
+        "Python",
+        "SQL",
+        "AWS",
+        "Docker",
+        "Kubernetes",
+        "Data Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Data Analysis",
+        "Kubernetes"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Data Analysis",
+          "Kubernetes"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Data Analysis",
+            "Kubernetes"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Data Analysis",
+          "Kubernetes"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Data Analysis",
+            "Kubernetes"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "DS-07",
+      "domain": "Data Science",
+      "candidate_skills": [
+        "Excel",
+        "SQL",
+        "Power BI",
+        "Communication",
+        "Project Management"
+      ],
+      "jd_skills": [
+        "SQL",
+        "Python",
+        "Power BI",
+        "Statistics",
+        "Data Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Data Analysis",
+        "Python",
+        "Statistics"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Data Analysis",
+          "Python",
+          "Statistics"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Data Analysis",
+            "Python",
+            "Statistics"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Data Analysis",
+          "Python",
+          "Statistics"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Data Analysis",
+            "Python",
+            "Statistics"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "DS-08",
+      "domain": "Data Science",
+      "candidate_skills": [
+        "Python",
+        "Deep Learning",
+        "Machine Learning",
+        "Statistics",
+        "Documentation"
+      ],
+      "jd_skills": [
+        "Python",
+        "Deep Learning",
+        "Machine Learning",
+        "AWS",
+        "REST API"
+      ],
+      "ground_truth_gaps": [
+        "AWS",
+        "REST API"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "AWS",
+          "REST API"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "REST API"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "AWS",
+          "REST API"
+        ],
+        "metrics": {
+          "true_positives": [
+            "AWS",
+            "REST API"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "DS-09",
+      "domain": "Data Science",
+      "candidate_skills": [
+        "Statistics",
+        "Excel",
+        "SQL",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Python",
+        "Statistics",
+        "SQL",
+        "Machine Learning",
+        "Financial Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Financial Analysis",
+        "Machine Learning",
+        "Python"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Machine Learning",
+          "Python"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Machine Learning",
+            "Python"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Machine Learning",
+          "Python"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Machine Learning",
+            "Python"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "DS-10",
+      "domain": "Data Science",
+      "candidate_skills": [
+        "Python",
+        "Machine Learning",
+        "Deep Learning",
+        "AWS",
+        "Statistics",
+        "Data Analysis"
+      ],
+      "jd_skills": [
+        "Machine Learning",
+        "Leadership",
+        "Strategy",
+        "Communication",
+        "AWS"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Communication",
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [
+            "Communication"
+          ],
+          "false_negatives": [],
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Communication",
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [
+            "Communication"
+          ],
+          "false_negatives": [],
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8
+        }
+      }
+    },
+    {
+      "id": "SA-01",
+      "domain": "Sales",
+      "candidate_skills": [
+        "Sales",
+        "CRM",
+        "Communication",
+        "Negotiation"
+      ],
+      "jd_skills": [
+        "Sales",
+        "CRM",
+        "Leadership",
+        "Negotiation",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SA-02",
+      "domain": "Sales",
+      "candidate_skills": [
+        "Sales",
+        "Salesforce",
+        "Negotiation",
+        "Communication",
+        "CRM"
+      ],
+      "jd_skills": [
+        "Sales",
+        "Salesforce",
+        "Negotiation",
+        "Business Development",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "Business Development",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Business Development",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Business Development",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SA-03",
+      "domain": "Sales",
+      "candidate_skills": [
+        "Sales",
+        "Communication",
+        "CRM",
+        "Time Management"
+      ],
+      "jd_skills": [
+        "Sales",
+        "CRM",
+        "Leadership",
+        "Marketing",
+        "Negotiation"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Marketing",
+        "Negotiation"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Marketing",
+          "Negotiation"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Marketing",
+            "Negotiation"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Marketing",
+          "Negotiation"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Marketing",
+            "Negotiation"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SA-04",
+      "domain": "Sales",
+      "candidate_skills": [
+        "Sales",
+        "Leadership",
+        "Strategy",
+        "CRM",
+        "Negotiation",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Sales",
+        "Leadership",
+        "Strategy",
+        "Business Development",
+        "Financial Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Business Development",
+        "Financial Analysis"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Business Development",
+          "Financial Analysis"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development",
+            "Financial Analysis"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Business Development",
+          "Financial Analysis"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development",
+            "Financial Analysis"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SA-05",
+      "domain": "Sales",
+      "candidate_skills": [
+        "Sales",
+        "Communication",
+        "Customer Success",
+        "Time Management"
+      ],
+      "jd_skills": [
+        "Sales",
+        "CRM",
+        "Negotiation",
+        "Communication",
+        "Business Development"
+      ],
+      "ground_truth_gaps": [
+        "Business Development",
+        "CRM",
+        "Negotiation"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Business Development",
+          "CRM",
+          "Negotiation"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development",
+            "CRM",
+            "Negotiation"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Business Development",
+          "CRM",
+          "Negotiation"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development",
+            "CRM",
+            "Negotiation"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SA-06",
+      "domain": "Sales",
+      "candidate_skills": [
+        "Sales",
+        "Excel",
+        "SQL",
+        "Data Analysis",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Sales",
+        "Salesforce",
+        "Data Analysis",
+        "Strategy",
+        "Project Management"
+      ],
+      "ground_truth_gaps": [
+        "Project Management",
+        "Salesforce",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Project Management",
+          "Salesforce",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Project Management",
+            "Salesforce",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Project Management",
+          "Salesforce",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Project Management",
+            "Salesforce",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SA-07",
+      "domain": "Sales",
+      "candidate_skills": [
+        "Sales",
+        "Negotiation",
+        "CRM",
+        "Leadership",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Sales",
+        "Leadership",
+        "Strategy",
+        "Business Development",
+        "Financial Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Business Development",
+        "Financial Analysis",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Business Development",
+          "Financial Analysis",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development",
+            "Financial Analysis",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Business Development",
+          "Financial Analysis",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development",
+            "Financial Analysis",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SA-08",
+      "domain": "Sales",
+      "candidate_skills": [
+        "Sales",
+        "CRM",
+        "Salesforce",
+        "Communication",
+        "Negotiation"
+      ],
+      "jd_skills": [
+        "Sales",
+        "CRM",
+        "Salesforce",
+        "Leadership",
+        "Strategy",
+        "Business Development"
+      ],
+      "ground_truth_gaps": [
+        "Business Development",
+        "Leadership",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Business Development",
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development",
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Business Development",
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development",
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SA-09",
+      "domain": "Sales",
+      "candidate_skills": [
+        "Marketing",
+        "Communication",
+        "Content Marketing",
+        "SEO"
+      ],
+      "jd_skills": [
+        "Sales",
+        "CRM",
+        "Negotiation",
+        "Communication",
+        "Customer Success"
+      ],
+      "ground_truth_gaps": [
+        "CRM",
+        "Customer Success",
+        "Negotiation",
+        "Sales"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "CRM",
+          "Customer Success",
+          "Negotiation",
+          "Sales"
+        ],
+        "metrics": {
+          "true_positives": [
+            "CRM",
+            "Customer Success",
+            "Negotiation",
+            "Sales"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "CRM",
+          "Customer Success",
+          "Negotiation",
+          "Sales"
+        ],
+        "metrics": {
+          "true_positives": [
+            "CRM",
+            "Customer Success",
+            "Negotiation",
+            "Sales"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "SA-10",
+      "domain": "Sales",
+      "candidate_skills": [
+        "Customer Success",
+        "CRM",
+        "Communication",
+        "Negotiation",
+        "Sales"
+      ],
+      "jd_skills": [
+        "Sales",
+        "CRM",
+        "Leadership",
+        "Strategy",
+        "Negotiation"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "MK-01",
+      "domain": "Marketing",
+      "candidate_skills": [
+        "Marketing",
+        "Social Media",
+        "Content Marketing",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Marketing",
+        "SEO",
+        "Tableau",
+        "Strategy",
+        "Leadership"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "SEO",
+        "Strategy",
+        "Tableau"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "SEO",
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "SEO",
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "SEO",
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "SEO",
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "MK-02",
+      "domain": "Marketing",
+      "candidate_skills": [
+        "SEO",
+        "Content Marketing",
+        "Google Analytics",
+        "Communication"
+      ],
+      "jd_skills": [
+        "SEO",
+        "Content Marketing",
+        "Tableau",
+        "Social Media",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "Strategy",
+        "Tableau"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Social Media",
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [
+            "Social Media"
+          ],
+          "false_negatives": [],
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Social Media",
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [
+            "Social Media"
+          ],
+          "false_negatives": [],
+          "precision": 0.6667,
+          "recall": 1.0,
+          "f1": 0.8
+        }
+      }
+    },
+    {
+      "id": "MK-03",
+      "domain": "Marketing",
+      "candidate_skills": [
+        "Brand Management",
+        "Market Research",
+        "Strategy",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Brand Management",
+        "Market Research",
+        "Strategy",
+        "Leadership",
+        "Financial Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Financial Analysis",
+        "Leadership"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Leadership"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Leadership"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Leadership"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Leadership"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "MK-04",
+      "domain": "Marketing",
+      "candidate_skills": [
+        "Content Marketing",
+        "SEO",
+        "Social Media",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Content Marketing",
+        "SEO",
+        "Strategy",
+        "Leadership",
+        "Tableau"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Strategy",
+        "Tableau"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "MK-05",
+      "domain": "Marketing",
+      "candidate_skills": [
+        "Marketing",
+        "Data Analysis",
+        "SEO",
+        "Social Media",
+        "Excel"
+      ],
+      "jd_skills": [
+        "Marketing",
+        "Data Analysis",
+        "SEO",
+        "Tableau",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "Strategy",
+        "Tableau"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "MK-06",
+      "domain": "Marketing",
+      "candidate_skills": [
+        "Marketing",
+        "Market Research",
+        "Communication",
+        "Strategy"
+      ],
+      "jd_skills": [
+        "Marketing",
+        "Market Research",
+        "Strategy",
+        "Sales",
+        "Leadership"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Sales"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Sales"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Sales"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Sales"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Sales"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "MK-07",
+      "domain": "Marketing",
+      "candidate_skills": [
+        "Marketing",
+        "CRM",
+        "Content Marketing",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Marketing",
+        "CRM",
+        "Salesforce",
+        "Data Analysis",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "Data Analysis",
+        "Salesforce",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Data Analysis",
+          "Salesforce",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Data Analysis",
+            "Salesforce",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Data Analysis",
+          "Salesforce",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Data Analysis",
+            "Salesforce",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "MK-08",
+      "domain": "Marketing",
+      "candidate_skills": [
+        "Social Media",
+        "Content Marketing",
+        "Communication",
+        "Brand Management"
+      ],
+      "jd_skills": [
+        "Social Media",
+        "Brand Management",
+        "Strategy",
+        "Leadership",
+        "Tableau"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Strategy",
+        "Tableau"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "MK-09",
+      "domain": "Marketing",
+      "candidate_skills": [
+        "Marketing",
+        "SEO",
+        "Content Marketing",
+        "Social Media",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Marketing",
+        "SEO",
+        "Tableau",
+        "Content Marketing",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "Strategy",
+        "Tableau"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Strategy",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Strategy",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "MK-10",
+      "domain": "Marketing",
+      "candidate_skills": [
+        "Sales",
+        "CRM",
+        "Negotiation",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Marketing",
+        "SEO",
+        "Tableau",
+        "Content Marketing",
+        "Brand Management"
+      ],
+      "ground_truth_gaps": [
+        "Brand Management",
+        "Content Marketing",
+        "Marketing",
+        "SEO",
+        "Tableau"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Brand Management",
+          "Content Marketing",
+          "Marketing",
+          "SEO",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Brand Management",
+            "Content Marketing",
+            "Marketing",
+            "SEO",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Brand Management",
+          "Content Marketing",
+          "Marketing",
+          "SEO",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Brand Management",
+            "Content Marketing",
+            "Marketing",
+            "SEO",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "HR-01",
+      "domain": "HR",
+      "candidate_skills": [
+        "HR",
+        "Recruitment",
+        "Communication",
+        "Documentation"
+      ],
+      "jd_skills": [
+        "HR",
+        "Recruitment",
+        "Training",
+        "Coaching",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "Coaching",
+        "Strategy",
+        "Training"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Coaching",
+          "Strategy",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Coaching",
+            "Strategy",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Coaching",
+          "Strategy",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Coaching",
+            "Strategy",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "HR-02",
+      "domain": "HR",
+      "candidate_skills": [
+        "Recruitment",
+        "Communication",
+        "HR",
+        "CRM"
+      ],
+      "jd_skills": [
+        "HR",
+        "Recruitment",
+        "Training",
+        "Leadership",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Strategy",
+        "Training"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "HR-03",
+      "domain": "HR",
+      "candidate_skills": [
+        "Training",
+        "Coaching",
+        "Communication",
+        "Documentation"
+      ],
+      "jd_skills": [
+        "HR",
+        "Recruitment",
+        "Training",
+        "Coaching",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "HR",
+        "Recruitment",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "HR",
+          "Recruitment",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "HR",
+            "Recruitment",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "HR",
+          "Recruitment",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "HR",
+            "Recruitment",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "HR-04",
+      "domain": "HR",
+      "candidate_skills": [
+        "HR",
+        "Recruitment",
+        "Training",
+        "Coaching",
+        "Strategy",
+        "Leadership"
+      ],
+      "jd_skills": [
+        "HR",
+        "Leadership",
+        "Strategy",
+        "Financial Analysis",
+        "Operations"
+      ],
+      "ground_truth_gaps": [
+        "Financial Analysis",
+        "Operations"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Operations"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Operations"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Operations"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Operations"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "HR-05",
+      "domain": "HR",
+      "candidate_skills": [
+        "Excel",
+        "Documentation",
+        "Communication",
+        "Time Management"
+      ],
+      "jd_skills": [
+        "HR",
+        "Recruitment",
+        "Training",
+        "Communication",
+        "Excel"
+      ],
+      "ground_truth_gaps": [
+        "HR",
+        "Recruitment",
+        "Training"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "HR",
+          "Recruitment",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "HR",
+            "Recruitment",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "HR",
+          "Recruitment",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "HR",
+            "Recruitment",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "HR-06",
+      "domain": "HR",
+      "candidate_skills": [
+        "HR",
+        "Communication",
+        "Documentation",
+        "Recruitment"
+      ],
+      "jd_skills": [
+        "HR",
+        "Recruitment",
+        "Training",
+        "Coaching",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "Coaching",
+        "Strategy",
+        "Training"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Coaching",
+          "Strategy",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Coaching",
+            "Strategy",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Coaching",
+          "Strategy",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Coaching",
+            "Strategy",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "HR-07",
+      "domain": "HR",
+      "candidate_skills": [
+        "Coaching",
+        "Training",
+        "Leadership",
+        "Communication",
+        "Strategy"
+      ],
+      "jd_skills": [
+        "HR",
+        "Recruitment",
+        "Training",
+        "Leadership",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "HR",
+        "Recruitment"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "HR",
+          "Recruitment"
+        ],
+        "metrics": {
+          "true_positives": [
+            "HR",
+            "Recruitment"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "HR",
+          "Recruitment"
+        ],
+        "metrics": {
+          "true_positives": [
+            "HR",
+            "Recruitment"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "HR-08",
+      "domain": "HR",
+      "candidate_skills": [
+        "Excel",
+        "Data Analysis",
+        "Financial Analysis",
+        "Communication"
+      ],
+      "jd_skills": [
+        "HR",
+        "Excel",
+        "Data Analysis",
+        "Tableau",
+        "Communication"
+      ],
+      "ground_truth_gaps": [
+        "HR",
+        "Tableau"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "HR",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "HR",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "HR",
+          "Tableau"
+        ],
+        "metrics": {
+          "true_positives": [
+            "HR",
+            "Tableau"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "HR-09",
+      "domain": "HR",
+      "candidate_skills": [
+        "HR",
+        "Recruitment",
+        "Training",
+        "Coaching",
+        "Communication"
+      ],
+      "jd_skills": [
+        "HR",
+        "Recruitment",
+        "Training",
+        "Coaching",
+        "Strategy",
+        "Leadership"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "HR-10",
+      "domain": "HR",
+      "candidate_skills": [
+        "Operations",
+        "Leadership",
+        "Strategy",
+        "Communication",
+        "Project Management"
+      ],
+      "jd_skills": [
+        "HR",
+        "Leadership",
+        "Strategy",
+        "Recruitment",
+        "Training"
+      ],
+      "ground_truth_gaps": [
+        "HR",
+        "Recruitment",
+        "Training"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "HR",
+          "Recruitment",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "HR",
+            "Recruitment",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "HR",
+          "Recruitment",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "HR",
+            "Recruitment",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "OP-01",
+      "domain": "Operations",
+      "candidate_skills": [
+        "Inventory Management",
+        "Forklift Operation",
+        "Safety Compliance",
+        "Time Management"
+      ],
+      "jd_skills": [
+        "Inventory Management",
+        "Safety Compliance",
+        "Leadership",
+        "Training",
+        "Operations"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Operations",
+        "Training"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Operations",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Operations",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Operations",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Operations",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "OP-02",
+      "domain": "Operations",
+      "candidate_skills": [
+        "Equipment Maintenance",
+        "Troubleshooting",
+        "Documentation",
+        "Safety Compliance"
+      ],
+      "jd_skills": [
+        "Equipment Maintenance",
+        "Troubleshooting",
+        "Quality Control",
+        "Time Management",
+        "Documentation"
+      ],
+      "ground_truth_gaps": [
+        "Quality Control",
+        "Time Management"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Quality Control",
+          "Time Management"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Quality Control",
+            "Time Management"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Quality Control",
+          "Time Management"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Quality Control",
+            "Time Management"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "OP-03",
+      "domain": "Operations",
+      "candidate_skills": [
+        "Supply Chain",
+        "Logistics",
+        "Excel",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Supply Chain",
+        "Logistics",
+        "Strategy",
+        "Leadership",
+        "Financial Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Financial Analysis",
+        "Leadership",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "OP-04",
+      "domain": "Operations",
+      "candidate_skills": [
+        "Operations",
+        "Data Analysis",
+        "Excel",
+        "Project Management"
+      ],
+      "jd_skills": [
+        "Operations",
+        "Leadership",
+        "Strategy",
+        "Project Management",
+        "Financial Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Financial Analysis",
+        "Leadership",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "OP-05",
+      "domain": "Operations",
+      "candidate_skills": [
+        "Quality Control",
+        "Documentation",
+        "Safety Compliance",
+        "Time Management"
+      ],
+      "jd_skills": [
+        "Quality Control",
+        "Documentation",
+        "Leadership",
+        "Training",
+        "Strategy"
+      ],
+      "ground_truth_gaps": [
+        "Leadership",
+        "Strategy",
+        "Training"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Leadership",
+          "Strategy",
+          "Training"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Leadership",
+            "Strategy",
+            "Training"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "OP-06",
+      "domain": "Operations",
+      "candidate_skills": [
+        "Logistics",
+        "Inventory Management",
+        "Supply Chain",
+        "Communication"
+      ],
+      "jd_skills": [
+        "Logistics",
+        "Supply Chain",
+        "Leadership",
+        "Strategy",
+        "Financial Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Financial Analysis",
+        "Leadership",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Leadership",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Leadership",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "OP-07",
+      "domain": "Operations",
+      "candidate_skills": [
+        "Project Management",
+        "Agile",
+        "Communication",
+        "Documentation"
+      ],
+      "jd_skills": [
+        "Project Management",
+        "Operations",
+        "Leadership",
+        "Strategy",
+        "Financial Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Financial Analysis",
+        "Leadership",
+        "Operations",
+        "Strategy"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Leadership",
+          "Operations",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Leadership",
+            "Operations",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Leadership",
+          "Operations",
+          "Strategy"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Leadership",
+            "Operations",
+            "Strategy"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "OP-08",
+      "domain": "Operations",
+      "candidate_skills": [
+        "Safety Compliance",
+        "Equipment Maintenance",
+        "Operations",
+        "Documentation"
+      ],
+      "jd_skills": [
+        "Safety Compliance",
+        "Operations",
+        "Leadership",
+        "Budgeting",
+        "Project Management"
+      ],
+      "ground_truth_gaps": [
+        "Budgeting",
+        "Leadership",
+        "Project Management"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Budgeting",
+          "Leadership",
+          "Project Management"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Budgeting",
+            "Leadership",
+            "Project Management"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Budgeting",
+          "Leadership",
+          "Project Management"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Budgeting",
+            "Leadership",
+            "Project Management"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "OP-09",
+      "domain": "Operations",
+      "candidate_skills": [
+        "Inventory Management",
+        "Safety Compliance",
+        "Leadership",
+        "Training",
+        "Operations"
+      ],
+      "jd_skills": [
+        "Operations",
+        "Leadership",
+        "Supply Chain",
+        "Strategy",
+        "Financial Analysis"
+      ],
+      "ground_truth_gaps": [
+        "Financial Analysis",
+        "Strategy",
+        "Supply Chain"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Strategy",
+          "Supply Chain"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Strategy",
+            "Supply Chain"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Financial Analysis",
+          "Strategy",
+          "Supply Chain"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Financial Analysis",
+            "Strategy",
+            "Supply Chain"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    },
+    {
+      "id": "OP-10",
+      "domain": "Operations",
+      "candidate_skills": [
+        "Operations",
+        "Leadership",
+        "Strategy",
+        "Project Management",
+        "Financial Analysis"
+      ],
+      "jd_skills": [
+        "Operations",
+        "Leadership",
+        "Strategy",
+        "Financial Analysis",
+        "Business Development"
+      ],
+      "ground_truth_gaps": [
+        "Business Development"
+      ],
+      "keyword": {
+        "predicted_gaps": [
+          "Business Development"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "semantic": {
+        "predicted_gaps": [
+          "Business Development"
+        ],
+        "metrics": {
+          "true_positives": [
+            "Business Development"
+          ],
+          "false_positives": [],
+          "false_negatives": [],
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    }
+  ]
+}

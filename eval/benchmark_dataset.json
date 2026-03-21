@@ -1,0 +1,791 @@
+{
+  "meta": {
+    "version": "1.0",
+    "total_pairs": 60,
+    "domains": ["Software Engineering", "Data Science", "Sales", "Marketing", "HR", "Operations"],
+    "pairs_per_domain": 10,
+    "semantic_threshold": 0.65
+  },
+  "pairs": [
+    {
+      "id": "SE-01",
+      "domain": "Software Engineering",
+      "candidate": {
+        "summary": "Junior developer with 1 year experience in Python scripting and basic web development.",
+        "skills": ["Python", "HTML", "CSS", "Git"]
+      },
+      "job": {
+        "title": "Software Engineer",
+        "skills": ["Python", "SQL", "JavaScript", "Agile", "Git"]
+      },
+      "ground_truth_gaps": ["SQL", "JavaScript", "Agile"]
+    },
+    {
+      "id": "SE-02",
+      "domain": "Software Engineering",
+      "candidate": {
+        "summary": "Backend developer with Java and REST API experience.",
+        "skills": ["Java", "REST API", "SQL", "Git", "Linux"]
+      },
+      "job": {
+        "title": "Senior Backend Engineer",
+        "skills": ["Java", "Docker", "Kubernetes", "AWS", "SQL", "System Design"]
+      },
+      "ground_truth_gaps": ["Docker", "Kubernetes", "AWS", "System Design"]
+    },
+    {
+      "id": "SE-03",
+      "domain": "Software Engineering",
+      "candidate": {
+        "summary": "Frontend developer skilled in React and JavaScript.",
+        "skills": ["JavaScript", "React", "HTML", "CSS", "Git"]
+      },
+      "job": {
+        "title": "Full Stack Developer",
+        "skills": ["JavaScript", "React", "Node.js", "SQL", "Docker"]
+      },
+      "ground_truth_gaps": ["Node.js", "SQL", "Docker"]
+    },
+    {
+      "id": "SE-04",
+      "domain": "Software Engineering",
+      "candidate": {
+        "summary": "DevOps engineer with cloud and containerization experience.",
+        "skills": ["Docker", "Kubernetes", "AWS", "Linux", "Git"]
+      },
+      "job": {
+        "title": "Senior DevOps Engineer",
+        "skills": ["Docker", "Kubernetes", "AWS", "Terraform", "Security", "Monitoring"]
+      },
+      "ground_truth_gaps": ["Terraform", "Security", "Monitoring"]
+    },
+    {
+      "id": "SE-05",
+      "domain": "Software Engineering",
+      "candidate": {
+        "summary": "Mobile developer with React Native and JavaScript background.",
+        "skills": ["JavaScript", "React", "TypeScript", "Git"]
+      },
+      "job": {
+        "title": "Mobile Engineer",
+        "skills": ["JavaScript", "TypeScript", "React", "REST API", "Testing"]
+      },
+      "ground_truth_gaps": ["REST API", "Testing"]
+    },
+    {
+      "id": "SE-06",
+      "domain": "Software Engineering",
+      "candidate": {
+        "summary": "QA engineer with manual testing and basic automation skills.",
+        "skills": ["Testing", "Documentation", "SQL", "Communication"]
+      },
+      "job": {
+        "title": "SDET / Automation Engineer",
+        "skills": ["Testing", "Jest", "Cypress", "Python", "CI/CD"]
+      },
+      "ground_truth_gaps": ["Jest", "Cypress", "Python", "CI/CD"]
+    },
+    {
+      "id": "SE-07",
+      "domain": "Software Engineering",
+      "candidate": {
+        "summary": "Data engineer with Python and SQL expertise.",
+        "skills": ["Python", "SQL", "MongoDB", "Git", "Linux"]
+      },
+      "job": {
+        "title": "Backend Engineer",
+        "skills": ["Python", "SQL", "Docker", "AWS", "System Design", "Agile"]
+      },
+      "ground_truth_gaps": ["Docker", "AWS", "System Design", "Agile"]
+    },
+    {
+      "id": "SE-08",
+      "domain": "Software Engineering",
+      "candidate": {
+        "summary": "Security analyst transitioning to software engineering.",
+        "skills": ["Security", "Networking", "Linux", "Python", "Documentation"]
+      },
+      "job": {
+        "title": "Security Engineer",
+        "skills": ["Security", "Python", "Networking", "Docker", "AWS"]
+      },
+      "ground_truth_gaps": ["Docker", "AWS"]
+    },
+    {
+      "id": "SE-09",
+      "domain": "Software Engineering",
+      "candidate": {
+        "summary": "Graduate with strong DSA and problem-solving skills.",
+        "skills": ["Python", "DSA", "Problem Solving", "Git"]
+      },
+      "job": {
+        "title": "Software Engineer (New Grad)",
+        "skills": ["Python", "SQL", "DSA", "Agile", "Communication"]
+      },
+      "ground_truth_gaps": ["SQL", "Agile", "Communication"]
+    },
+    {
+      "id": "SE-10",
+      "domain": "Software Engineering",
+      "candidate": {
+        "summary": "Experienced engineer with system design and architecture skills.",
+        "skills": ["System Design", "Architecture", "Python", "SQL", "AWS", "Docker"]
+      },
+      "job": {
+        "title": "Principal Engineer",
+        "skills": ["System Design", "Architecture", "Leadership", "Strategy", "AWS"]
+      },
+      "ground_truth_gaps": ["Leadership", "Strategy"]
+    },
+    {
+      "id": "DS-01",
+      "domain": "Data Science",
+      "candidate": {
+        "summary": "Analyst with Excel and basic statistics background.",
+        "skills": ["Excel", "Statistics", "SQL", "Communication"]
+      },
+      "job": {
+        "title": "Junior Data Scientist",
+        "skills": ["Python", "SQL", "Statistics", "Machine Learning", "Data Analysis"]
+      },
+      "ground_truth_gaps": ["Python", "Machine Learning", "Data Analysis"]
+    },
+    {
+      "id": "DS-02",
+      "domain": "Data Science",
+      "candidate": {
+        "summary": "Data scientist with ML and Python skills.",
+        "skills": ["Python", "Machine Learning", "SQL", "Statistics", "Data Analysis"]
+      },
+      "job": {
+        "title": "Senior Data Scientist",
+        "skills": ["Python", "Deep Learning", "Machine Learning", "AWS", "Docker", "Statistics"]
+      },
+      "ground_truth_gaps": ["Deep Learning", "AWS", "Docker"]
+    },
+    {
+      "id": "DS-03",
+      "domain": "Data Science",
+      "candidate": {
+        "summary": "BI analyst skilled in Tableau and Power BI.",
+        "skills": ["Tableau", "Power BI", "SQL", "Excel", "Data Analysis"]
+      },
+      "job": {
+        "title": "Data Analyst",
+        "skills": ["SQL", "Python", "Tableau", "Data Analysis", "Statistics"]
+      },
+      "ground_truth_gaps": ["Python", "Statistics"]
+    },
+    {
+      "id": "DS-04",
+      "domain": "Data Science",
+      "candidate": {
+        "summary": "ML engineer with deep learning and Python expertise.",
+        "skills": ["Python", "Deep Learning", "Machine Learning", "Docker", "Git"]
+      },
+      "job": {
+        "title": "ML Engineer",
+        "skills": ["Python", "Machine Learning", "Deep Learning", "AWS", "Kubernetes", "System Design"]
+      },
+      "ground_truth_gaps": ["AWS", "Kubernetes", "System Design"]
+    },
+    {
+      "id": "DS-05",
+      "domain": "Data Science",
+      "candidate": {
+        "summary": "Research scientist with statistics and Python background.",
+        "skills": ["Python", "Statistics", "Machine Learning", "Documentation"]
+      },
+      "job": {
+        "title": "Applied Scientist",
+        "skills": ["Python", "Machine Learning", "Deep Learning", "Statistics", "Communication"]
+      },
+      "ground_truth_gaps": ["Deep Learning", "Communication"]
+    },
+    {
+      "id": "DS-06",
+      "domain": "Data Science",
+      "candidate": {
+        "summary": "Data engineer with pipeline and database experience.",
+        "skills": ["Python", "SQL", "MongoDB", "AWS", "Docker"]
+      },
+      "job": {
+        "title": "Data Engineer",
+        "skills": ["Python", "SQL", "AWS", "Docker", "Kubernetes", "Data Analysis"]
+      },
+      "ground_truth_gaps": ["Kubernetes", "Data Analysis"]
+    },
+    {
+      "id": "DS-07",
+      "domain": "Data Science",
+      "candidate": {
+        "summary": "Business analyst with Excel and reporting skills.",
+        "skills": ["Excel", "SQL", "Power BI", "Communication", "Project Management"]
+      },
+      "job": {
+        "title": "Data Analyst",
+        "skills": ["SQL", "Python", "Power BI", "Statistics", "Data Analysis"]
+      },
+      "ground_truth_gaps": ["Python", "Statistics", "Data Analysis"]
+    },
+    {
+      "id": "DS-08",
+      "domain": "Data Science",
+      "candidate": {
+        "summary": "NLP researcher with Python and deep learning skills.",
+        "skills": ["Python", "Deep Learning", "Machine Learning", "Statistics", "Documentation"]
+      },
+      "job": {
+        "title": "NLP Engineer",
+        "skills": ["Python", "Deep Learning", "Machine Learning", "AWS", "REST API"]
+      },
+      "ground_truth_gaps": ["AWS", "REST API"]
+    },
+    {
+      "id": "DS-09",
+      "domain": "Data Science",
+      "candidate": {
+        "summary": "Statistician with R and Excel background.",
+        "skills": ["Statistics", "Excel", "SQL", "Communication"]
+      },
+      "job": {
+        "title": "Quantitative Analyst",
+        "skills": ["Python", "Statistics", "SQL", "Machine Learning", "Financial Analysis"]
+      },
+      "ground_truth_gaps": ["Python", "Machine Learning", "Financial Analysis"]
+    },
+    {
+      "id": "DS-10",
+      "domain": "Data Science",
+      "candidate": {
+        "summary": "Senior data scientist with broad ML and cloud skills.",
+        "skills": ["Python", "Machine Learning", "Deep Learning", "AWS", "Statistics", "Data Analysis"]
+      },
+      "job": {
+        "title": "Head of Data Science",
+        "skills": ["Machine Learning", "Leadership", "Strategy", "Communication", "AWS"]
+      },
+      "ground_truth_gaps": ["Leadership", "Strategy"]
+    },
+    {
+      "id": "SA-01",
+      "domain": "Sales",
+      "candidate": {
+        "summary": "Sales representative with CRM and communication skills.",
+        "skills": ["Sales", "CRM", "Communication", "Negotiation"]
+      },
+      "job": {
+        "title": "Sales Manager",
+        "skills": ["Sales", "CRM", "Leadership", "Negotiation", "Strategy"]
+      },
+      "ground_truth_gaps": ["Leadership", "Strategy"]
+    },
+    {
+      "id": "SA-02",
+      "domain": "Sales",
+      "candidate": {
+        "summary": "Account executive with Salesforce and B2B sales experience.",
+        "skills": ["Sales", "Salesforce", "Negotiation", "Communication", "CRM"]
+      },
+      "job": {
+        "title": "Enterprise Account Executive",
+        "skills": ["Sales", "Salesforce", "Negotiation", "Business Development", "Strategy"]
+      },
+      "ground_truth_gaps": ["Business Development", "Strategy"]
+    },
+    {
+      "id": "SA-03",
+      "domain": "Sales",
+      "candidate": {
+        "summary": "Inside sales rep with phone and email outreach skills.",
+        "skills": ["Sales", "Communication", "CRM", "Time Management"]
+      },
+      "job": {
+        "title": "Sales Lead",
+        "skills": ["Sales", "CRM", "Leadership", "Marketing", "Negotiation"]
+      },
+      "ground_truth_gaps": ["Leadership", "Marketing", "Negotiation"]
+    },
+    {
+      "id": "SA-04",
+      "domain": "Sales",
+      "candidate": {
+        "summary": "Sales manager with team leadership and strategy experience.",
+        "skills": ["Sales", "Leadership", "Strategy", "CRM", "Negotiation", "Communication"]
+      },
+      "job": {
+        "title": "VP of Sales",
+        "skills": ["Sales", "Leadership", "Strategy", "Business Development", "Financial Analysis"]
+      },
+      "ground_truth_gaps": ["Business Development", "Financial Analysis"]
+    },
+    {
+      "id": "SA-05",
+      "domain": "Sales",
+      "candidate": {
+        "summary": "Retail sales associate with customer service background.",
+        "skills": ["Sales", "Communication", "Customer Success", "Time Management"]
+      },
+      "job": {
+        "title": "B2B Sales Representative",
+        "skills": ["Sales", "CRM", "Negotiation", "Communication", "Business Development"]
+      },
+      "ground_truth_gaps": ["CRM", "Negotiation", "Business Development"]
+    },
+    {
+      "id": "SA-06",
+      "domain": "Sales",
+      "candidate": {
+        "summary": "Sales analyst with data and reporting skills.",
+        "skills": ["Sales", "Excel", "SQL", "Data Analysis", "Communication"]
+      },
+      "job": {
+        "title": "Sales Operations Manager",
+        "skills": ["Sales", "Salesforce", "Data Analysis", "Strategy", "Project Management"]
+      },
+      "ground_truth_gaps": ["Salesforce", "Strategy", "Project Management"]
+    },
+    {
+      "id": "SA-07",
+      "domain": "Sales",
+      "candidate": {
+        "summary": "Channel sales manager with partner management experience.",
+        "skills": ["Sales", "Negotiation", "CRM", "Leadership", "Communication"]
+      },
+      "job": {
+        "title": "Director of Sales",
+        "skills": ["Sales", "Leadership", "Strategy", "Business Development", "Financial Analysis"]
+      },
+      "ground_truth_gaps": ["Strategy", "Business Development", "Financial Analysis"]
+    },
+    {
+      "id": "SA-08",
+      "domain": "Sales",
+      "candidate": {
+        "summary": "SaaS sales rep with product demo and pipeline skills.",
+        "skills": ["Sales", "CRM", "Salesforce", "Communication", "Negotiation"]
+      },
+      "job": {
+        "title": "Senior Sales Executive",
+        "skills": ["Sales", "CRM", "Salesforce", "Leadership", "Strategy", "Business Development"]
+      },
+      "ground_truth_gaps": ["Leadership", "Strategy", "Business Development"]
+    },
+    {
+      "id": "SA-09",
+      "domain": "Sales",
+      "candidate": {
+        "summary": "Marketing professional transitioning to sales.",
+        "skills": ["Marketing", "Communication", "Content Marketing", "SEO"]
+      },
+      "job": {
+        "title": "Sales Representative",
+        "skills": ["Sales", "CRM", "Negotiation", "Communication", "Customer Success"]
+      },
+      "ground_truth_gaps": ["Sales", "CRM", "Negotiation", "Customer Success"]
+    },
+    {
+      "id": "SA-10",
+      "domain": "Sales",
+      "candidate": {
+        "summary": "Customer success manager with retention and upsell experience.",
+        "skills": ["Customer Success", "CRM", "Communication", "Negotiation", "Sales"]
+      },
+      "job": {
+        "title": "Sales Manager",
+        "skills": ["Sales", "CRM", "Leadership", "Strategy", "Negotiation"]
+      },
+      "ground_truth_gaps": ["Leadership", "Strategy"]
+    },
+    {
+      "id": "MK-01",
+      "domain": "Marketing",
+      "candidate": {
+        "summary": "Marketing coordinator with social media and content skills.",
+        "skills": ["Marketing", "Social Media", "Content Marketing", "Communication"]
+      },
+      "job": {
+        "title": "Marketing Manager",
+        "skills": ["Marketing", "SEO", "Tableau", "Strategy", "Leadership"]
+      },
+      "ground_truth_gaps": ["SEO", "Tableau", "Strategy", "Leadership"]
+    },
+    {
+      "id": "MK-02",
+      "domain": "Marketing",
+      "candidate": {
+        "summary": "SEO specialist with content and analytics background.",
+        "skills": ["SEO", "Content Marketing", "Google Analytics", "Communication"]
+      },
+      "job": {
+        "title": "Digital Marketing Manager",
+        "skills": ["SEO", "Content Marketing", "Tableau", "Social Media", "Strategy"]
+      },
+      "ground_truth_gaps": ["Tableau", "Strategy"]
+    },
+    {
+      "id": "MK-03",
+      "domain": "Marketing",
+      "candidate": {
+        "summary": "Brand manager with market research and strategy experience.",
+        "skills": ["Brand Management", "Market Research", "Strategy", "Communication"]
+      },
+      "job": {
+        "title": "Senior Brand Manager",
+        "skills": ["Brand Management", "Market Research", "Strategy", "Leadership", "Financial Analysis"]
+      },
+      "ground_truth_gaps": ["Leadership", "Financial Analysis"]
+    },
+    {
+      "id": "MK-04",
+      "domain": "Marketing",
+      "candidate": {
+        "summary": "Content writer with SEO and social media skills.",
+        "skills": ["Content Marketing", "SEO", "Social Media", "Communication"]
+      },
+      "job": {
+        "title": "Content Marketing Manager",
+        "skills": ["Content Marketing", "SEO", "Strategy", "Leadership", "Tableau"]
+      },
+      "ground_truth_gaps": ["Strategy", "Leadership", "Tableau"]
+    },
+    {
+      "id": "MK-05",
+      "domain": "Marketing",
+      "candidate": {
+        "summary": "Growth marketer with data-driven campaign experience.",
+        "skills": ["Marketing", "Data Analysis", "SEO", "Social Media", "Excel"]
+      },
+      "job": {
+        "title": "Growth Marketing Manager",
+        "skills": ["Marketing", "Data Analysis", "SEO", "Tableau", "Strategy"]
+      },
+      "ground_truth_gaps": ["Tableau", "Strategy"]
+    },
+    {
+      "id": "MK-06",
+      "domain": "Marketing",
+      "candidate": {
+        "summary": "Product marketer with go-to-market and positioning experience.",
+        "skills": ["Marketing", "Market Research", "Communication", "Strategy"]
+      },
+      "job": {
+        "title": "Product Marketing Manager",
+        "skills": ["Marketing", "Market Research", "Strategy", "Sales", "Leadership"]
+      },
+      "ground_truth_gaps": ["Sales", "Leadership"]
+    },
+    {
+      "id": "MK-07",
+      "domain": "Marketing",
+      "candidate": {
+        "summary": "Email marketer with CRM and automation skills.",
+        "skills": ["Marketing", "CRM", "Content Marketing", "Communication"]
+      },
+      "job": {
+        "title": "Marketing Automation Manager",
+        "skills": ["Marketing", "CRM", "Salesforce", "Data Analysis", "Strategy"]
+      },
+      "ground_truth_gaps": ["Salesforce", "Data Analysis", "Strategy"]
+    },
+    {
+      "id": "MK-08",
+      "domain": "Marketing",
+      "candidate": {
+        "summary": "Social media manager with influencer and community skills.",
+        "skills": ["Social Media", "Content Marketing", "Communication", "Brand Management"]
+      },
+      "job": {
+        "title": "Social Media Director",
+        "skills": ["Social Media", "Brand Management", "Strategy", "Leadership", "Tableau"]
+      },
+      "ground_truth_gaps": ["Strategy", "Leadership", "Tableau"]
+    },
+    {
+      "id": "MK-09",
+      "domain": "Marketing",
+      "candidate": {
+        "summary": "Marketing executive with broad campaign management experience.",
+        "skills": ["Marketing", "SEO", "Content Marketing", "Social Media", "Communication"]
+      },
+      "job": {
+        "title": "Marketing Manager",
+        "skills": ["Marketing", "SEO", "Tableau", "Content Marketing", "Strategy"]
+      },
+      "ground_truth_gaps": ["Tableau", "Strategy"]
+    },
+    {
+      "id": "MK-10",
+      "domain": "Marketing",
+      "candidate": {
+        "summary": "Sales rep transitioning to marketing.",
+        "skills": ["Sales", "CRM", "Negotiation", "Communication"]
+      },
+      "job": {
+        "title": "Marketing Manager",
+        "skills": ["Marketing", "SEO", "Tableau", "Content Marketing", "Brand Management"]
+      },
+      "ground_truth_gaps": ["Marketing", "SEO", "Tableau", "Content Marketing", "Brand Management"]
+    },
+    {
+      "id": "HR-01",
+      "domain": "HR",
+      "candidate": {
+        "summary": "HR coordinator with recruitment and onboarding experience.",
+        "skills": ["HR", "Recruitment", "Communication", "Documentation"]
+      },
+      "job": {
+        "title": "HR Manager",
+        "skills": ["HR", "Recruitment", "Training", "Coaching", "Strategy"]
+      },
+      "ground_truth_gaps": ["Training", "Coaching", "Strategy"]
+    },
+    {
+      "id": "HR-02",
+      "domain": "HR",
+      "candidate": {
+        "summary": "Talent acquisition specialist with sourcing and interviewing skills.",
+        "skills": ["Recruitment", "Communication", "HR", "CRM"]
+      },
+      "job": {
+        "title": "HR Business Partner",
+        "skills": ["HR", "Recruitment", "Training", "Leadership", "Strategy"]
+      },
+      "ground_truth_gaps": ["Training", "Leadership", "Strategy"]
+    },
+    {
+      "id": "HR-03",
+      "domain": "HR",
+      "candidate": {
+        "summary": "L&D specialist with training design and facilitation skills.",
+        "skills": ["Training", "Coaching", "Communication", "Documentation"]
+      },
+      "job": {
+        "title": "HR Manager",
+        "skills": ["HR", "Recruitment", "Training", "Coaching", "Strategy"]
+      },
+      "ground_truth_gaps": ["HR", "Recruitment", "Strategy"]
+    },
+    {
+      "id": "HR-04",
+      "domain": "HR",
+      "candidate": {
+        "summary": "HR manager with full-cycle HR and strategy experience.",
+        "skills": ["HR", "Recruitment", "Training", "Coaching", "Strategy", "Leadership"]
+      },
+      "job": {
+        "title": "HR Director",
+        "skills": ["HR", "Leadership", "Strategy", "Financial Analysis", "Operations"]
+      },
+      "ground_truth_gaps": ["Financial Analysis", "Operations"]
+    },
+    {
+      "id": "HR-05",
+      "domain": "HR",
+      "candidate": {
+        "summary": "Payroll specialist with Excel and compliance background.",
+        "skills": ["Excel", "Documentation", "Communication", "Time Management"]
+      },
+      "job": {
+        "title": "HR Generalist",
+        "skills": ["HR", "Recruitment", "Training", "Communication", "Excel"]
+      },
+      "ground_truth_gaps": ["HR", "Recruitment", "Training"]
+    },
+    {
+      "id": "HR-06",
+      "domain": "HR",
+      "candidate": {
+        "summary": "HR executive with employee relations and policy experience.",
+        "skills": ["HR", "Communication", "Documentation", "Recruitment"]
+      },
+      "job": {
+        "title": "HR Manager",
+        "skills": ["HR", "Recruitment", "Training", "Coaching", "Strategy"]
+      },
+      "ground_truth_gaps": ["Training", "Coaching", "Strategy"]
+    },
+    {
+      "id": "HR-07",
+      "domain": "HR",
+      "candidate": {
+        "summary": "Organizational development consultant with coaching skills.",
+        "skills": ["Coaching", "Training", "Leadership", "Communication", "Strategy"]
+      },
+      "job": {
+        "title": "HR Business Partner",
+        "skills": ["HR", "Recruitment", "Training", "Leadership", "Strategy"]
+      },
+      "ground_truth_gaps": ["HR", "Recruitment"]
+    },
+    {
+      "id": "HR-08",
+      "domain": "HR",
+      "candidate": {
+        "summary": "Compensation analyst with data and Excel skills.",
+        "skills": ["Excel", "Data Analysis", "Financial Analysis", "Communication"]
+      },
+      "job": {
+        "title": "HR Analyst",
+        "skills": ["HR", "Excel", "Data Analysis", "Tableau", "Communication"]
+      },
+      "ground_truth_gaps": ["HR", "Tableau"]
+    },
+    {
+      "id": "HR-09",
+      "domain": "HR",
+      "candidate": {
+        "summary": "HR manager with broad generalist experience.",
+        "skills": ["HR", "Recruitment", "Training", "Coaching", "Communication"]
+      },
+      "job": {
+        "title": "Senior HR Manager",
+        "skills": ["HR", "Recruitment", "Training", "Coaching", "Strategy", "Leadership"]
+      },
+      "ground_truth_gaps": ["Strategy", "Leadership"]
+    },
+    {
+      "id": "HR-10",
+      "domain": "HR",
+      "candidate": {
+        "summary": "Operations manager transitioning to HR leadership.",
+        "skills": ["Operations", "Leadership", "Strategy", "Communication", "Project Management"]
+      },
+      "job": {
+        "title": "HR Director",
+        "skills": ["HR", "Leadership", "Strategy", "Recruitment", "Training"]
+      },
+      "ground_truth_gaps": ["HR", "Recruitment", "Training"]
+    },
+    {
+      "id": "OP-01",
+      "domain": "Operations",
+      "candidate": {
+        "summary": "Warehouse associate with inventory and forklift experience.",
+        "skills": ["Inventory Management", "Forklift Operation", "Safety Compliance", "Time Management"]
+      },
+      "job": {
+        "title": "Warehouse Supervisor",
+        "skills": ["Inventory Management", "Safety Compliance", "Leadership", "Training", "Operations"]
+      },
+      "ground_truth_gaps": ["Leadership", "Training", "Operations"]
+    },
+    {
+      "id": "OP-02",
+      "domain": "Operations",
+      "candidate": {
+        "summary": "Field technician with equipment maintenance and troubleshooting skills.",
+        "skills": ["Equipment Maintenance", "Troubleshooting", "Documentation", "Safety Compliance"]
+      },
+      "job": {
+        "title": "Senior Field Technician",
+        "skills": ["Equipment Maintenance", "Troubleshooting", "Quality Control", "Time Management", "Documentation"]
+      },
+      "ground_truth_gaps": ["Quality Control", "Time Management"]
+    },
+    {
+      "id": "OP-03",
+      "domain": "Operations",
+      "candidate": {
+        "summary": "Supply chain coordinator with logistics and vendor management.",
+        "skills": ["Supply Chain", "Logistics", "Excel", "Communication"]
+      },
+      "job": {
+        "title": "Supply Chain Manager",
+        "skills": ["Supply Chain", "Logistics", "Strategy", "Leadership", "Financial Analysis"]
+      },
+      "ground_truth_gaps": ["Strategy", "Leadership", "Financial Analysis"]
+    },
+    {
+      "id": "OP-04",
+      "domain": "Operations",
+      "candidate": {
+        "summary": "Operations analyst with process improvement and data skills.",
+        "skills": ["Operations", "Data Analysis", "Excel", "Project Management"]
+      },
+      "job": {
+        "title": "Operations Manager",
+        "skills": ["Operations", "Leadership", "Strategy", "Project Management", "Financial Analysis"]
+      },
+      "ground_truth_gaps": ["Leadership", "Strategy", "Financial Analysis"]
+    },
+    {
+      "id": "OP-05",
+      "domain": "Operations",
+      "candidate": {
+        "summary": "Quality control inspector with documentation and compliance skills.",
+        "skills": ["Quality Control", "Documentation", "Safety Compliance", "Time Management"]
+      },
+      "job": {
+        "title": "Quality Assurance Manager",
+        "skills": ["Quality Control", "Documentation", "Leadership", "Training", "Strategy"]
+      },
+      "ground_truth_gaps": ["Leadership", "Training", "Strategy"]
+    },
+    {
+      "id": "OP-06",
+      "domain": "Operations",
+      "candidate": {
+        "summary": "Logistics coordinator with shipping and inventory experience.",
+        "skills": ["Logistics", "Inventory Management", "Supply Chain", "Communication"]
+      },
+      "job": {
+        "title": "Logistics Manager",
+        "skills": ["Logistics", "Supply Chain", "Leadership", "Strategy", "Financial Analysis"]
+      },
+      "ground_truth_gaps": ["Leadership", "Strategy", "Financial Analysis"]
+    },
+    {
+      "id": "OP-07",
+      "domain": "Operations",
+      "candidate": {
+        "summary": "Project coordinator with Agile and communication skills.",
+        "skills": ["Project Management", "Agile", "Communication", "Documentation"]
+      },
+      "job": {
+        "title": "Operations Project Manager",
+        "skills": ["Project Management", "Operations", "Leadership", "Strategy", "Financial Analysis"]
+      },
+      "ground_truth_gaps": ["Operations", "Leadership", "Strategy", "Financial Analysis"]
+    },
+    {
+      "id": "OP-08",
+      "domain": "Operations",
+      "candidate": {
+        "summary": "Facilities manager with safety and maintenance oversight.",
+        "skills": ["Safety Compliance", "Equipment Maintenance", "Operations", "Documentation"]
+      },
+      "job": {
+        "title": "Facilities Operations Manager",
+        "skills": ["Safety Compliance", "Operations", "Leadership", "Budgeting", "Project Management"]
+      },
+      "ground_truth_gaps": ["Leadership", "Budgeting", "Project Management"]
+    },
+    {
+      "id": "OP-09",
+      "domain": "Operations",
+      "candidate": {
+        "summary": "Warehouse supervisor with team leadership and safety experience.",
+        "skills": ["Inventory Management", "Safety Compliance", "Leadership", "Training", "Operations"]
+      },
+      "job": {
+        "title": "Distribution Center Manager",
+        "skills": ["Operations", "Leadership", "Supply Chain", "Strategy", "Financial Analysis"]
+      },
+      "ground_truth_gaps": ["Supply Chain", "Strategy", "Financial Analysis"]
+    },
+    {
+      "id": "OP-10",
+      "domain": "Operations",
+      "candidate": {
+        "summary": "Senior operations manager with broad cross-functional experience.",
+        "skills": ["Operations", "Leadership", "Strategy", "Project Management", "Financial Analysis"]
+      },
+      "job": {
+        "title": "VP of Operations",
+        "skills": ["Operations", "Leadership", "Strategy", "Financial Analysis", "Business Development"]
+      },
+      "ground_truth_gaps": ["Business Development"]
+    }
+  ]
+}
