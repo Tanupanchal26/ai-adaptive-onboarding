@@ -1,10 +1,13 @@
 import os, warnings, logging
-os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+os.environ["TRANSFORMERS_VERBOSITY"]       = "error"
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["TOKENIZERS_PARALLELISM"]        = "false"
 os.environ["HF_HUB_DISABLE_IMPLICIT_TOKEN"] = "1"
+os.environ["HF_HUB_VERBOSITY"]              = "error"
 warnings.filterwarnings("ignore")
 logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
+logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+logging.getLogger("transformers").setLevel(logging.ERROR)
 
 import fitz  # PyMuPDF
 import json
