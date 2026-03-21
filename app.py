@@ -274,16 +274,19 @@ with st.container():
                 border-radius:10px;margin-bottom:2rem;
                 border:1px solid {'#222222' if theme=='Dark Pro' else '#e2e8f0'}">
         <h1 style="color:{_hero_h1};margin:0;font-size:2.6rem;font-weight:600;letter-spacing:-0.5px;">
-            Adaptive Onboarding Engine
+            🎯 SkillBridge
         </h1>
-        <p style="color:{_hero_sub};font-size:1.18rem;max-width:720px;margin:.8rem auto 0;">
-            Skill-gap driven &nbsp;·&nbsp; Personalized &nbsp;·&nbsp; Enterprise-grade learning paths
+        <p style="color:{_hero_sub};font-size:1.35rem;font-weight:600;margin:.4rem auto 0;letter-spacing:.5px;">
+            Adaptive Onboarding Engine <span style="font-size:.95rem;font-weight:400;opacity:.6;">v2.0</span>
+        </p>
+        <p style="color:{_hero_sub};font-size:1rem;max-width:680px;margin:.6rem auto 0;opacity:.85;">
+            Semantic skill-gap analysis &nbsp;·&nbsp; Prerequisite-aware pathways &nbsp;·&nbsp; Works for any role
         </p>
     </div>
     """, unsafe_allow_html=True)
     st.divider()
 
-    st.markdown("#### ⚡ Try a Sample Profile")
+    st.markdown("#### ⚡ Instant Demo — Try a Sample Profile")
     b1, b2, b3, b4, b5, b6 = st.columns(6)
     if b1.button("🧑💻 Junior Dev",      use_container_width=True):
         st.session_state.resume_data = SAMPLES["junior"];      st.session_state.jd_data = JD_SAMPLES["junior"]
@@ -355,19 +358,19 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _pbg      = "#0a0a0a" if is_dark else "#f8fafc"
     _pfg      = "#111111" if is_dark else "#f1f5f9"
 
-    st.markdown(f"### ✅ **{from_role}** → **{to_role}**")
+    st.markdown(f"### 🎯 Analysis: **{from_role}** → **{to_role}**")
 
     # ── Skills pills ──────────────────────────────────────────────────────────
     with st.container():
         sc1, sc2 = st.columns(2)
         with sc1:
-            st.markdown("#### 🟢 Matched Skills")
+            st.markdown("#### ✅ Skills You Already Have")
             if matched:
                 st.markdown(" ".join([f"<span class='skill-pill'>✅ {s}</span>" for s in sorted(matched)]), unsafe_allow_html=True)
             else:
                 st.warning("No matching skills found.")
         with sc2:
-            st.markdown("#### 🔴 Skill Gaps")
+            st.markdown("#### 🚨 Gaps to Close")
             if gaps:
                 st.markdown(" ".join([f"<span class='gap-pill'>❌ {s}</span>" for s in sorted(gaps)]), unsafe_allow_html=True)
             else:
@@ -381,7 +384,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _have_col   = "#ffffff" if is_dark else "#16a34a"
     _gap_hi_col = "#555555" if is_dark else "#dc2626"
     _gap_lo_col = "#555555" if is_dark else "#d97706"
-    st.markdown("#### Skill Coverage")
+    st.markdown("#### 📊 Skill Coverage vs Role Requirements")
     for skill in sorted(jd_skills):
         have  = skill in candidate_skills
         pct   = 85 if have else (30 + (hash(skill) % 30))
@@ -404,7 +407,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     import matplotlib.pyplot as plt
 
     with st.container():
-        st.markdown("#### 🕸️ Skill Graph")
+        st.markdown("#### 🕸️ Skill Relationship Graph")
         G_skill = nx.Graph()
         center  = "You"
         G_skill.add_node(center, kind="center")
@@ -437,7 +440,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
         st.pyplot(fig_sk, use_container_width=True)
         plt.close(fig_sk)
-        st.caption("🟡 You  🟢 Matched skills  🔴 Skill gaps")
+        st.caption("🟡 You (center)  ·  🟢 Skills you have  ·  🔴 Gaps to close  ·  Edges = relationships")
 
     st.divider()
 
@@ -455,7 +458,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     missing_delta   = f"out of {len(jd_skills)} required"
 
     with st.container():
-        st.markdown("#### 🧠 Skill Intelligence Metrics")
+        st.markdown("#### 🧠 Skill Intelligence Dashboard")
         sim1, sim2, sim3 = st.columns(3)
         sim1.metric("📊 Skill Coverage",      f"{skill_coverage_pct}%",  coverage_delta)
         sim2.metric("❌ Missing Skills",       str(missing_skills_count), missing_delta)
@@ -478,7 +481,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     impact_pct     = round((impact_saved / BASELINE_HOURS) * 100) if impact_saved > 0 else 0
 
     with st.container():
-        st.subheader("📊 Impact Analysis")
+        st.subheader("⚡ Impact Analysis — AI Path vs Static Onboarding")
         if impact_saved > 0:
             st.success(
                 f"🚀 Your AI-optimized path takes **{total_hours}h** vs the **{BASELINE_HOURS}h** "
@@ -718,10 +721,11 @@ if st.session_state.resume_data and st.session_state.jd_data:
     tab1, tab2, tab3, tab4 = st.tabs(["📋 Personalized Path", "⚖️ Before vs After", "📅 Timeline View", "🔮 What-If Simulation"])
 
     with tab1:
-        st.markdown("### 📚 Your Learning Pathway")
+        st.markdown("### 📚 Your Personalized Learning Pathway")
+        st.caption("Powered by SkillBridge Adaptive Engine v2.0 · Semantic matching · Prerequisite-aware ordering")
 
         # ── Skill Badges with Mastery Levels ─────────────────────────────────
-        st.subheader("🛡️ Your Current Skills")
+        st.subheader("🛡️ Your Current Skill Profile")
         badge_cols = st.columns(4)
         _badge_grad = "linear-gradient(135deg,#1a1a1a,#222222)" if is_dark else "linear-gradient(90deg,#0ea5e9,#6366f1)"
         _badge_txt  = "#e0e0e0" if is_dark else "#fff"
@@ -751,8 +755,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
         ready_date  = _dtt.date.today() + _dtt.timedelta(days=days_needed)
         st.info(f"📅 At **4 hrs/day**, you’ll be role-ready by **{ready_date.strftime('%B %d, %Y')}** ({days_needed} days)")
 
-        st.subheader("📍 Your Personalized Onboarding Roadmap")
-        st.caption(f"Optimized sequence · Total: {total_hours}h · Prerequisite-aware")
+        st.subheader("📍 Optimized Learning Roadmap")
+        st.caption(f"Efficiency-ranked · Prerequisite-ordered · Total: {total_hours}h · Closes all {len(gaps)} gap(s)")
 
         # ── Step cards ────────────────────────────────────────────────────────────
         _diff_colors = {"beginner": "#00ff9d", "intermediate": "#00bfff", "advanced": "#ff4b4b"}
@@ -958,8 +962,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.markdown(f"""
         <div style="background:{_card_bg};padding:1.5rem;border-radius:16px;
                     margin-top:1rem;border:1px solid {'#334155' if is_dark else '#e2e8f0'}">
-            <h3 style="color:{_card_h};margin:0 0 .5rem 0;">📤 Export & Share Your Plan</h3>
-            <p style="color:{_export_sub};margin:0;">Download your personalized roadmap or share with your manager</p>
+            <h3 style="color:{_card_h};margin:0 0 .5rem 0;">📤 Export & Share Your Roadmap</h3>
+            <p style="color:{_export_sub};margin:0;">Download as PDF · CSV timeline · Plain-text HR summary</p>
         </div>
         """, unsafe_allow_html=True)
         st.markdown("")
@@ -1360,7 +1364,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.markdown("---")
     st.markdown(
         "<p style='text-align:center;color:#555555;font-size:13px;letter-spacing:.3px;'>"
-        "Built in Ahmedabad &nbsp;·&nbsp; Hackathon 2026 &nbsp;·&nbsp; Powered by LLaMA 3.2"
+        "SkillBridge Adaptive Engine v2.0 &nbsp;·&nbsp; Built by Tanya Panchal &nbsp;·&nbsp; Hackathon 2025"
+        "<br><span style='font-size:11px;opacity:.6;'>Powered by LLaMA 3.2 · GPT-4o-mini · sentence-transformers · NetworkX</span>"
         "</p>",
         unsafe_allow_html=True
     )
