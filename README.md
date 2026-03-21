@@ -187,6 +187,16 @@ The engine is domain-agnostic and validated across both role families:
 
 ---
 
+## 🛡️ Grounding and Reliability
+
+### Zero-hallucination enforcement
+All LLM calls use `response_format: {"type": "json_schema"}` with a strict schema
+that rejects any skill not present in the 65-skill O*NET taxonomy. If the LLM returns
+an unrecognized skill, it is silently dropped and never reaches the pathway generator.
+This eliminates hallucinated course recommendations by design.
+
+---
+
 ## 🔬 Advanced Features
 
 ### Semantic Skill Normalization
