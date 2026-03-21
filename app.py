@@ -19,7 +19,7 @@ except ImportError:
 
 st.set_page_config(
     page_title="AI Adaptive Onboarding Engine",
-    page_icon="🎯",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="auto"
 )
@@ -164,7 +164,7 @@ for key in ("resume_data", "jd_data"):
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    theme = st.radio("🎨 Theme", ["Dark Pro", "Light Corporate"])
+    theme = st.radio("Theme", ["Dark Pro", "Light Corporate"])
 
 if theme == "Light Corporate":
     st.markdown(LIGHT_CSS, unsafe_allow_html=True)
@@ -279,7 +279,7 @@ with st.container():
                 border-radius:10px;margin-bottom:2rem;
                 border:1px solid {'#222222' if theme=='Dark Pro' else '#e2e8f0'}">
         <h1 style="color:{_hero_h1};margin:0;font-size:2.6rem;font-weight:600;letter-spacing:-0.5px;">
-            🎯 SkillBridge
+            SkillBridge
         </h1>
         <p style="color:{_hero_sub};font-size:1.35rem;font-weight:600;margin:.4rem auto 0;letter-spacing:.5px;">
             Adaptive Onboarding Engine <span style="font-size:.95rem;font-weight:400;opacity:.6;">v2.0</span>
@@ -291,59 +291,59 @@ with st.container():
     """, unsafe_allow_html=True)
     st.divider()
 
-    st.markdown("#### ⚡ Instant Demo — Try a Sample Profile")
+    st.markdown("#### Instant Demo — Try a Sample Profile")
     b1, b2, b3, b4, b5, b6, b7, b8 = st.columns(8)
-    if b1.button("🧑💻 Junior Dev",      use_container_width=True):
+    if b1.button("Junior Dev",      use_container_width=True):
         st.session_state.resume_data = SAMPLES["junior"];      st.session_state.jd_data = JD_SAMPLES["junior"]
-    if b2.button("👨💼 Senior Engineer", use_container_width=True):
+    if b2.button("Senior Engineer", use_container_width=True):
         st.session_state.resume_data = SAMPLES["senior"];      st.session_state.jd_data = JD_SAMPLES["senior"]
-    if b3.button("💼 Sales Role",        use_container_width=True):
+    if b3.button("Sales Role",        use_container_width=True):
         st.session_state.resume_data = SAMPLES["sales"];       st.session_state.jd_data = JD_SAMPLES["sales"]
-    if b4.button("📣 Marketing Role",    use_container_width=True):
+    if b4.button("Marketing Role",    use_container_width=True):
         st.session_state.resume_data = SAMPLES["marketing"];   st.session_state.jd_data = JD_SAMPLES["marketing"]
-    if b5.button("🔀 Cross-Domain",      use_container_width=True):
+    if b5.button("Cross-Domain",      use_container_width=True):
         st.session_state.resume_data = SAMPLES["crossdomain"]; st.session_state.jd_data = JD_SAMPLES["crossdomain"]
-    if b6.button("👥 HR Role",           use_container_width=True):
+    if b6.button("HR Role",           use_container_width=True):
         st.session_state.resume_data = SAMPLES["hr"];          st.session_state.jd_data = JD_SAMPLES["hr"]
-    if b7.button("🏭 Warehouse",         use_container_width=True):
+    if b7.button("Warehouse",         use_container_width=True):
         st.session_state.resume_data = SAMPLES["warehouse"];   st.session_state.jd_data = JD_SAMPLES["warehouse"]
-    if b8.button("🔧 Field Tech",        use_container_width=True):
+    if b8.button("Field Tech",        use_container_width=True):
         st.session_state.resume_data = SAMPLES["fieldtech"];   st.session_state.jd_data = JD_SAMPLES["fieldtech"]
 
     st.divider()
 
     col1, col2 = st.columns(2)
     with col1:
-        resume_file = st.file_uploader("📄 Upload Resume (PDF)", type="pdf")
+        resume_file = st.file_uploader("Upload Resume (PDF)", type="pdf")
     with col2:
-        jd_file = st.file_uploader("📋 Upload Job Description (PDF or TXT)", type=["pdf", "txt"])
+        jd_file = st.file_uploader("Upload Job Description (PDF or TXT)", type=["pdf", "txt"])
 
 # ── FEATURE 1: Staged spinners ────────────────────────────────────────────────
-if st.button("🚀 Generate My Personalized Pathway", type="primary", use_container_width=True):
+if st.button("Generate My Personalized Pathway", type="primary", use_container_width=True):
     if not resume_file or not jd_file:
-        st.error("⚠️ Please upload both files, or click a sample button above.")
+        st.error("Please upload both files, or click a sample button above.")
         st.stop()
 
-    with st.spinner("🔍 Parsing resume..."):
+    with st.spinner("Parsing resume..."):
         rd = parse_file(resume_file.read(), resume_file.name)
     if "error" in rd: st.error(f"Resume error: {rd['error']}"); st.stop()
 
-    with st.spinner("📋 Parsing job description..."):
+    with st.spinner("Parsing job description..."):
         jd = parse_file(jd_file.read(), jd_file.name)
     if "error" in jd: st.error(f"JD error: {jd['error']}"); st.stop()
 
-    with st.spinner("📊 Calculating skill gaps..."):
+    with st.spinner("Calculating skill gaps..."):
         st.session_state.resume_data = rd
         st.session_state.jd_data     = jd
 
-    with st.expander("📄 What the AI understood from your resume", expanded=False):
+    with st.expander("What the AI understood from your resume", expanded=False):
         st.json({k: v for k, v in rd.items() if k != "_raw_text"})
         if "error" in rd:
             st.error("Resume parsing had issues — try a clearer PDF")
-    with st.expander("📋 What the AI understood from the job description", expanded=False):
+    with st.expander("What the AI understood from the job description", expanded=False):
         st.json({k: v for k, v in jd.items() if k != "_raw_text"})
 
-    st.success("✅ Pathway Ready!")
+    st.success("Pathway Ready!")
 
 # ── Results ───────────────────────────────────────────────────────────────────
 if st.session_state.resume_data and st.session_state.jd_data:
@@ -374,8 +374,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _pfg      = "#111111" if is_dark else "#f1f5f9"
 
     # [Improvement] adaptive signal — communicates live system behavior to judges/users
-    st.info("🔄 AI is dynamically adapting your learning pathway based on skill gaps...")
-    st.markdown(f"### 🎯 Analysis: **{from_role}** → **{to_role}**")
+    st.info("AI is dynamically adapting your learning pathway based on skill gaps...")
+    st.markdown(f"### Analysis: **{from_role}** → **{to_role}**")
 
     # ── Architecture Flow Banner ──────────────────────────────────────────────
     _af_bg  = "#0d1117" if is_dark else "#f8fafc"
@@ -465,7 +465,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     """, unsafe_allow_html=True)
 
     # ── AI Insight Section ────────────────────────────────────────────────────
-    with st.spinner("🤖 Generating AI insights..."):
+    with st.spinner("Generating AI insights..."):
         _insight = generate_ai_insight(
             from_role, to_role, matched, gaps,
             _pathway_preview, _opt_hours, _saved_hours, _readiness_score
@@ -518,7 +518,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     with st.container():
         pri1, pri2, pri3 = st.columns([2, 1, 1])
         with pri1:
-            st.markdown("### 🎯 Priority Skills")
+            st.markdown("### Priority Skills")
             st.caption("Top critical gaps ranked by semantic distance from your profile")
             # [Improvement] use critical_gaps from gap_result — already ranked by urgency
             priority_gaps = critical_gaps
@@ -526,7 +526,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
             _pri_bdr = "#3d1515" if is_dark else "#fecaca"
             _pri_txt = "#fca5a5" if is_dark else "#991b1b"
             for rank, skill in enumerate(priority_gaps, 1):
-                label = ["🔥 Critical", "⚠️ High", "📌 Medium"][rank - 1]
+                label = ["Critical", "High", "Medium"][rank - 1]
                 st.markdown(
                     f"<div style='background:{_pri_bg};border:1px solid {_pri_bdr};"
                     f"border-radius:8px;padding:.5rem 1rem;margin:.3rem 0;"
@@ -535,7 +535,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
                     f"<span style='font-size:.75rem;color:{_pri_txt};opacity:.8;'>{label}</span>"
                     f"</div>", unsafe_allow_html=True)
         with pri2:
-            st.markdown("### 🤖 AI Confidence")
+            st.markdown("### AI Confidence")
             st.caption("Model certainty on gap analysis")
             if match_confidence > 0:
                 confidence = min(99, round(match_confidence * 100))
@@ -544,7 +544,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
                 confidence = min(99, round(70 + _matched_ratio * 20 + min(rd.get("experience_years", 0), 5)))
             st.metric("AI Confidence", f"{confidence}%", delta="cosine >= 0.65", delta_color="off")
         with pri3:
-            st.markdown("### 📈 Progression")
+            st.markdown("### Progression")
             st.caption("Your adaptive journey")
             _prog_acc = "#3fb950" if is_dark else "#16a34a"
             _prog_dim = "#444" if is_dark else "#94a3b8"
@@ -559,11 +559,11 @@ if st.session_state.resume_data and st.session_state.jd_data:
     with st.container():
         sc1, sc2 = st.columns(2)
         with sc1:
-            st.markdown("#### ✅ Skills You Already Have")
+            st.markdown("#### Skills You Already Have")
             if matched:
                 pills = " ".join(
                     f"<span class='skill-pill' title='similarity: {sim_scores.get(s, 1.0):.2f}'>"
-                    f"✅ {s} "
+                    f"{s} "
                     f"<span style='opacity:.55;font-size:10px;'>{proficiency.get(s, {}).get('level', '')}</span>"
                     f"</span>"
                     for s in sorted(matched)
@@ -572,18 +572,18 @@ if st.session_state.resume_data and st.session_state.jd_data:
             else:
                 st.warning("No matching skills found.")
         with sc2:
-            st.markdown("#### 🚨 Gaps to Close")
+            st.markdown("#### Gaps to Close")
             if gaps:
                 pills = " ".join(
                     f"<span class='gap-pill' title='best score: {sim_scores.get(s, 0.0):.2f}'>"
-                    f"❌ {s} "
+                    f"{s} "
                     f"<span style='opacity:.55;font-size:10px;'>{proficiency.get(s, {}).get('level', 'Beginner')}</span>"
                     f"</span>"
                     for s in sorted(gaps)
                 )
                 st.markdown(pills, unsafe_allow_html=True)
             else:
-                st.success("🎉 No gaps — you're already qualified!"); st.stop()
+                st.success("No gaps — you're already qualified!"); st.stop()
 
     st.divider()
 
@@ -596,7 +596,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     # [Improvement] st.progress coverage bar — instant visual of readiness
     _cov_ratio = len(matched) / max(len(jd_skills), 1)
     st.progress(_cov_ratio, text=f"Skill coverage: {round(_cov_ratio * 100)}% of role requirements matched")
-    st.markdown("#### 📊 Skill Coverage vs Role Requirements")
+    st.markdown("#### Skill Coverage vs Role Requirements")
     for skill in sorted(jd_skills):
         have  = skill in matched
         score = sim_scores.get(skill, 1.0 if have else 0.0)
@@ -621,7 +621,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
     import matplotlib.pyplot as plt
 
     with st.container():
-        st.markdown("#### 🕸️ Skill Relationship Graph")
+        st.markdown("#### Skill Relationship Graph")
         G_skill = nx.Graph()
         center  = "You"
         G_skill.add_node(center, kind="center")
@@ -654,7 +654,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
         st.pyplot(fig_sk, use_container_width=True)
         plt.close(fig_sk)
-        st.caption("🟡 You (center)  ·  🟢 Skills you have  ·  🔴 Gaps to close  ·  Edges = relationships")
+        st.caption("You (center)  ·  Skills you have  ·  Gaps to close  ·  Edges = relationships")
 
     st.divider()
 
@@ -672,11 +672,11 @@ if st.session_state.resume_data and st.session_state.jd_data:
     missing_delta   = f"out of {len(jd_skills)} required"
 
     with st.container():
-        st.markdown("#### 🧠 Skill Intelligence Dashboard")
+        st.markdown("#### Skill Intelligence Dashboard")
         sim1, sim2, sim3 = st.columns(3)
-        sim1.metric("📊 Skill Coverage",      f"{skill_coverage_pct}%",  coverage_delta)
-        sim2.metric("❌ Missing Skills",       str(missing_skills_count), missing_delta)
-        sim3.metric("🎯 Role Readiness Score", f"{role_readiness_score}%", readiness_delta)
+        sim1.metric("Skill Coverage",      f"{skill_coverage_pct}%",  coverage_delta)
+        sim2.metric("Missing Skills",       str(missing_skills_count), missing_delta)
+        sim3.metric("Role Readiness Score", f"{role_readiness_score}%", readiness_delta)
 
     st.divider()
 
@@ -736,17 +736,17 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
     # [Improvement] Learning Efficiency st.metric — judges see coverage/time formula clearly
     _le1, _le2, _le3, _le4 = st.columns(4)
-    _le1.metric("⚡ Learning Efficiency",  f"{_eff_score:.3f} gaps/hr", "coverage ÷ time")
-    _le2.metric("🎯 Gaps Closed",          str(_gaps_closed),           f"of {len(jd_skills)} required")
-    _le3.metric("⏱️ Optimized Hours",      f"{total_hours}h",           f"-{hours_saved}h vs baseline")
-    _le4.metric("📈 Efficiency Gain",      f"{efficiency}%",            "vs 35h static baseline")
+    _le1.metric("Learning Efficiency",  f"{_eff_score:.3f} gaps/hr", "coverage / time")
+    _le2.metric("Gaps Closed",          str(_gaps_closed),           f"of {len(jd_skills)} required")
+    _le3.metric("Optimized Hours",      f"{total_hours}h",           f"-{hours_saved}h vs baseline")
+    _le4.metric("Efficiency Gain",      f"{efficiency}%",            "vs 35h static baseline")
     st.divider()
 
     with st.container():
-        st.subheader("⚡ Impact Analysis — AI Path vs Static Onboarding")
+        st.subheader("Impact Analysis — AI Path vs Static Onboarding")
         if impact_saved > 0:
             st.success(
-                f"🚀 Your AI-optimized path takes **{total_hours}h** vs the **{BASELINE_HOURS}h** "
+                f"Your AI-optimized path takes **{total_hours}h** vs the **{BASELINE_HOURS}h** "
                 f"standard baseline — saving you **{impact_saved} hours ({impact_pct}% faster)!**"
             )
         else:
@@ -756,9 +756,9 @@ if st.session_state.resume_data and st.session_state.jd_data:
             )
 
         ia1, ia2, ia3 = st.columns(3)
-        ia1.metric("⏱️ Optimized Path Time",  f"{total_hours}h",      f"-{impact_saved}h vs baseline")
-        ia2.metric("📋 Baseline Onboarding",   f"{BASELINE_HOURS}h",   "Standard industry average")
-        ia3.metric("⚡ Improvement",           f"{impact_pct}%",       f"{impact_saved}h saved")
+        ia1.metric("Optimized Path Time",  f"{total_hours}h",      f"-{impact_saved}h vs baseline")
+        ia2.metric("Baseline Onboarding",   f"{BASELINE_HOURS}h",   "Standard industry average")
+        ia3.metric("Improvement",           f"{impact_pct}%",       f"{impact_saved}h saved")
 
     # ── Skill Intelligence Panel (Upgrade 4) ──────────────────────────────────
     coverage_ratio = len(matched) / max(len(jd_skills), 1)
@@ -980,22 +980,22 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── FEATURE 5: Tabs ───────────────────────────────────────────────────────
-    tab1, tab2, tab3, tab4 = st.tabs(["📋 Personalized Path", "⚖️ Before vs After", "📅 Timeline View", "🔮 What-If Simulation"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Personalized Path", "Before vs After", "Timeline View", "What-If Simulation"])
 
     with tab1:
         # [Improvement] renamed output — Dynamically Optimized Learning Path
-        st.markdown("### 🚀 Dynamically Optimized Learning Path")
+        st.markdown("### Dynamically Optimized Learning Path")
         st.caption("Powered by SkillBridge Adaptive Engine v2.0 · Semantic matching · Prerequisite-aware ordering")
 
         # ── Skill Badges with Mastery Levels ─────────────────────────────────
-        st.subheader("🛡️ Your Current Skill Profile")
+        st.subheader("Your Current Skill Profile")
         badge_cols = st.columns(4)
         _badge_grad = "linear-gradient(135deg,#1a1a1a,#222222)" if is_dark else "linear-gradient(90deg,#0ea5e9,#6366f1)"
         _badge_txt  = "#e0e0e0" if is_dark else "#fff"
         _badge_bdr  = "1px solid #333333" if is_dark else "none"
         for i, skill in enumerate(sorted(candidate_skills)):
             mastery = (i % 3) + 2
-            stars = "⭐" * mastery
+            stars = "*" * mastery
             with badge_cols[i % 4]:
                 st.markdown(
                     f"<div style='background:{_badge_grad};padding:12px;"
@@ -1018,7 +1018,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         ready_date  = _dtt.date.today() + _dtt.timedelta(days=days_needed)
         st.info(f"📅 At **4 hrs/day**, you’ll be role-ready by **{ready_date.strftime('%B %d, %Y')}** ({days_needed} days)")
 
-        st.subheader("📍 Optimized Learning Roadmap")
+        st.subheader("Optimized Learning Roadmap")
         st.caption(f"Efficiency-ranked · Prerequisite-ordered · Total: {total_hours}h · Closes all {len(gaps)} gap(s)")
 
         # ── Step cards ────────────────────────────────────────────────────────────
@@ -1074,11 +1074,11 @@ if st.session_state.resume_data and st.session_state.jd_data:
 
         # [Improvement] skipped courses explainability — shows AI decision transparency
         if _skipped:
-            with st.expander("🔍 Courses Skipped by Optimizer", expanded=False):
+            with st.expander("Courses Skipped by Optimizer", expanded=False):
                 st.caption("These courses cover relevant skills but were excluded — lower efficiency score (gaps/hr) than selected courses.")
                 for _sk in _skipped:
                     st.markdown(
-                        f"<span style='color:#888;font-size:.88rem;'>⊘ <b>{_sk}</b> — "
+                        f"<span style='color:#888;font-size:.88rem;'><b>{_sk}</b> — "
                         f"Skipped due to lower relevance score vs selected path</span>",
                         unsafe_allow_html=True
                     )
@@ -1092,7 +1092,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
             _bc_h   = "#ffffff" if is_dark else "#0f172a"
             _bc_sub = "#777777" if is_dark else "#64748b"
             _bc_rsn = "#aaaaaa" if is_dark else "#475569"
-            with st.expander("🚀 Bonus: High-Value Courses for Your Career Growth", expanded=False):
+            with st.expander("Bonus: High-Value Courses for Your Career Growth", expanded=False):
                 st.caption("Based on your experience level & market trends — not required, but highly recommended")
                 for bc in bonus:
                     st.markdown(f"""
@@ -1168,7 +1168,7 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.plotly_chart(fig_gantt, use_container_width=True)
 
     with tab4:
-        st.markdown("### 🔮 What-If Simulation")
+        st.markdown("### What-If Simulation")
         st.caption("Select a course below to see how your skill gap reduces after completing it.")
 
         course_titles = [c["title"] for c in pathway]
@@ -1217,18 +1217,18 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.plotly_chart(fig_wi, use_container_width=True)
 
         if gaps_closed:
-            st.success(f"✅ Completing **{selected}** closes: {', '.join(sorted(gaps_closed))}")
+            st.success(f"Completing **{selected}** closes: {', '.join(sorted(gaps_closed))}")
         if not remaining:
             st.balloons()
-            st.success("🎉 This single course closes ALL your gaps — you're role-ready!")
+            st.success("This single course closes ALL your gaps — you're role-ready!")
         else:
-            st.info(f"📌 Still remaining after this course: {', '.join(sorted(remaining))}")
+            st.info(f"Still remaining after this course: {', '.join(sorted(remaining))}")
 
     st.divider()
 
     # [Improvement] Continuous Learning Loop — interactive slider drives live recalculation
-    with st.expander("🔁 Continuous Learning Loop — Simulate Adaptive Progress", expanded=False):
-        st.markdown("### 🔁 Continuous Learning Loop")
+    with st.expander("Continuous Learning Loop — Simulate Adaptive Progress", expanded=False):
+        st.markdown("### Continuous Learning Loop")
         st.write("System refines recommendations based on user progress and feedback")
         st.caption("This system uses semantic similarity, adaptive confidence scoring, and greedy optimization with a feedback loop to continuously generate optimal learning paths.")
 
@@ -1267,12 +1267,12 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.progress(_after_cov / 100, text=f"Coverage: {_before_cov}% → {_after_cov}%")
 
         if _sim_closed:
-            st.success(f"✅ Skills acquired: {', '.join(sorted(_sim_closed))}")
+            st.success(f"Skills acquired: {', '.join(sorted(_sim_closed))}")
         if not _sim_remaining and progress > 0:
             st.balloons()
-            st.success("🎉 All gaps closed — fully role-ready!")
+            st.success("All gaps closed — fully role-ready!")
         elif progress > 0:
-            st.info(f"📌 Still to learn: {', '.join(sorted(_sim_remaining))}")
+            st.info(f"Still to learn: {', '.join(sorted(_sim_remaining))}")
 
         st.markdown(f"""
         <div style="background:{_fb_bg};border:1px solid {_fb_bdr};border-radius:10px;padding:1.2rem 1.6rem;margin-top:.8rem;">
