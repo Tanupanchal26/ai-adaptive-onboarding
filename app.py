@@ -1,5 +1,6 @@
 import streamlit as st
 from parser import parse_file
+from catalog import normalize_skills, get_courses_for_gaps
 
 st.set_page_config(page_title="AI Adaptive Onboarding", layout="wide", page_icon="🎯")
 
@@ -8,7 +9,7 @@ with st.sidebar:
     st.markdown("## 🤖 How It Works")
     st.markdown("""
 - 📄 **Upload** your resume & job description
-- 🧠 **AI extracts** your skills vs. role requirements  
+- 🧠 **AI extracts** your skills vs. role requirements
 - 🗺️ **Get a personalized** learning roadmap instantly
 """)
     st.divider()
@@ -38,7 +39,6 @@ if st.button("🚀 Generate My Personalized Pathway", type="primary", use_contai
         resume_data = parse_file(resume_file.read(), resume_file.name)
         jd_data     = parse_file(jd_file.read(),     jd_file.name)
 
-    # ── Error handling ────────────────────────────────────────────────────────
     if "error" in resume_data:
         st.error(f"Resume parsing failed: {resume_data['error']}")
         st.stop()
@@ -49,47 +49,67 @@ if st.button("🚀 Generate My Personalized Pathway", type="primary", use_contai
     st.success("✅ Extraction complete!")
     st.divider()
 
-    # ── Show extracted skills side by side ────────────────────────────────────
-    r_col, j_col = st.columns(2)
+    # ── Normalize skills ──────────────────────────────────────────────────────
+    candidate_skills = normalize_skills(resume_data.get("skills", []))
+    jd_skills        = normalize_skills(jd_data.get("skills", []))
+    gaps             = jd_skills - candidate_skills
+    matched          = jd_skills & candidate_skills
 
+    # ── Skills columns ────────────────────────────────────────────────────────
+    r_col, j_col = st.columns(2)
     with r_col:
         st.markdown("### 🟢 Your Skills")
         st.markdown(f"**Role:** {resume_data.get('role', 'N/A')}")
-        st.markdown(f"**Experience:** {resume_data.get('experience_years', 'N/A')} years")
-        skills = resume_data.get("skills", [])
-        if skills:
-            for s in skills:
-                st.markdown(f"- ✅ {s}")
-        else:
-            st.warning("No skills extracted.")
+        st.markdown(f"**Experience:** {resume_data.get('experience_years', 'N/A')} yrs")
+        for s in sorted(candidate_skills):
+            st.markdown(f"- ✅ {s}")
 
     with j_col:
         st.markdown("### 🔵 Role Requirements")
         st.markdown(f"**Target Role:** {jd_data.get('role', 'N/A')}")
-        st.markdown(f"**Experience Required:** {jd_data.get('experience_years', 'N/A')} years")
-        req_skills = jd_data.get("skills", [])
-        if req_skills:
-            for s in req_skills:
-                st.markdown(f"- 📌 {s}")
-        else:
-            st.warning("No requirements extracted.")
+        st.markdown(f"**Experience Required:** {jd_data.get('experience_years', 'N/A')} yrs")
+        for s in sorted(jd_skills):
+            st.markdown(f"- 📌 {s}")
 
-    # ── Gap preview ───────────────────────────────────────────────────────────
     st.divider()
-    st.markdown("### 🔍 Skill Gap Preview")
-    candidate_set = {s.lower() for s in skills}
-    required_set  = {s.lower() for s in req_skills}
-    gaps = required_set - candidate_set
-    matched = required_set & candidate_set
 
-    g1, g2 = st.columns(2)
-    with g1:
-        st.success(f"✅ **{len(matched)} skills matched**")
+    # ── Skill Gap Analysis ────────────────────────────────────────────────────
+    st.markdown("## 🔍 Skill Gap Analysis")
+
+    m_col, g_col = st.columns(2)
+    with m_col:
+        st.success(f"✅ {len(matched)} Skills Matched")
         for s in sorted(matched):
-            st.markdown(f"  - {s}")
-    with g2:
-        st.error(f"❌ **{len(gaps)} skills missing**")
-        for s in sorted(gaps):
-            st.markdown(f"  - {s}")
+            st.markdown(f"- {s}")
 
-    st.info("🗺️ Full learning path generation coming in the next step!")
+    with g_col:
+        st.error(f"❌ {len(gaps)} Skills Missing")
+        for s in sorted(gaps):
+            # Proficiency hint based on skill type
+            level = "beginner"
+            if s in {"Machine Learning", "AWS", "Docker", "Tableau"}:
+                level = "intermediate"
+            elif s in {"Leadership", "Project Management"}:
+                level = "intermediate"
+            st.markdown(f"- **{s}** *(start: {level})*")
+
+    st.divider()
+
+    # ── Recommended Courses ───────────────────────────────────────────────────
+    if gaps:
+        st.markdown("## 📚 Recommended Courses to Close Gaps")
+        courses = get_courses_for_gaps(gaps)
+        if courses:
+            total_hours = sum(c["duration"] for c in courses)
+            st.info(f"🕐 Total learning time: **{total_hours} hours** across {len(courses)} courses")
+            for c in courses:
+                badge = "🟢" if c["difficulty"] == "beginner" else "🟡"
+                st.markdown(
+                    f"{badge} **{c['title']}** — {c['duration']}h · "
+                    f"`{c['difficulty']}` · Skills: {', '.join(c['skills'])}"
+                )
+        else:
+            st.warning("No matching courses found in catalog for these gaps.")
+    else:
+        st.balloons()
+        st.success("🎉 You already have all the required skills for this role!")
