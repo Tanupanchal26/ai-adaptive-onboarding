@@ -55,6 +55,8 @@ DARK_CSS = """
     }
     div[data-testid="stExpander"] { background:#1e293b; border-radius:12px; border:1px solid #334155; }
     [data-testid="metric-container"] { background:#1e293b; border-radius:12px; padding:12px; border:1px solid #334155; animation:fadeIn .4s ease; }
+    .main .block-container { padding-top:2rem !important; padding-bottom:4rem !important; max-width:1100px; margin:0 auto; }
+    hr { margin:2.5rem 0; border-color:#334155; }
 </style>
 """
 LIGHT_CSS = """
@@ -87,6 +89,8 @@ LIGHT_CSS = """
     }
     div[data-testid="stExpander"] { background:#fff; border-radius:12px; border:1px solid #e2e8f0; }
     [data-testid="metric-container"] { background:#fff; border-radius:12px; padding:12px; border:1px solid #e2e8f0; box-shadow:0 1px 4px #0001; animation:fadeIn .4s ease; }
+    .main .block-container { padding-top:2rem !important; padding-bottom:4rem !important; max-width:1100px; margin:0 auto; }
+    hr { margin:2.5rem 0; border-color:#e2e8f0; }
 </style>
 """
 
@@ -299,12 +303,26 @@ if st.session_state.resume_data and st.session_state.jd_data:
     txt_color = "#e2e8f0" if is_dark else "#1e293b"
     accent    = "#00f0ff" if is_dark else "#0ea5e9"
 
-    # Hero metrics row
+    # Hero metrics row — card style
     hm1, hm2, hm3 = st.columns(3)
-    cost_saved = round(hours_saved * 800)  # ₹800/hr onboarding cost estimate
-    hm1.metric("⏱️ Time Saved",           f"{hours_saved} hrs",   f"{efficiency}% faster")
-    hm2.metric("🎯 Readiness After Path",  f"{post_path:.0f}%",    f"+{post_path-readiness:.0f}%")
-    hm3.metric("💰 Est. Cost Saving",      f"₹{cost_saved:,}",     "per hire")
+    cost_saved = round(hours_saved * 800)
+    _mc = "#60a5fa" if is_dark else "#0ea5e9"
+    _mg = "#4ade80"
+    _my = "#fbbf24"
+    _mbg = "#1e293b" if is_dark else "#ffffff"
+    _mbd = "#334155" if is_dark else "#e2e8f0"
+    _mst = "#94a3b8" if is_dark else "#64748b"
+    for col, label, value, color in [
+        (hm1, "Time to Competency",  f"{total_hours}h",       _mc),
+        (hm2, "Time Saved",          f"{hours_saved}h",       _mg),
+        (hm3, "Gaps Closed",         str(len(gaps)),          _my),
+    ]:
+        col.markdown(f"""
+        <div style="background:{_mbg};padding:1.4rem;border-radius:10px;
+                    border:1px solid {_mbd};text-align:center;">
+            <div style="font-size:.9rem;color:{_mst};margin-bottom:.4rem;">{label}</div>
+            <div style="font-size:2rem;font-weight:700;color:{color};">{value}</div>
+        </div>""", unsafe_allow_html=True)
 
     st.divider()
 
@@ -467,18 +485,25 @@ if st.session_state.resume_data and st.session_state.jd_data:
             reason   = ", ".join(gap_hits) if gap_hits else "core role foundations"
             diff_col = _diff_colors.get(course["difficulty"], "#94a3b8")
             st.markdown(f"""
-            <div style="background:{_card_bg};border-left:5px solid {_card_bdr};
-                        padding:1.2rem;border-radius:8px;margin:.8rem 0;
-                        box-shadow:0 2px 8px rgba(0,0,0,.25);">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <h4 style="margin:0;color:{_card_txt};">Step {i}: {course['title']}</h4>
-                    <span style="background:{diff_col}22;color:{diff_col};padding:.3rem .8rem;
-                                 border-radius:16px;font-size:.85rem;font-weight:600;">
-                        {course['duration']}h &nbsp;·&nbsp; {course['difficulty'].title()}
-                    </span>
+            <div style="background:{_card_bg};border-left:4px solid {diff_col};
+                        padding:1.3rem 1.4rem;border-radius:8px;margin:.8rem 0;
+                        box-shadow:0 2px 8px rgba(0,0,0,.2);position:relative;">
+                <div style="position:absolute;left:-13px;top:18px;background:{'#0f172a' if is_dark else '#f1f5f9'};
+                            color:#94a3b8;width:26px;height:26px;border-radius:50%;
+                            text-align:center;line-height:26px;font-size:.85rem;font-weight:700;
+                            border:2px solid {diff_col};">{i}</div>
+                <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;">
+                    <div>
+                        <div style="font-weight:600;font-size:1.1rem;color:{_card_txt};margin-bottom:.3rem;">{course['title']}</div>
+                        <div style="color:{_card_sub};font-size:.92rem;margin-bottom:.5rem;">{', '.join(course['skills'])}</div>
+                        <div style="color:{_card_txt};font-size:.95rem;">{course['why']}</div>
+                        <div style="color:{_card_sub};font-size:.88rem;margin-top:.4rem;">Closes gaps in: <em>{reason}</em></div>
+                    </div>
+                    <div style="text-align:right;min-width:90px;">
+                        <div style="font-weight:700;color:{diff_col};font-size:1.1rem;">{course['duration']}h</div>
+                        <div style="font-size:.8rem;color:#64748b;margin-top:.2rem;">{course['difficulty'].title()}</div>
+                    </div>
                 </div>
-                <p style="margin:.7rem 0 0;color:{_card_txt};"><strong>Skills covered:</strong> {', '.join(course['skills'])}</p>
-                <p style="margin:.3rem 0 0;color:{_card_sub};font-size:.92rem;"><strong>Why this step:</strong> Closes gaps in <em>{reason}</em></p>
             </div>
             """, unsafe_allow_html=True)
 
