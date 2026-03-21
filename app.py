@@ -30,11 +30,11 @@ DARK_CSS = """
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
     @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
     .stApp { background-color: #0a0a0a; color: #e0e0e0; animation: fadeIn .5s ease; }
-    h1 { color:#ffffff; font-size:2.6rem; font-weight:600; letter-spacing:-0.5px; margin-bottom:0.6rem; }
-    h2 { color:#f5f5f5; font-size:1.85rem; font-weight:500; margin:2.4rem 0 1.1rem; }
-    h3 { color:#e0e0e0; font-size:1.45rem; font-weight:500; margin:1.8rem 0 0.9rem; }
+    h1 { color:#ffffff; font-size:2.6rem; font-weight:600; letter-spacing:-0.5px; margin-bottom:0.6rem; text-align:center; }
+    h2 { color:#f5f5f5; font-size:1.85rem; font-weight:500; margin:2.4rem 0 1.1rem; text-align:center; }
+    h3 { color:#e0e0e0; font-size:1.45rem; font-weight:500; margin:1.8rem 0 0.9rem; text-align:center; }
     .stButton>button {
-        background:#ffffff; color:#000000 !important;
+        width:100%; background:#ffffff; color:#000000 !important;
         border:none; border-radius:6px; padding:0.75rem 1.6rem;
         font-weight:600; font-size:1rem; transition:all 0.18s ease;
     }
@@ -80,7 +80,7 @@ LIGHT_CSS = """
     @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
     .stApp { background-color: #f8fafc; color: #1e293b; animation: fadeIn .5s ease; }
     .block-container { padding-top: 1rem; }
-    h1,h2,h3 { color: #0f172a; }
+    h1,h2,h3 { color: #0f172a; text-align:center; }
     .stButton>button {
         width:100%; height:3rem;
         background:linear-gradient(90deg,#0ea5e9,#6366f1);
@@ -262,46 +262,45 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# ── Hero Section ─────────────────────────────────────────────────────────────
-_hero_bg  = "#0a0a0a" if theme == "Dark Pro" else "#f1f5f9"
-_hero_h1  = "#ffffff" if theme == "Dark Pro" else "#0f172a"
-_hero_sub = "#aaaaaa" if theme == "Dark Pro" else "#475569"
-st.markdown(f"""
-<div style="text-align:center;padding:2.5rem 0;background:{_hero_bg};
-            border-radius:10px;margin-bottom:2rem;
-            border:1px solid {'#222222' if theme=='Dark Pro' else '#e2e8f0'}">
-    <h1 style="color:{_hero_h1};margin:0;font-size:2.6rem;font-weight:600;letter-spacing:-0.5px;">
-        Adaptive Onboarding Engine
-    </h1>
-    <p style="color:{_hero_sub};font-size:1.18rem;max-width:720px;margin:.8rem auto 0;">
-        Skill-gap driven &nbsp;·&nbsp; Personalized &nbsp;·&nbsp; Enterprise-grade learning paths
-    </p>
-</div>
-""", unsafe_allow_html=True)
-st.divider()
+# ── Hero + Upload Section ────────────────────────────────────────────────────
+with st.container():
+    _hero_bg  = "#0a0a0a" if theme == "Dark Pro" else "#f1f5f9"
+    _hero_h1  = "#ffffff" if theme == "Dark Pro" else "#0f172a"
+    _hero_sub = "#aaaaaa" if theme == "Dark Pro" else "#475569"
+    st.markdown(f"""
+    <div style="text-align:center;padding:2.5rem 0;background:{_hero_bg};
+                border-radius:10px;margin-bottom:2rem;
+                border:1px solid {'#222222' if theme=='Dark Pro' else '#e2e8f0'}">
+        <h1 style="color:{_hero_h1};margin:0;font-size:2.6rem;font-weight:600;letter-spacing:-0.5px;">
+            Adaptive Onboarding Engine
+        </h1>
+        <p style="color:{_hero_sub};font-size:1.18rem;max-width:720px;margin:.8rem auto 0;">
+            Skill-gap driven &nbsp;·&nbsp; Personalized &nbsp;·&nbsp; Enterprise-grade learning paths
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.divider()
 
-# ── Quick Test Buttons ────────────────────────────────────────────────────────
-st.markdown("#### ⚡ Try a Sample Profile")
-b1, b2, b3, b4, b5 = st.columns(5)
-if b1.button("🧑💻 Junior Dev",      use_container_width=True):
-    st.session_state.resume_data = SAMPLES["junior"];      st.session_state.jd_data = JD_SAMPLES["junior"]
-if b2.button("👨💼 Senior Engineer", use_container_width=True):
-    st.session_state.resume_data = SAMPLES["senior"];      st.session_state.jd_data = JD_SAMPLES["senior"]
-if b3.button("💼 Sales Role",        use_container_width=True):
-    st.session_state.resume_data = SAMPLES["sales"];       st.session_state.jd_data = JD_SAMPLES["sales"]
-if b4.button("📣 Marketing Role",    use_container_width=True):
-    st.session_state.resume_data = SAMPLES["marketing"];   st.session_state.jd_data = JD_SAMPLES["marketing"]
-if b5.button("🔀 Cross-Domain",      use_container_width=True):
-    st.session_state.resume_data = SAMPLES["crossdomain"]; st.session_state.jd_data = JD_SAMPLES["crossdomain"]
+    st.markdown("#### ⚡ Try a Sample Profile")
+    b1, b2, b3, b4, b5 = st.columns(5)
+    if b1.button("🧑💻 Junior Dev",      use_container_width=True):
+        st.session_state.resume_data = SAMPLES["junior"];      st.session_state.jd_data = JD_SAMPLES["junior"]
+    if b2.button("👨💼 Senior Engineer", use_container_width=True):
+        st.session_state.resume_data = SAMPLES["senior"];      st.session_state.jd_data = JD_SAMPLES["senior"]
+    if b3.button("💼 Sales Role",        use_container_width=True):
+        st.session_state.resume_data = SAMPLES["sales"];       st.session_state.jd_data = JD_SAMPLES["sales"]
+    if b4.button("📣 Marketing Role",    use_container_width=True):
+        st.session_state.resume_data = SAMPLES["marketing"];   st.session_state.jd_data = JD_SAMPLES["marketing"]
+    if b5.button("🔀 Cross-Domain",      use_container_width=True):
+        st.session_state.resume_data = SAMPLES["crossdomain"]; st.session_state.jd_data = JD_SAMPLES["crossdomain"]
 
-st.divider()
+    st.divider()
 
-# ── File Uploaders ────────────────────────────────────────────────────────────
-col1, col2 = st.columns(2)
-with col1:
-    resume_file = st.file_uploader("📄 Upload Resume (PDF)", type="pdf")
-with col2:
-    jd_file = st.file_uploader("📋 Upload Job Description (PDF or TXT)", type=["pdf", "txt"])
+    col1, col2 = st.columns(2)
+    with col1:
+        resume_file = st.file_uploader("📄 Upload Resume (PDF)", type="pdf")
+    with col2:
+        jd_file = st.file_uploader("📋 Upload Job Description (PDF or TXT)", type=["pdf", "txt"])
 
 # ── FEATURE 1: Staged spinners ────────────────────────────────────────────────
 if st.button("🚀 Generate My Personalized Pathway", type="primary", use_container_width=True):
@@ -355,19 +354,20 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.markdown(f"### ✅ **{from_role}** → **{to_role}**")
 
     # ── Skills pills ──────────────────────────────────────────────────────────
-    sc1, sc2 = st.columns(2)
-    with sc1:
-        st.markdown("#### 🟢 Matched Skills")
-        if matched:
-            st.markdown(" ".join([f"<span class='skill-pill'>✅ {s}</span>" for s in sorted(matched)]), unsafe_allow_html=True)
-        else:
-            st.warning("No matching skills found.")
-    with sc2:
-        st.markdown("#### 🔴 Skill Gaps")
-        if gaps:
-            st.markdown(" ".join([f"<span class='gap-pill'>❌ {s}</span>" for s in sorted(gaps)]), unsafe_allow_html=True)
-        else:
-            st.success("🎉 No gaps — you're already qualified!"); st.stop()
+    with st.container():
+        sc1, sc2 = st.columns(2)
+        with sc1:
+            st.markdown("#### 🟢 Matched Skills")
+            if matched:
+                st.markdown(" ".join([f"<span class='skill-pill'>✅ {s}</span>" for s in sorted(matched)]), unsafe_allow_html=True)
+            else:
+                st.warning("No matching skills found.")
+        with sc2:
+            st.markdown("#### 🔴 Skill Gaps")
+            if gaps:
+                st.markdown(" ".join([f"<span class='gap-pill'>❌ {s}</span>" for s in sorted(gaps)]), unsafe_allow_html=True)
+            else:
+                st.success("🎉 No gaps — you're already qualified!"); st.stop()
 
     st.divider()
 
@@ -407,11 +407,12 @@ if st.session_state.resume_data and st.session_state.jd_data:
     coverage_delta  = f"{missing_skills_count} gap(s) to close"
     missing_delta   = f"out of {len(jd_skills)} required"
 
-    st.markdown("#### 🧠 Skill Intelligence Metrics")
-    sim1, sim2, sim3 = st.columns(3)
-    sim1.metric("📊 Skill Coverage",      f"{skill_coverage_pct}%",  coverage_delta)
-    sim2.metric("❌ Missing Skills",       str(missing_skills_count), missing_delta)
-    sim3.metric("🎯 Role Readiness Score", f"{role_readiness_score}%", readiness_delta)
+    with st.container():
+        st.markdown("#### 🧠 Skill Intelligence Metrics")
+        sim1, sim2, sim3 = st.columns(3)
+        sim1.metric("📊 Skill Coverage",      f"{skill_coverage_pct}%",  coverage_delta)
+        sim2.metric("❌ Missing Skills",       str(missing_skills_count), missing_delta)
+        sim3.metric("🎯 Role Readiness Score", f"{role_readiness_score}%", readiness_delta)
 
     st.divider()
 
@@ -429,22 +430,23 @@ if st.session_state.resume_data and st.session_state.jd_data:
     impact_saved   = BASELINE_HOURS - total_hours
     impact_pct     = round((impact_saved / BASELINE_HOURS) * 100) if impact_saved > 0 else 0
 
-    st.subheader("📊 Impact Analysis")
-    if impact_saved > 0:
-        st.success(
-            f"🚀 Your AI-optimized path takes **{total_hours}h** vs the **{BASELINE_HOURS}h** "
-            f"standard baseline — saving you **{impact_saved} hours ({impact_pct}% faster)!**"
-        )
-    else:
-        st.info(
-            f"Your path is **{total_hours}h** — comparable to the {BASELINE_HOURS}h baseline. "
-            f"This is a comprehensive role transition."
-        )
+    with st.container():
+        st.subheader("📊 Impact Analysis")
+        if impact_saved > 0:
+            st.success(
+                f"🚀 Your AI-optimized path takes **{total_hours}h** vs the **{BASELINE_HOURS}h** "
+                f"standard baseline — saving you **{impact_saved} hours ({impact_pct}% faster)!**"
+            )
+        else:
+            st.info(
+                f"Your path is **{total_hours}h** — comparable to the {BASELINE_HOURS}h baseline. "
+                f"This is a comprehensive role transition."
+            )
 
-    ia1, ia2, ia3 = st.columns(3)
-    ia1.metric("⏱️ Optimized Path Time",  f"{total_hours}h",      f"-{impact_saved}h vs baseline")
-    ia2.metric("📋 Baseline Onboarding",   f"{BASELINE_HOURS}h",   "Standard industry average")
-    ia3.metric("⚡ Improvement",           f"{impact_pct}%",       f"{impact_saved}h saved")
+        ia1, ia2, ia3 = st.columns(3)
+        ia1.metric("⏱️ Optimized Path Time",  f"{total_hours}h",      f"-{impact_saved}h vs baseline")
+        ia2.metric("📋 Baseline Onboarding",   f"{BASELINE_HOURS}h",   "Standard industry average")
+        ia3.metric("⚡ Improvement",           f"{impact_pct}%",       f"{impact_saved}h saved")
 
     # ── Skill Intelligence Panel (Upgrade 4) ──────────────────────────────────
     coverage_ratio = len(matched) / max(len(jd_skills), 1)
@@ -742,33 +744,23 @@ if st.session_state.resume_data and st.session_state.jd_data:
         exp_yrs = rd.get("experience_years") or 0
         bonus   = build_bonus_courses(gaps, candidate_skills, exp_yrs)
         if bonus:
-            st.markdown("")
             _bc_bg  = "#111111" if is_dark else "#f8fafc"
             _bc_bdr = "#333333" if is_dark else "#e2e8f0"
             _bc_h   = "#ffffff" if is_dark else "#0f172a"
             _bc_sub = "#777777" if is_dark else "#64748b"
             _bc_rsn = "#aaaaaa" if is_dark else "#475569"
-            st.markdown(f"""
-            <div style="background:{_bc_bg};border:1px solid {_bc_bdr};border-radius:10px;
-                        padding:1.2rem 1.4rem;margin:1rem 0;">
-                <div style="font-weight:700;font-size:1.05rem;color:{_bc_h};margin-bottom:.2rem;">
-                    🚀 Bonus: High-Value Courses for Your Career Growth
-                </div>
-                <div style="font-size:.88rem;color:{_bc_sub};margin-bottom:.8rem;">
-                    Based on your experience level & market trends — not required, but highly recommended
-                </div>
-            """, unsafe_allow_html=True)
-            for bc in bonus:
-                st.markdown(f"""
-                <div style="border-left:3px solid {'#444444' if is_dark else '#0ea5e9'};
-                            padding:.6rem 1rem;margin:.5rem 0;border-radius:0 6px 6px 0;
-                            background:{'#1a1a1a' if is_dark else '#f0f9ff'};">
-                    <span style="font-weight:600;color:{_bc_h};">{bc['title']}</span>
-                    <span style="color:{_bc_sub};font-size:.85rem;"> &nbsp;·&nbsp; {bc['duration']}h</span><br>
-                    <span style="color:{_bc_rsn};font-size:.88rem;">{bc['reason']}</span>
-                </div>
-                """, unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            with st.expander("🚀 Bonus: High-Value Courses for Your Career Growth", expanded=False):
+                st.caption("Based on your experience level & market trends — not required, but highly recommended")
+                for bc in bonus:
+                    st.markdown(f"""
+                    <div style="border-left:3px solid {'#444444' if is_dark else '#0ea5e9'};
+                                padding:.6rem 1rem;margin:.5rem 0;border-radius:0 6px 6px 0;
+                                background:{'#1a1a1a' if is_dark else '#f0f9ff'};">
+                        <span style="font-weight:600;color:{_bc_h};">{bc['title']}</span>
+                        <span style="color:{_bc_sub};font-size:.85rem;"> &nbsp;·&nbsp; {bc['duration']}h</span><br>
+                        <span style="color:{_bc_rsn};font-size:.88rem;">{bc['reason']}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
 
         # ── Timeline bar ────────────────────────────────────────────────────────────
         df_tl = pd.DataFrame({
@@ -906,17 +898,18 @@ if st.session_state.resume_data and st.session_state.jd_data:
     st.divider()
 
     # ── Export Panel ──────────────────────────────────────────────────────────
-    _card_bg  = "#111111" if is_dark else "#ffffff"
-    _card_h   = "#ffffff" if is_dark else "#0f172a"
-    _export_sub = "#777777" if is_dark else "#64748b"
-    st.markdown(f"""
-    <div style="background:{_card_bg};padding:1.5rem;border-radius:16px;
-                margin-top:1rem;border:1px solid {'#334155' if is_dark else '#e2e8f0'}">
-        <h3 style="color:{_card_h};margin:0 0 .5rem 0;">📤 Export & Share Your Plan</h3>
-        <p style="color:{_export_sub};margin:0;">Download your personalized roadmap or share with your manager</p>
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown("")
+    with st.container():
+        _card_bg  = "#111111" if is_dark else "#ffffff"
+        _card_h   = "#ffffff" if is_dark else "#0f172a"
+        _export_sub = "#777777" if is_dark else "#64748b"
+        st.markdown(f"""
+        <div style="background:{_card_bg};padding:1.5rem;border-radius:16px;
+                    margin-top:1rem;border:1px solid {'#334155' if is_dark else '#e2e8f0'}">
+            <h3 style="color:{_card_h};margin:0 0 .5rem 0;">📤 Export & Share Your Plan</h3>
+            <p style="color:{_export_sub};margin:0;">Download your personalized roadmap or share with your manager</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("")
 
     # build PDF + CSV once
     pdf_buffer = io.BytesIO()
@@ -960,24 +953,24 @@ if st.session_state.resume_data and st.session_state.jd_data:
     txt_content = f"AI Onboarding Plan: {from_role} → {to_role}\nTotal: {total_hours}h | Saved: {hours_saved}h\n\n" + \
                   "\n".join([f"{i}. {c['title']} ({c['duration']}h) — {c['why']}" for i, c in enumerate(pathway, 1)])
 
-    ex1, ex2, ex3 = st.columns(3)
-    with ex1:
-        st.download_button("📄 Download PDF",    pdf_buffer,  "Onboarding_Roadmap.pdf",      "application/pdf", use_container_width=True)
-    with ex2:
-        st.download_button("📊 Export CSV",      csv_data,    "onboarding_timeline.csv",     "text/csv",        use_container_width=True)
-    with ex3:
-        st.download_button("📧 Email to HR",    txt_content, "onboarding_plan.txt",         "text/plain",      use_container_width=True)
+        ex1, ex2, ex3 = st.columns(3)
+        with ex1:
+            st.download_button("📄 Download PDF",    pdf_buffer,  "Onboarding_Roadmap.pdf",      "application/pdf", use_container_width=True)
+        with ex2:
+            st.download_button("📊 Export CSV",      csv_data,    "onboarding_timeline.csv",     "text/csv",        use_container_width=True)
+        with ex3:
+            st.download_button("📧 Email to HR",    txt_content, "onboarding_plan.txt",         "text/plain",      use_container_width=True)
 
     # ── Impact Scorecard ──────────────────────────────────────────────────────
-    st.markdown("### 🚀 Your Onboarding Impact Score")
-    sc1, sc2, sc3 = st.columns(3)
-    with sc1:
-        st.metric("⏱️ Time Saved", f"{hours_saved} hours", f"{efficiency}% faster")
-    with sc2:
-        st.metric("🎯 Skill Coverage", "100%", f"All {len(gaps)} gaps closed")
-    with sc3:
-        confidence = min(99, 70 + len(matched) * 3)
-        st.metric("💪 Confidence Score", f"{confidence}%", "Ready for Day 1")
+    with st.expander("🚀 Your Onboarding Impact Score", expanded=False):
+        sc1, sc2, sc3 = st.columns(3)
+        with sc1:
+            st.metric("⏱️ Time Saved", f"{hours_saved} hours", f"{efficiency}% faster")
+        with sc2:
+            st.metric("🎯 Skill Coverage", "100%", f"All {len(gaps)} gaps closed")
+        with sc3:
+            confidence = min(99, 70 + len(matched) * 3)
+            st.metric("💪 Confidence Score", f"{confidence}%", "Ready for Day 1")
 
     # ── FEATURE 4: PDF Download (legacy — kept for compatibility) ────────────────────
     if st.button("📄 Download My Roadmap as PDF", help="Download your personalized learning roadmap as a PDF"):
