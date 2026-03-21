@@ -346,6 +346,8 @@ if st.session_state.resume_data and st.session_state.jd_data:
     gap_result       = compute_gaps(candidate_skills, jd_skills)
     gaps             = gap_result["gaps"]
     matched          = gap_result["matched"]
+    sim_scores       = gap_result.get("scores", {})     # jd_skill → cosine score
+    best_match       = gap_result.get("best_match", {}) # jd_skill → best candidate skill
 
     from_role = rd.get("main_role", rd.get("role", "Candidate"))
     to_role   = jd.get("main_role", jd.get("role", "Target Role"))
@@ -366,13 +368,23 @@ if st.session_state.resume_data and st.session_state.jd_data:
         with sc1:
             st.markdown("#### ✅ Skills You Already Have")
             if matched:
-                st.markdown(" ".join([f"<span class='skill-pill'>✅ {s}</span>" for s in sorted(matched)]), unsafe_allow_html=True)
+                pills = " ".join(
+                    f"<span class='skill-pill' title='similarity: {sim_scores.get(s, 1.0):.2f}'>"
+                    f"✅ {s} <span style='opacity:.5;font-size:11px;'>{sim_scores.get(s, 1.0):.2f}</span></span>"
+                    for s in sorted(matched)
+                )
+                st.markdown(pills, unsafe_allow_html=True)
             else:
                 st.warning("No matching skills found.")
         with sc2:
             st.markdown("#### 🚨 Gaps to Close")
             if gaps:
-                st.markdown(" ".join([f"<span class='gap-pill'>❌ {s}</span>" for s in sorted(gaps)]), unsafe_allow_html=True)
+                pills = " ".join(
+                    f"<span class='gap-pill' title='best score: {sim_scores.get(s, 0.0):.2f}'>"
+                    f"❌ {s} <span style='opacity:.5;font-size:11px;'>{sim_scores.get(s, 0.0):.2f}</span></span>"
+                    for s in sorted(gaps)
+                )
+                st.markdown(pills, unsafe_allow_html=True)
             else:
                 st.success("🎉 No gaps — you're already qualified!"); st.stop()
 
@@ -386,16 +398,18 @@ if st.session_state.resume_data and st.session_state.jd_data:
     _gap_lo_col = "#555555" if is_dark else "#d97706"
     st.markdown("#### 📊 Skill Coverage vs Role Requirements")
     for skill in sorted(jd_skills):
-        have  = skill in candidate_skills
-        pct   = 85 if have else (30 + (hash(skill) % 30))
+        have  = skill in matched
+        score = sim_scores.get(skill, 1.0 if have else 0.0)
+        pct   = round(score * 100)
         color = _have_col if have else (_gap_hi_col if pct < 40 else _gap_lo_col)
-        label = "✓ Have it" if have else "✗ Gap"
+        label = f"✓ {pct}%" if have else f"✗ {pct}%"
+        match_hint = f" → {best_match[skill]}" if best_match.get(skill) and not have else ""
         st.markdown(
             f"<div style='display:flex;align-items:center;margin-bottom:6px;gap:10px;'>"
             f"<span style='width:160px;color:{_skill_lbl};font-size:13px;'>{skill}</span>"
             f"<div style='flex:1;background:{_bar_track};border-radius:8px;height:14px;'>"
             f"<div style='width:{pct}%;background:{color};height:14px;border-radius:8px;'></div></div>"
-            f"<span style='width:70px;color:{color};font-size:12px;'>{label}</span></div>",
+            f"<span style='width:90px;color:{color};font-size:12px;'>{label}{match_hint}</span></div>",
             unsafe_allow_html=True
         )
 
@@ -1059,13 +1073,15 @@ if st.session_state.resume_data and st.session_state.jd_data:
         st.divider()
 
         # Step 2 — Match Skills
-        st.markdown("##### Step 2 · Match Skills")
+        st.markdown("##### Step 2 · Semantic Skill Matching")
+        st.caption("Model: `all-MiniLM-L6-v2` · Method: cosine similarity · Threshold: 0.65")
         if matched:
-            st.success(
-                f"Using semantic similarity (cosine ≥ 0.70), the AI found **{len(matched)} skills "
-                f"you already have** that satisfy the role requirements:  \n"
-                f"✅ {', '.join(sorted(matched))}"
-            )
+            rows = []
+            for s in sorted(matched):
+                rows.append({"JD Skill": s, "Best Match (Resume)": best_match.get(s, s), "Cosine Score": f"{sim_scores.get(s, 1.0):.4f}", "Result": "✅ Matched"})
+            for s in sorted(gaps):
+                rows.append({"JD Skill": s, "Best Match (Resume)": best_match.get(s, "—"), "Cosine Score": f"{sim_scores.get(s, 0.0):.4f}", "Result": "❌ Gap"})
+            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
         else:
             st.warning("No direct skill matches were found between your resume and the job description.")
         st.divider()

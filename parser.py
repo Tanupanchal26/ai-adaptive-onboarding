@@ -129,27 +129,10 @@ def _call_ollama(text: str) -> dict:
     return {"error": f"Both {PRIMARY_MODEL} and {FALLBACK_MODEL} returned invalid JSON"}
 
 # ── Fuzzy skill matching ──────────────────────────────────────────────────────
-try:
-    from sentence_transformers import SentenceTransformer, util
-    _embedder = SentenceTransformer("all-MiniLM-L6-v2")
-    FUZZY_AVAILABLE = True
-except ImportError:
-    FUZZY_AVAILABLE = False
-
+# Thin shim — delegates to semantic_engine (single shared model instance).
 def fuzzy_match_skills(raw_skills: list, standard_skills: set, threshold: float = 0.65) -> set:
-    if not FUZZY_AVAILABLE:
-        std_lower = {s.lower(): s for s in standard_skills}
-        return {std_lower[s.lower()] for s in raw_skills if s.lower() in std_lower}
-    std_list = list(standard_skills)
-    matched = set()
-    raw_emb = _embedder.encode(raw_skills, convert_to_tensor=True)
-    std_emb = _embedder.encode(std_list,   convert_to_tensor=True)
-    for i in range(len(raw_skills)):
-        scores  = util.cos_sim(raw_emb[i], std_emb)[0]
-        best    = int(scores.argmax())
-        if float(scores[best]) >= threshold:
-            matched.add(std_list[best])
-    return matched
+    from semantic_engine import normalize_to_taxonomy
+    return normalize_to_taxonomy(raw_skills, standard_skills, threshold)
 
 # ── Text extraction ───────────────────────────────────────────────────────────
 def extract_text(file_bytes: bytes, filename: str) -> str:

@@ -28,30 +28,29 @@ DIFFICULTY_ORDER = {"beginner": 0, "intermediate": 1, "advanced": 2}
 
 def normalize_skills(skills: list) -> set:
     """
-    Map raw skill list to standard taxonomy.
-    Uses fuzzy cosine matching (sentence-transformers) if available,
-    otherwise falls back to exact lowercase set match.
+    Map raw skill list to standard taxonomy via semantic similarity.
+    Single call into semantic_engine — no duplicate model instance.
     """
-    from parser import fuzzy_match_skills
-    return fuzzy_match_skills(skills, STANDARD_SKILLS)
+    from semantic_engine import normalize_to_taxonomy
+    return normalize_to_taxonomy(list(skills), STANDARD_SKILLS)
 
 
 def compute_gaps(candidate_skills: set, jd_skills: set, threshold: float = 0.65) -> dict:
     """
-    Semantic skill gap analysis — delegates to semantic_engine.semantic_skill_match.
-    Falls back to set-difference if sentence-transformers unavailable.
+    Semantic skill gap analysis.
+    Returns matched, gaps, scores, best_match, coverage_pct, and extra.
     """
     from semantic_engine import semantic_skill_match
-    matched_list, gaps_list = semantic_skill_match(
+    result = semantic_skill_match(
         list(candidate_skills), list(jd_skills), threshold=threshold
     )
-    matched = set(matched_list)
-    gaps    = set(gaps_list)
     return {
-        "gaps":         gaps,
-        "matched":      matched,
+        "gaps":         set(result.gaps),
+        "matched":      set(result.matched),
+        "scores":       result.scores,        # jd_skill → cosine score
+        "best_match":   result.best_match,    # jd_skill → best candidate skill
         "extra":        candidate_skills - jd_skills,
-        "coverage_pct": round(len(matched) / max(len(jd_skills), 1) * 100)
+        "coverage_pct": result.coverage_pct,
     }
 
 
