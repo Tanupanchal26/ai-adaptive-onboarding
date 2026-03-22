@@ -282,5 +282,5 @@ For the demo personas → no key needed at all
 
 ---
 
-*Built by **Tanya Panchal** · SkillBridge Hackathon 2025*
+* SkillBridge Hackathon 2026*
 *Powered by LLaMA 3.2 · GPT-4o-mini · sentence-transformers · NetworkX · Streamlit · PyMuPDF*
