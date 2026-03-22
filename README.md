@@ -14,8 +14,8 @@
 | | Link |
 |---|---|
 | 🚀 **Live App** | [https://ai-adaptive.streamlit.app/](https://ai-adaptive.streamlit.app/) — click any persona, no login needed |
-| 🎬 **Demo Video** | ⚠️ REPLACE THIS → [Watch the 2-min walkthrough](https://youtube.com/YOUR_LINK) |
-| 📊 **5-Slide Deck** | ⚠️ REPLACE THIS → [View the presentation](https://slides.com/YOUR_LINK) |
+| 🎬 **Demo Video** | ⚠️ REPLACE THIS → [Watch the 2-min walkthrough]([https://youtube.com/YOUR_LINK](https://drive.google.com/file/d/1s-PGnysEhXAVUj2eCx1PkN_iGX0gOkg0/view?usp=drivesdk)) |
+| 📊 **5-Slide Deck** | ⚠️ REPLACE THIS → [View the presentation](https://drive.google.com/file/d/1tAtDKwcUdOA6YQR_oqpUofOhV-g86rDT/view?usp=drivesdk) |
 
 No API key. No file upload. Just click **Junior Dev** or **Warehouse** and watch the engine work.
 
