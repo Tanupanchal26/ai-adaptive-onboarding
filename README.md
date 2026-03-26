@@ -1,6 +1,6 @@
 # 🎯 SkillBridge — Stop Wasting People's Time on Day One
 
-> *What if your first week at a new job only taught you what you actually didn't know?*
+*What if your first week at a new job only taught you what you actually didn't know?*
 
 [![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.35-red?logo=streamlit)](https://streamlit.io)
